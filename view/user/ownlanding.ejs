@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Bankai - Shop</title>
+    <style>
+        html, body {
+            height: 100%; /* Set full height */
+            margin: 0; /* Remove default margin */
+            overflow-x: hidden; /* Prevent horizontal overflow */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column; /* Allows for flex column layout */
+        }
+
+        .banner {
+            background-color: #17a2b8; /* Info color */
+        }
+
+        .content {
+            flex: 1; /* Allow content to grow and fill the available space */
+            display: flex; /* Use flex for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            flex-direction: column; /* Stack elements vertically */
+            text-align: center; /* Center text */
+            padding: 20px; /* Padding for content */
+        }
+
+        .image-container {
+            width: 80%; /* Adjust width as needed */
+            max-width: 800px; /* Max width for larger screens */
+            height: auto; /* Auto height */
+        }
+
+        .product-container {
+            display: flex; /* Flexbox for product display */
+            justify-content: space-around; /* Space around products */
+            margin-top: 30px; /* Space above products */
+        }
+
+        .product {
+            width: 45%; /* Width for each product */
+            text-align: center; /* Center text for products */
+        }
+
+        footer {
+            background-color: #f8f9fa; /* Light color */
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-text {
+            color: #6c757d; /* Bootstrap's muted color */
+            margin-bottom: 0; /* Remove bottom margin */
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            letter-spacing: 2px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .product-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #000;
+            font-size: 16px;
+        }
+
+        .shop-all-btn {
+            display: block;
+            width: 200px;
+            margin: 40px auto;
+            padding: 15px 30px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .shop-all-btn:hover {
+            background-color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+
+        /* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        } */
+
+        footer {
+            background-color: #f9f9f9;
+            padding: 60px 0;
+            color: #333;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            color: #444;
+        }
+
+        .footer-section p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #007BFF;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            color: #666;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: #007BFF;
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .contact-info a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .footer-bottom {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .footer-bottom a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .footer-bottom .heart {
+            color: #ff4444;
+        }
+
+        @media (max-width: 1024px) {
+            .footer-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">BANKAI</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">All Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Anime</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">signin / signup</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Promotional Banner -->
+    <div class="banner text-center bg-info text-white py-3">
+        <h5>25% OFF (ALMOST) EVERYTHING! USE CODE: SUMMER SALE</h5>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container content">
+        <div class="image-container">
+            <img src="/images/1120669.jpg" class="img-fluid" alt="Avengers Assemble" style="width: 100%; height: auto;">
+        </div>
+        
+        <h3 class="mt-4">It started with a simple idea: Create quality, well-designed products that I wanted myself.</h3>
+        
+        <div class="product-container">
+            <div class="product">
+                <img src="images/all-ninja-naruto-characters-peo1d7c1aqugno3e.jpg" class="img-fluid" alt="Naruto Collection" style="width: 100%; height: auto;">
+                <h5>Shop Naruto Collection</h5>
+            </div>
+            <div class="product">
+                <img src="/images/653b1708ebfc957156a75467570e2c21.jpg" class="img-fluid" alt="One Piece Collection" style="width: 100%; height: auto;">
+                <h5>Shop One Piece Collection</h5>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="container">
+        <h1>BEST SELLERS</h1>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 1" class="product-image">
+                <h2 class="product-title">Women's Boots Shoes MACA</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 2" class="product-image">
+                <h2 class="product-title">Women's Mnum Meaghan</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 3" class="product-image">
+                <h2 class="product-title">Men's Taia Commissioner</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 4" class="product-image">
+                <h2 class="product-title">Rush Men's Sneakers</h2>
+                <p class="product-price">$137.50</p>
+            </div>
+            
+            <!-- Additional product cards can be added here -->
+        </div>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 1" class="product-image">
+                <h2 class="product-title">Women's Boots Shoes MACA</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 2" class="product-image">
+                <h2 class="product-title">Women's Mnum Meaghan</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 3" class="product-image">
+                <h2 class="product-title">Men's Taia Commissioner</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 4" class="product-image">
+                <h2 class="product-title">Rush Men's Sneakers</h2>
+                <p class="product-price">$137.50</p>
+            </div>
+            
+            <!-- Additional product cards can be added here -->
+        </div>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 1" class="product-image">
+                <h2 class="product-title">Women's Boots Shoes MACA</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 2" class="product-image">
+                <h2 class="product-title">Women's Mnum Meaghan</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 3" class="product-image">
+                <h2 class="product-title">Men's Taia Commissioner</h2>
+                <p class="product-price">$137.00</p>
+            </div>
+            <div class="product-card">
+                <img src="/api/placeholder/200/200" alt="Product 4" class="product-image">
+                <h2 class="product-title">Rush Men's Sneakers</h2>
+                <p class="product-price">$137.50</p>
+            </div>
+            
+            <!-- Additional product cards can be added here -->
+        </div>
+        <a href="#" class="shop-all-btn">Shop All Products</a>
+    </div>
+    <footer></footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>About Footwear</h3>
+                <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-dribbble"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>Customer Care</h3>
+                <ul>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Returns/Exchange</a></li>
+                    <li><a href="#">Gift Voucher</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Special</a></li>
+                    <li><a href="#">Customer Services</a></li>
+                    <li><a href="#">Site Maps</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Information</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Delivery Information</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Order Tracking</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>News</h3>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Press</a></li>
+                    <li><a href="#">Exhibitions</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>Contact Information</h3>
+                <div class="contact-info">
+                    <p>291 SOUTH 21TH STREET,</p>
+                    <p>SUITE 721 NEW YORK NY 10016</p>
+                    <p>+ 1235 2355 98</p>
+                    <p><a href="mailto:INFO@YOURSITE.COM">INFO@YOURSITE.COM</a></p>
+                    <p><a href="https://YOURSITE.COM">YOURSITE.COM</a></p>
+                </div>
+            </div>
+        </div>
+
+       
+    </footer>
+    <footer class="text-center py-4">
+        <p class="footer-text">&copy; 2024 Bankai. All rights reserved.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
