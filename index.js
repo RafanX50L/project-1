@@ -3,6 +3,7 @@ const session = require("express-session");
 const mongoose = require('mongoose');
 const path = require('path');
 const cron = require('node-cron'); 
+const user_Controller = require('./controller/user_controller');
 require('dotenv').config();
 const passport = require('passport');
 require('./public/js/passport')
@@ -73,14 +74,16 @@ const adminRoute = require('./router/admin_route');
 
 app.use('/user', userRoute);
 app.use('/admin', adminRoute);
-
+app.get('/',user_Controller.landing)
 app.get('/auth/google/callback', 
     passport.authenticate('google', { 
         successRedirect: '/user/success', 
         failureRedirect: '/user/failure'
     })
 );
-
+app.get('*', (req, res) => {
+    res.render('user/404.ejs');
+});
 app.listen(3000, () => {
     console.log("Server is running on localhost:3000");
 });

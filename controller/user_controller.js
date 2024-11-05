@@ -301,8 +301,13 @@ const validation = async (req, res) => {
 };
 
 const landing = async (req, res) => {
-    const products = await Products.find();
-    res.render('user/landing.ejs', { products: products });
+    if(req.session.loggedIn){
+        res.redirect('/user/home')
+    }
+    else{
+        const products = await Products.find();
+        res.render('user/landing.ejs', { products: products });
+    }
 }
 
 const accountOverview = async (req, res) => {

@@ -28,7 +28,7 @@ user_route.use(async (req, res, next) => {
                 return next();
             } else {
                 req.session.destroy(() => {
-                    res.redirect('/user/login');
+                    res.redirect('/');
                 });
             }
         } catch (error) {
@@ -65,9 +65,6 @@ const writeData = (data) => {
 
 // Adjusted Routes without /user prefix
 user_route.get('/', user_Controller.landing);
-user_route.get('/error', (req, res) => {
-    res.render('user/404.ejs');
-});
 
 // Auth 
 user_route.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
