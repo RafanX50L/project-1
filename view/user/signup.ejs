@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Signup Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .image-section {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .image-section img {
+            width: 38vw;
+            height: 70vh;
+            border-radius: 10px;
+        }
+
+        .form-section {
+            flex: 1;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2d5a27;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .signup-btn:hover {
+            background: #3a7334;
+        }
+
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .signin-link {
+            text-align: center;
+        }
+
+        .signin-link a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            <img src="signup.jpg" alt="Anime Character">
+        </div>
+        <div class="form-section">
+            <h1>Get Started Now</h1>
+            <p>Enter your Credentials to access your account</p>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Enter your name" name="name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" placeholder="Enter your email" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter a strong password" name="password">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms">
+                    <label for="terms">I agree to the <a href="https://www.amazon.com/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=468496">terms & policy</a></label>
+                </div>
+                <p id="error" style="color: red;"></p>
+                <button type="submit" class="signup-btn">Signup</button>
+                
+                <div class="divider">or</div>
+                
+                <div class="social-buttons">
+                    <a style="text-decoration: none; color: inherit;" href="/user/auth/google">
+                        <button type="button" class="social-btn">
+                            <img style="width: 3vh;" src="images/googleicon.png" alt="Google">
+                            Sign in with Google
+                        </button>
+                    </a>
+                    <button class="social-btn">
+                        <img style="width: 3vh;" src="images/appleicon.jpg" alt="Apple">
+                        Sign in with Apple
+                    </button>
+                </div>
+                
+                <div class="signin-link">
+                    Have an account? <a href="/user/login">Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            console.log('Validating form');
+            const username = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('terms').checked;
+            const errorElement = document.getElementById('error');
+            
+            // Clear previous error messages
+            errorElement.textContent = '';
+
+            // Regular expression to match an email with a name before '@', and ending with 'gmail.com'
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+            // Validate email
+            if (username === '') {
+                errorElement.textContent = 'Email cannot be empty!';
+                return false;
+            }
+
+            if (!emailRegex.test(username)) {
+                errorElement.textContent = 'Invalid email format! Email must be in the format: name@gmail.com';
+                return false;
+            }
+
+            // Validate password
+            if (password === '') {
+                errorElement.textContent = 'Password cannot be empty!';
+                return false;
+            }
+
+            if (password.length < 6) {
+                errorElement.textContent = 'Password must be at least 6 characters long!';
+                return false;
+            }
+
+            // Validate checkbox
+            if (!rememberMe) {
+                errorElement.textContent = 'You must agree to terms & policy!';
+                return false;
+            }
+
+            // If everything is valid, return true
+            return true;
+        }
+
+        const handleSignup = async () => {
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/user/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, name, password }),
+            });
+
+            const result = await response.json();
+            console.log(result.message)
+            if (result.message === "success") {
+                // Navigate to OTP verification page or show a message
+                window.location.href = "/user/otp-validation"; // Replace with your OTP page URL
+            } else {
+                // Handle error
+                document.getElementById('error').textContent = result.message || 'Error signing up';
+            }
+        };
+
+        // Event listener for form submission
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent default form submission
+            if (validateForm()) {
+                handleSignup(); // Call signup function if validation passes
+            }
+        });
+    </script>
+</body>
+</html>

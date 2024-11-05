@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/admin/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="/admin/css/style.css" rel="stylesheet">
+
+    <!-- CropperJS -->
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css" rel="stylesheet">
+    <style>
+        .image-container {
+            position: relative;
+            width: 150px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    
+        .image-container img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+    
+        .image-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+    
+        .image-actions button {
+            flex: 1;
+            margin-right: 5px;
+        }
+    
+        .image-actions button:last-child {
+            margin-right: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+
+
+        <!-- Sidebar Start -->
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-secondary navbar-dark">
+                <a href="index.html" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>DarkPan</h3>
+                </a>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Jhon Doe</h6>
+                        <span>Admin</span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a href="/admin/dashboard" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                    <a href="/admin/Products" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Products</a>
+                    <a href="/admin/user" class="nav-item nav-link"><i class="fa fa-user-edit me-2"></i>User deatails</a>
+                    <a href="/admin/coupons" class="nav-item nav-link"><i class="fa fa-times me-2"></i>coupons</a>
+                    <a href="/admin/deals" class="nav-item nav-link"><i class="fa fa-handshake me-2"></i>Deals</a>
+                    <a href="/admin/orders" class="nav-item nav-link"><i class="fa fa-envelope me-2"></i>Orders</a>
+                    <a href="/admin/category" class="nav-item nav-link"><i class="far fa-file-alt"></i>category</a>
+                    <a href="/admin/Logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+                </div>
+            </nav>
+        </div>
+        <!-- Sidebar End -->
+
+
+        <!-- Content Start -->
+        <div class="content">
+            <!-- Navbar Start -->
+            <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+                <a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
+                    <h2 class="text-primary mb-0"><i class="fa fa-user-edit"></i></h2>
+                </a>
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <form class="d-none d-md-flex ms-4">
+                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                </form>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-envelope me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Message</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">See all message</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-bell me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Notificatin</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Profile updated</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">New user added</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Password changed</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">See all notifications</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <span class="d-none d-lg-inline-flex">John Doe</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">My Profile</a>
+                            <a href="#" class="dropdown-item">Settings</a>
+                            <a href="#" class="dropdown-item">Log Out</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- Navbar End -->
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-secondary rounded h-100 p-4">
+                    <h6 class="mb-4">Products Details</h6>
+                    <div class="table-responsive">
+                        <div class="col-12">
+                            <div class="bg-secondary rounded h-100 p-4">
+                                <div id="addProductForm">
+                                    <form id="productForm" action="/admin/products/add" method="POST" enctype="multipart/form-data">
+            
+                                        <div class="form-group">
+                                            <label for="product_name">Product Name</label>
+                                            <input type="text" class="form-control" id="product_name" name="product_name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="category">Category</label>
+                                            <select class="form-control" id="category" name="category" required>
+                                                <option value="">Select a category</option>
+                                                <% categories.forEach(category => { %>
+                                                    <option value="<%= category.category_name %>"><%= category.category_name %></option>
+                                                <% }) %>                                                
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="subCategory">Sub Category</label>
+                                            <input type="text" class="form-control" id="subCategory" name="sub_category" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="description">Description</label>
+                                            <input type="text" class="form-control" id="description" name="description" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="price">Price</label>
+                                            <input type="number" class="form-control" id="price" name="price" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="stock">Stock</label>
+                                            <input type="number" class="form-control" id="stock" name="stock" required>
+                                        </div>
+            
+                                        <!-- Image upload section with multiple image selection and cropping -->
+                                        <div class="form-group">
+                                            <label for="product_images">Product Images</label>
+                                            <input type="file" class="form-control" id="product_images" name="product_images" accept="image/*" multiple >
+                                            <!-- <input type="file" name="product_images" accept="image/*" multiple><br><br> -->
+                                            <!-- <input type="file" name="product_images" accept="image/*" multiple> -->
+                                        </div>
+                                        
+                                        <div id="image_preview_container" class="d-flex flex-wrap">
+                                            <!-- This is where the image previews will be inserted dynamically -->
+                                        </div>
+                                        
+            
+                                        <input type="hidden" id="cropped_image" name="cropped_image">
+                                        <button type="submit" class="btn btn-success">Add Product</button>
+            
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+
+
+            <!-- Footer Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-secondary rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 text-center text-sm-start">
+                            &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                        </div>
+                        <div class="col-12 col-sm-6 text-center text-sm-end">
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                            <br>Distributed By: <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer End -->
+        </div>
+        <!-- Content End -->
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- CropperJS -->
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+    <script>
+        let cropper;
+        const fileInput = document.getElementById('product_images');
+        const previewContainer = document.getElementById('image_preview_container');
+        const okButton = document.getElementById('okButton'); // OK button for saving the image
+        const cropButton = document.getElementById('cropButton'); // Crop button for cropping functionality
+    
+        fileInput.addEventListener('change', function (e) {
+            const files = e.target.files;
+    
+            // Clear previous image previews
+            previewContainer.innerHTML = '';
+    
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    // Create a container for each image
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('image-container');
+                    
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.classList.add('image-preview');
+    
+                    // Action buttons (Crop and Delete)
+                    const imageActions = document.createElement('div');
+                    imageActions.classList.add('image-actions');
+    
+                    const cropBtn = document.createElement('button');
+                    cropBtn.innerHTML = 'Crop';
+                    cropBtn.classList.add('btn', 'btn-secondary', 'crop-btn');
+                    cropBtn.type = 'button';
+                    imageActions.appendChild(cropBtn);
+    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = 'Delete';
+                    deleteBtn.classList.add('btn', 'btn-danger', 'delete-btn');
+                    deleteBtn.type = 'button';
+                    imageActions.appendChild(deleteBtn);
+    
+                    // Add crop functionality to the crop button
+                    cropBtn.addEventListener('click', function () {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+    
+                        // Initialize the cropper on image click
+                        cropper = new Cropper(img, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.65
+                        });
+    
+                        // Hide crop button and show OK button
+                        cropBtn.style.display = 'none';
+                        okButton.style.display = 'inline-block'; // Show the OK button
+                    });
+    
+                    // Add delete functionality to the delete button
+                    deleteBtn.addEventListener('click', function () {
+                        previewContainer.removeChild(imageContainer);
+                    });
+    
+                    // Append image and actions to container
+                    imageContainer.appendChild(img);
+                    imageContainer.appendChild(imageActions);
+                    previewContainer.appendChild(imageContainer);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        });
+    
+        // Click on the "OK" button
+        okButton.addEventListener('click', function () {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas();
+                const croppedBase64 = canvas.toDataURL(); // Get the cropped image in Base64
+    
+                // You can do whatever you want with the cropped image data here
+                console.log(croppedBase64); // For example, log the cropped image
+    
+                // Set the cropped image data to a hidden input field for form submission
+                document.getElementById('cropped_image').value = croppedBase64;
+    
+                // Destroy the cropper after saving
+                cropper.destroy();
+                okButton.style.display = 'none'; // Hide the OK button after saving
+            }
+        });
+    
+        // Form submission handling (including cropped image data if cropping was applied)
+        document.querySelector('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+    
+            const formData = new FormData(this);
+            
+            // Add any additional data to the form (e.g., cropped image)
+            const croppedImage = document.getElementById('cropped_image').value;
+            if (croppedImage) {
+                formData.append('cropped_image', croppedImage);
+            }
+    
+            fetch('/admin/category/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Handle server response
+            })
+            .catch(error => {
+                console.error('Error:', error); // Handle errors
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("productForm");
+            const productImages = document.getElementById("product_images");
+            const allowedExtensions = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+            const maxImageSize = 2 * 1024 * 1024; // 2MB
+    
+            // Form validation function
+            function validateForm(event) {
+                const productName = document.getElementById("product_name").value.trim();
+                const category = document.getElementById("category").value.trim();
+                const subCategory = document.getElementById("subCategory").value.trim();
+                const description = document.getElementById("description").value.trim();
+                const price = document.getElementById("price").value.trim();
+                const stock = document.getElementById("stock").value.trim();
+                const files = productImages.files;
+    
+                if (!productName || !category || !subCategory || !description || !price || !stock) {
+                    Swal.fire("Error", "Please fill out all fields.", "error");
+                    event.preventDefault();
+                    return false;
+                }
+    
+                if (isNaN(price) || price <= 0) {
+                    Swal.fire("Error", "Please enter a valid price.", "error");
+                    event.preventDefault();
+                    return false;
+                }
+    
+                if (isNaN(stock) || stock < 0) {
+                    Swal.fire("Error", "Please enter a valid stock number.", "error");
+                    event.preventDefault();
+                    return false;
+                }
+    
+                if (files.length === 0) {
+                    Swal.fire("Error", "Please select at least one image.", "error");
+                    event.preventDefault();
+                    return false;
+                }
+    
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (!allowedExtensions.includes(file.type)) {
+                        Swal.fire("Error", "Only JPEG, PNG, and GIF formats are allowed.", "error");
+                        event.preventDefault();
+                        return false;
+                    }
+    
+                    if (file.size > maxImageSize) {
+                        Swal.fire("Error", `Image ${file.name} exceeds the 2MB size limit.`, "error");
+                        event.preventDefault();
+                        return false;
+                    }
+                }
+    
+                return true;
+            }
+    
+            // Submit event listener with SweetAlert confirmation
+            form.addEventListener("submit", function(event) {
+                event.preventDefault(); // Prevent form submission first
+                if (validateForm(event)) {
+                    // Show SweetAlert confirmation
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you want to add this product?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, add it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // Proceed to submit the form
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+
+</html>

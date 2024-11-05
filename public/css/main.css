@@ -119,6 +119,10 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 
 /*//////////////////////////////////////////////////////////////////
 [ LOADDING ]*/
+a {
+  color: inherit; /* Inherits the color from the parent element */
+  text-decoration: none; /* Removes underline */
+}
 .animsition-loading-1 {
   position: absolute;
   top: 50%;
@@ -197,8 +201,11 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 [ Header Desktop ]*/
-
+body{
+  background-color: black;
+}
 .container-menu-desktop {
+  background-color: black;
   height: auto;
   width: 100%;
   position: relative;
@@ -348,6 +355,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 }
 
 .main-menu {
+
   list-style-type: none;
   margin: 0;
 
@@ -1934,10 +1942,11 @@ input.num-product::-webkit-inner-spin-button {
 .table-shopping-cart .column-3 {
   width: 120px;
   font-size: 16px;
+  padding-left: -100px;
 }
 
 .table-shopping-cart .column-4 {
-  width: 145px;
+  width: 150px;
   text-align: right;
 }
 
@@ -3329,4 +3338,44 @@ input.num-product::-webkit-inner-spin-button {
     padding: 20px;
   }
 
+}
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Hide the dropdown by default */
+.dropdown {
+  display: none;
+  position: absolute;
+  background-color: white; /* White background for the dropdown */
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+  border: 1px solid #ccc; /* Optional border */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  z-index: 1000;
+  width: 200px; /* You can adjust the width */
+}
+
+/* Show the dropdown when hovering over "All Products" */
+.dropdown-container:hover .dropdown {
+  display: block;
+}
+
+/* Style each dropdown item */
+.dropdown li {
+  padding: 5px 0;
+}
+
+/* Style the links */
+.dropdown li a {
+  text-decoration: none;
+  padding: 5px 10px;
+  display: block;
+  color: #333; /* Text color */
+}
+
+.dropdown li a:hover {
+  background-color: #f0f0f0; /* Highlight on hover */
 }

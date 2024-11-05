@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet"> 
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        .table-row:hover {
+    background-color: #f9fafb;
+}
+
+.table-cell {
+    padding: 0.75rem 1rem;
+}
+
+.delivery-btn {
+    background-color: #16a34a;
+    color: white;
+    padding: 0.375rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.delivery-btn:hover {
+    background-color: #15803d;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.alert-btn, .edit-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.alert-btn {
+    background-color: #3b82f6;
+}
+
+.alert-btn:hover {
+    background-color: #2563eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.edit-btn {
+    background-color: #10b981;
+}
+
+.edit-btn:hover {
+    background-color: #059669;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional: Add focus styles for accessibility */
+.delivery-btn:focus, .alert-btn:focus, .edit-btn:focus {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+}
+    </style>
+    <style>
+        body {
+            background-color: #111827;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #e5e7eb;
+        }
+        
+        .order-container {
+            max-width: 800px;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+        
+        .order-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #f3f4f6;
+            padding-left: 8px;
+            border-left: 4px solid #60a5fa;
+        }
+        
+        .product-card {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr;
+            gap: 24px;
+            padding: 24px;
+            background: #1f2937;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+            margin-bottom: 24px;
+            border: 1px solid #374151;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+            border-color: #4b5563;
+        }
+        
+        .product-image {
+            width: 120px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 20px;
+            border-right: 1px solid #374151;
+        }
+        
+        .delivery-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-left: 4px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            color: #e5e7eb;
+            font-size: 15px;
+            margin-top: 2px;
+        }
+        
+        .phone-number {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .phone-number:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        
+        .cancelled-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background-color: #991b1b;
+            color: #fecaca;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            width: fit-content;
+            border: 1px solid #7f1d1d;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, #374151, transparent);
+            margin: 8px 0;
+        }
+        
+        .price-value {
+            color: #34d399;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .product-title {
+            color: #f3f4f6;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .address-container {
+            background-color: #273548;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px solid #374151;
+        }
+        
+        .size-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #1e40af;
+            color: #bfdbfe;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #2563eb;
+        }
+        
+        .color-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 1px solid #4b5563;
+        }
+        
+        .color-dot.blue {
+            background-color: #60a5fa;
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+        }
+        
+        .color-dot.black {
+            background-color: #000000;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Add a subtle glow effect on card hover */
+        .product-card:hover .product-image {
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.15);
+        }
+        
+        /* Enhance text readability with subtle text shadow */
+        .product-title, .info-label {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+    <style>
+        /* Modal Background Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Modal Container */
+        .modal-container {
+            background-color: #1f2937;
+            border-radius: 12px;
+            padding: 24px;
+            width: 320px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: 1px solid #374151;
+        }
+        
+        /* Modal Title */
+        .modal-title {
+            color: #f3f4f6;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Status Label */
+        .status-label {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Select Dropdown */
+        .status-select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            color: #e5e7eb;
+            font-size: 14px;
+            margin-bottom: 20px;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .status-select:hover {
+            border-color: #60a5fa;
+        }
+        
+        .status-select:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+        }
+        
+        /* Custom select arrow */
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 12px;
+            color: #9ca3af;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        /* Button Container */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        /* Update Button */
+        .update-btn {
+            padding: 10px 20px;
+            background-color: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .update-btn:hover {
+            background-color: #047857;
+        }
+        
+        /* Close Button */
+        .close-btn {
+            padding: 10px 20px;
+            background-color: #374151;
+            color: #e5e7eb;
+            border: 1px solid #4b5563;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .close-btn:hover {
+            background-color: #4b5563;
+        }
+        
+        /* Option styles */
+        .status-select option {
+            background-color: #1f2937;
+            color: #e5e7eb;
+            padding: 8px;
+        }
+        /* Basic styles for modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+        .edit-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        </style>
+</head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+
+        <!-- Sidebar Start -->
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-secondary navbar-dark">
+                <a href="index.html" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>DarkPan</h3>
+                </a>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Jhon Doe</h6>
+                        <span>Admin</span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a href="/admin/dashboard" class="nav-item nav-link"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                    <a href="/admin/Products" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Products</a>
+                    <a href="/admin/user" class="nav-item nav-link"><i class="fa fa-user-edit me-2"></i>User deatails</a>
+                    <a href="/admin/coupons" class="nav-item nav-link"><i class="fa fa-times me-2"></i>coupons</a>
+                    <a href="/admin/deals" class="nav-item nav-link"><i class="fa fa-handshake me-2"></i>Deals</a>
+                    <a href="/admin/orders" class="nav-item nav-link"><i class="fa fa-envelope me-2"></i>Orders</a>
+                    <a href="/admin/category" class="nav-item nav-link"><i class="far fa-file-alt"></i>category</a>
+                    <a href="/admin/Logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Logout</a>
+                </div>
+            </nav>
+        </div>
+        <!-- Sidebar End -->
+
+
+        <!-- Content Start -->
+        <div class="content">
+            <!-- Navbar Start -->
+            <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+                <a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
+                    <h2 class="text-primary mb-0"><i class="fa fa-user-edit"></i></h2>
+                </a>
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <form class="d-none d-md-flex ms-4">
+                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                </form>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-envelope me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Message</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">See all message</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-bell me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Notificatin</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Profile updated</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">New user added</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <h6 class="fw-normal mb-0">Password changed</h6>
+                                <small>15 minutes ago</small>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">See all notifications</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img class="rounded-circle me-lg-2" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <span class="d-none d-lg-inline-flex">John Doe</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">My Profile</a>
+                            <a href="#" class="dropdown-item">Settings</a>
+                            <a href="#" class="dropdown-item">Log Out</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- Navbar End -->
+
+
+            <!-- Table Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            <th scope="col">Order ID</th>
+                                            <th scope="col">User Name</th>
+                                            <th scope="col">Payment Type</th>
+                                            <th scope="col">Order Status</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% orders.forEach((order, index) => { %>
+                                            <tr>
+                                                <th scope="row"><%= index + 1 %></th>
+                                                <td><%= order.orderId %></td>
+                                                <td><%= order.userId.name %></td>
+                                                <td><%= order.paymentMethod %></td>
+                                                <td>
+                                                    <button 
+                                                        class="btn list-btn 
+                                                            <% if (order.status === 'Placed') { %> btn btn-outline-light<% } %>
+                                                            <% if (order.status === 'processing') { %>btn btn-outline-warning<% } %>
+                                                            <% if (order.status === 'shipped') { %>btn btn-outline-info<% } %>
+                                                            <% if (order.status === 'delivered') { %>btn btn-outline-success<% } %>
+                                                            <% if (order.status === 'cancelled') { %>btn btn-outline-danger<% } %>"
+                                                        data-order-id="<%= order._id %>">
+                                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <button class="alert-btn">¡</button>
+                                                        <button class="edit-btn" <% if (order.status === 'delivered' || order.status === 'cancelled') { %> 
+                                                            style="visibility: hidden;"
+                                                        <% } %> data-order-id="<%= order._id %>">✏️</button> <!-- Added a data attribute -->
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="hidden-row">
+                                                <td colspan="6" style="display: none;">
+                                                    <div class="order-container">
+                                                        <h1 class="order-title">Order Details</h1>
+                                                        <h5 class="" style="color: yellow;">Sub Total: ₹<%= order.subtotal %></h5>
+                                                        <h5 class="" style="color: red;">Discount: - ₹<%= order.discount %></h5>
+                                                        <h5 class="" style="color: rgb(10, 247, 10);">Total price: ₹<%= order.totalAmount %></h5>
+                                                        
+                                                        <!-- Loop through items for each order -->
+                                                        <% order.items.forEach(item => { %>
+                                                            <div class="product-card">
+                                                                <img src="/products/<%= item.productImage %>" alt="<%= item.productName %>" class="product-image">
+                                                                
+                                                                <div class="product-info">
+                                                                    <div>
+                                                                        <div class="info-label">Product</div>
+                                                                        <div class="product-title"><%= item.productName %></div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="info-label">Quantity</div>
+                                                                        <div class="info-value"><%= item.quantity %></div>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="info-label">Price</div>
+                                                                        <div class="price-value">₹<%= item.unitPrice.toFixed(2) %></div>
+                                                                    </div>
+                                                                    <% if (order.status === 'pending') { %>
+                                                                        <div class="cancelled-badge">Cancelled</div>
+                                                                    <% } %>
+                                                                </div>
+                                        
+                                                                <!-- Delivery Information Section -->
+                                                                <div class="delivery-info">
+                                                                    <div>
+                                                                        <div class="info-label">Delivery Address</div>
+                                                                        <div class="address-container">
+                                                                            <% 
+                                                                                const deliveryAddress = order.userId.addresses ? 
+                                                                                    order.userId.addresses.find(address => address._id.equals(order.shippingAddress)) : null;
+                                                                            %>
+                                                                            <div class="info-value"><%= order.userId.name %></div>
+                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.houseNumber : 'Address not found' %></div>
+                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.street : 'Address not found' %></div>
+                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.city : 'Address not found' %> , <%= deliveryAddress ? deliveryAddress.state : 'Address not found' %> <%= deliveryAddress ? deliveryAddress.zip : 'Address not found' %></div>
+                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.country : 'Address not found' %></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="divider"></div>
+                                                                    <div>
+                                                                        <div class="info-label">Phone number</div>
+                                                                        <a href="tel:<%= deliveryAddress ? deliveryAddress.phone : '' %>" class="phone-number">
+                                                                            <%= deliveryAddress ? deliveryAddress.phone : 'Phone number not available' %>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <% }) %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Table End -->
+            <!-- Modal -->
+            <div class="modal-overlay hidden"> <!-- Add the 'hidden' class to hide initially -->
+                <div class="modal-container">
+                    <h2 class="modal-title">Edit Order Status</h2>
+                    
+                    <div class="status-label">Order Status:</div>
+                    <div class="select-wrapper">
+                        <select class="status-select">
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="button-container">
+                        <button class="update-btn">Update Status</button>
+                        <button class="close-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-secondary rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 text-center text-sm-start">
+                            &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
+                        </div>
+                        <div class="col-12 col-sm-6 text-center text-sm-end">
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            Designed By <a href="https://htmlcodex.com">HTML Codex</a>
+                            <br>Distributed By: <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer End -->
+        </div>
+        <!-- Content End -->
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/chart/chart.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+    <script>
+    // Get the alert button and the hidden row
+    document.addEventListener('DOMContentLoaded', function () {
+    // Select all alert buttons
+    const alertButtons = document.querySelectorAll('.alert-btn');
+    
+    // Loop through each button and add a click event listener
+    alertButtons.forEach((button, index) => {
+        button.addEventListener('click', function () {
+            // Find the corresponding hidden row
+            const hiddenRow = button.closest('tr').nextElementSibling.querySelector('td');
+            
+            // Toggle the visibility of the hidden row
+            if (hiddenRow.style.display === 'none' || hiddenRow.style.display === '') {
+                hiddenRow.style.display = 'table-cell';
+            } else {
+                hiddenRow.style.display = 'none';
+            }
+        });
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const modalOverlay = document.querySelector('.modal-overlay');
+    const closeBtn = document.querySelector('.close-btn');
+    const updateBtn = document.querySelector('.update-btn');
+    const statusSelect = document.querySelector('.status-select');
+    
+    let currentOrderId = null; // To store the order ID being edited
+
+    // Show modal when any edit button is clicked
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            currentOrderId = this.getAttribute('data-order-id');
+            modalOverlay.classList.remove('hidden');
+        });
+    });
+    
+    // Hide modal when the close button is clicked
+    closeBtn.addEventListener('click', function() {
+        modalOverlay.classList.add('hidden');
+    });
+
+    // Update order status when "Update Status" button is clicked
+    updateBtn.addEventListener('click', function() {
+        if (currentOrderId) {
+            const newStatus = statusSelect.value;
+            
+            // Send AJAX request to update the order status
+            fetch('/admin/update-order-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orderId: currentOrderId, newStatus: newStatus }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the button text and style dynamically
+                    const statusButton = document.querySelector(`button[data-order-id="${currentOrderId}"]`);
+                    if (statusButton) {
+                        statusButton.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                        statusButton.className = `btn list-btn ${getButtonClass(newStatus)}`;
+                    }
+                    modalOverlay.classList.add('hidden');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+
+    // Function to determine button class based on status
+    function getButtonClass(status) {
+        switch (status) {
+            case 'pending': return 'btn-light';
+            case 'processing': return 'btn-primary';
+            case 'shipped': return 'btn-info';
+            case 'delivered': return 'btn-success';
+            case 'cancelled': return 'btn-danger';
+            default: return '';
+        }
+    }
+});
+
+
+
+</script>
+</body>
+
+</html>

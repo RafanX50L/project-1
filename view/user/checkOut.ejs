@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Shoping Cart</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.png"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/fonts/iconic/css/material-design-iconic-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/fonts/linearicons-v1.0.0/icon-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="/vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/vendor/perfect-scrollbar/perfect-scrollbar.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="/css/util.css">
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+    <style>
+        .justcommon{
+            border-color: white;
+            background-color: #36454F;
+            color:gold;
+        }
+    </style>
+	<style>
+		body {
+			background-color: #121212;
+			color: #e0e0e0;
+		}
+		
+		h2, h4, h5 {
+			color: #ffffff;
+		}
+		
+		.container {
+			max-width: 1200px;
+		}
+	
+		.justcommon {
+			background-color: #1e1e1e;
+			border: none;
+			border-radius: 10px;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+		}
+	
+		.card-header {
+			background-color: #333333;
+			color: #f0f0f0;
+			font-weight: bold;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+		}
+	
+		.card-body {
+			color: #cfcfcf;
+		}
+	
+		.list-group-item {
+			background-color: #1e1e1e;
+			color: #bfbfbf;
+		}
+	
+		.address-container {
+			background-color: #2a2a2a;
+			color: #d3d3d3;
+			border: 1px solid #444;
+		}
+	
+		.address-container:hover {
+			border-color: #4caf50;
+			box-shadow: 0px 0px 5px 0px #4caf50;
+		}
+	
+		.btn-primary {
+			background: linear-gradient(145deg, #4caf50, #8bc34a);
+			border: none;
+			color: #fff;
+		}
+	
+		.btn-primary:hover {
+			background: linear-gradient(145deg, #8bc34a, #4caf50);
+			box-shadow: 0px 0px 10px 0px #4caf50;
+		}
+	
+		#place-order {
+			background: linear-gradient(145deg, #4caf50, #81c784);
+			border: none;
+			color: #fff;
+			box-shadow: 0px 4px 12px rgba(76, 175, 80, 0.5);
+			transition: 0.3s;
+		}
+	
+		#place-order:hover {
+			background: linear-gradient(145deg, #81c784, #4caf50);
+			box-shadow: 0px 6px 15px rgba(76, 175, 80, 0.7);
+		}
+	</style>
+	<style>
+		/* Existing styles here */
+	
+		/* New style for coupon section */
+		.coupon-section {
+			background-color: #1e1e1e;
+			color: #bfbfbf;
+			border: 1px solid #333;
+			padding: 15px;
+			border-radius: 8px;
+			margin-top: 15px;
+		}
+	
+		.coupon-section input[type="text"] {
+			background-color: #333;
+			border: 1px solid #444;
+			color: #fff;
+			padding: 8px;
+			border-radius: 5px;
+			width: 70%;
+			margin-right: 10px;
+		}
+	
+		.coupon-section button {
+			background-color: #4caf50;
+			color: #fff;
+			border: none;
+			padding: 8px 15px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+	
+		.coupon-section button:hover {
+			background-color: #81c784;
+		}
+	
+		.discount-info {
+			color: #f44336;
+			font-size: 0.9rem;
+			margin-top: 8px;
+		}
+	</style>
+	
+<!--===============================================================================================-->
+</head>
+<body class="animsition">
+	
+	<!-- Header -->
+	<header class="header-v4">
+		<!-- Header desktop -->
+		<div class="container-menu-desktop">
+			<!-- Topbar -->
+			<div class="top-bar">
+				<div class="content-topbar flex-sb-m h-full container">
+					<div class="left-top-bar">
+						Free shipping for standard order over $100
+					</div>
+
+					<div class="right-top-bar flex-w h-full">
+						<a href="#" class="flex-c-m trans-04 p-lr-25">
+							Help & FAQs
+						</a>
+
+						<a href="#" class="flex-c-m trans-04 p-lr-25">
+							My Account
+						</a>
+
+						<a href="#" class="flex-c-m trans-04 p-lr-25">
+							EN
+						</a>
+
+						<a href="#" class="flex-c-m trans-04 p-lr-25">
+							USD
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="wrap-menu-desktop">
+				<nav class="limiter-menu-desktop container">
+					
+					<!-- Logo desktop -->		
+					<a href="#" class="logo">
+						<img src="/images.png" alt="IMG-LOGO">
+					</a>
+
+					<!-- Menu desktop -->
+					<div class="menu-desktop">
+						<ul class="main-menu">
+							<li>
+								<a href="/user/home">Home</a>
+							</li>
+
+							<li class="dropdown-container">
+								<a href="/user/allProducts" class="dropdown-toggle">All Products</a>
+								<ul class="dropdown">
+									<% c.forEach(category => { %>
+										<li>
+											<a href="/<%= category.category_name %>"><%= category.category_name %></a>
+										</li>
+									<% }) %>
+								</ul>
+							</li>
+						
+
+							<li>
+								<a href="/user/about">About</a>
+							</li>
+
+							<li>
+								<a href="/user/contact">Contact</a>
+							</li>
+						</ul>
+					</div>	
+
+					<!-- Icon header -->
+					<div class="wrap-icon-header flex-w flex-r-m">
+						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
+							<i class="zmdi zmdi-search"></i>
+						</div>
+
+						<a href="/user/cart" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti " data-notify="2">
+							<i class="zmdi zmdi-shopping-cart"></i>
+						</a>
+
+						<a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="0">
+							<i class="zmdi zmdi-favorite-outline"></i>
+						</a>
+					</div>
+				</nav>
+			</div>	
+		</div>
+		</div>
+
+		<!-- Header Mobile -->
+		<div class="wrap-header-mobile">
+			<!-- Logo moblie -->		
+			<div class="logo-mobile">
+				<a href="index.html"><img src="/images/icons/logo-01.png" alt="IMG-LOGO"></a>
+			</div>
+
+			<!-- Icon header -->
+			<div class="wrap-icon-header flex-w flex-r-m m-r-15">
+				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
+					<i class="zmdi zmdi-search"></i>
+				</div>
+
+				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="2">
+					<i class="zmdi zmdi-shopping-cart"></i>
+				</div>
+
+				<a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti" data-notify="0">
+					<i class="zmdi zmdi-favorite-outline"></i>
+				</a>
+			</div>
+
+			<!-- Button show menu -->
+			<div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+				<span class="hamburger-box">
+					<span class="hamburger-inner"></span>
+				</span>
+			</div>
+		</div>
+
+
+		<!-- Menu Mobile -->
+		<div class="menu-mobile">
+			<ul class="topbar-mobile">
+				<li>
+					<div class="left-top-bar">
+						Free shipping for standard order over $100
+					</div>
+				</li>
+
+				<li>
+					<div class="right-top-bar flex-w h-full">
+						<a href="#" class="flex-c-m p-lr-10 trans-04">
+							Help & FAQs
+						</a>
+
+						<a href="#" class="flex-c-m p-lr-10 trans-04">
+							My Account
+						</a>
+
+						<a href="#" class="flex-c-m p-lr-10 trans-04">
+							EN
+						</a>
+
+						<a href="#" class="flex-c-m p-lr-10 trans-04">
+							USD
+						</a>
+					</div>
+				</li>
+			</ul>
+
+			<ul class="main-menu-m">
+				<li>
+					<a href="index.html">Home</a>
+					<ul class="sub-menu-m">
+						<li><a href="index.html">Homepage 1</a></li>
+						<li><a href="home-02.html">Homepage 2</a></li>
+						<li><a href="home-03.html">Homepage 3</a></li>
+					</ul>
+					<span class="arrow-main-menu-m">
+						<i class="fa fa-angle-right" aria-hidden="true"></i>
+					</span>
+				</li>
+
+				<li>
+					<a href="product.html">Shop</a>
+				</li>
+
+				<li>
+					<a href="shoping-cart.html" class="label1 rs1" data-label1="hot">Features</a>
+				</li>
+
+				<li>
+					<a href="blog.html">Blog</a>
+				</li>
+
+				<li>
+					<a href="about.html">About</a>
+				</li>
+
+				<li>
+					<a href="contact.html">Contact</a>
+				</li>
+			</ul>
+		</div>
+
+		<!-- Modal Search -->
+		<div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
+			<div class="container-search-header">
+				<button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
+					<img src="/images/icons/icon-close2.png" alt="CLOSE">
+				</button>
+
+				<form class="wrap-search-header flex-w p-l-15">
+					<button class="flex-c-m trans-04">
+						<i class="zmdi zmdi-search"></i>
+					</button>
+					<input class="plh3" type="text" name="search" placeholder="Search...">
+				</form>
+			</div>
+		</div>
+	</header>
+
+	<!-- breadcrumb -->
+	<div class="container">
+		<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+			<a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+				Home
+				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+			</a>
+
+			<span class="stext-109 cl4">
+				Shoping Cart
+			</span>
+		</div>
+	</div>
+		
+
+	<section>
+		<div class="container my-5">
+			<h2 class="text-center mb-4">Checkout</h2>
+			<form id="checkoutForm">
+				<div class="row">
+					<!-- Left Side: Your Cart and Order Summary -->
+					<div class="col-md-6">
+						<!-- Your Cart Section -->
+						<div class="card mb-4 justcommon">
+							<div class="card-header">
+								<h4>Your Cart</h4>
+							</div>
+							<div class="card-body">
+								<div class="cart-items" style="max-height: 240px; overflow-y: auto;">
+									<% cartItems.forEach(item => { %>
+										<div class="d-flex align-items-center justify-content-between mb-3">
+											<div class="d-flex align-items-center">
+												<img style="width: 10%; border-radius: 5px; border: 1px solid #444;"
+													 src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
+												<div>
+													<h5 class="mb-0"><%= item.productId.product_name %> (x<%= item.quantity %>)</h5>
+												</div>
+											</div>
+											<div style="margin-right: 30px;">
+												<h5 class="mb-0">$<%= item.productId.price %></h5>
+											</div>
+										</div>
+									<% }); %>
+								</div>
+							</div>
+						</div>
+	
+						<!-- Order Summary Section -->
+						<div class="card mb-4 justcommon">
+							<div class="card-header">
+								<h4>Order Summary</h4>
+							</div>
+							<div class="card-body">
+								<ul class="list-group list-group-flush justcommon">
+									<li class="list-group-item d-flex justify-content-between justcommon">
+										<span>Subtotal:</span>
+										<span>$<span id="subtotal"><%= subtotal %></span></span>
+									</li>
+									<li class="list-group-item d-flex justify-content-between justcommon">
+										<span>Discount:</span>
+										<span>-$<span id="discountAmount"><%=discount %></span></span>
+									</li>
+									<li class="list-group-item d-flex justify-content-between justcommon">
+										<strong>Total:</strong>
+										<strong>$<span id="totalPriceDisplay"><%= totalPrice %></span></strong>
+									</li>
+								</ul>
+							</div>
+						</div>
+						 <!-- Coupon Section -->
+						 <div class="coupon-section">
+							<h5>Apply Coupon</h5>
+							<div class="d-flex align-items-center">
+								<input type="text" id="couponCode" placeholder="Enter coupon code">
+								<button type="button" id="applyCoupon">Apply</button>
+							</div>
+							<div class="discount-info" id="discountInfo"></div>
+						</div>
+					</div>
+	
+					<!-- Right Side: Select Address and Payment Method -->
+					<div class="col-md-6">
+						<!-- Saved Addresses Section -->
+						<div class="card mb-4 justcommon">
+							<div class="card-header">
+								<h4>Select Saved Addresses</h4>
+							</div>
+							<div class="card-body" style="max-height: 200px; overflow-y: auto;">
+								<% addresses.forEach(address => { %>
+									<div class="address-container mb-3 p-3 border rounded position-relative"
+										 data-id="<%= address._id %>">
+										<input type="radio" name="selectedAddress" class="position-absolute"
+											   style="top: 10px; left: 10px;" value="<%= address._id %>">
+										<div class="address-details" style="margin-left: 30px;">
+											<p><%= address.name %></p>
+											<p><%= address.houseNumber %></p>
+											<p><%= address.street %></p>
+											<p><%= address.city %>, <%= address.state %> <%= address.zip %></p>
+											<p><%= address.country %></p>
+											<p>Phone: <%= address.phone %></p>
+										</div>
+									</div>
+								<% }); %>
+							</div>
+							<div class="card-footer">
+								<a href="/user/address" onclick="event.stopPropagation();">
+									<button type="button" class="btn btn-primary mt-3" style="border-radius: 5px; width: 150px;">
+										Add New Address
+									</button>
+								</a>
+							</div>
+						</div>
+	
+						<!-- Payment Method Section -->
+						<div class="card mb-4 justcommon">
+							<div class="card-header">
+								<h4>Payment Method</h4>
+							</div>
+							<div class="card-body">
+								<div class="form-check" style="margin-left: 20px;">
+									<input class="form-check-input" type="radio" name="paymentMethod" id="online payment">
+									<label class="form-check-label" for="online payment">online payment</label>
+								</div>
+								<div class="form-check" style="margin-left: 20px;">
+									<input class="form-check-input" type="radio" name="paymentMethod" id="Cash On Delivery">
+									<label class="form-check-label" for="Cash On Delivery">Cash On Delivery</label>
+								</div>
+								<div  class="form-check" style="margin-left: 20px;">
+									<label>
+										<input class="form-check-input" type="radio" name="paymentMethod" id="Wallet">
+										<label class="form-check-label" for="Wallet"> Wallet</label>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+	
+				<!-- Place Order Button -->
+				<div class="text-center">
+					<button id="place-order" type="submit" data-cartItems='<%= cartItems %>' data-totalPrice='<%= totalPrice %>'
+							class="btn btn-primary btn-lg">Place Order
+					</button>
+				</div>
+			</form>
+		</div>
+	</section>
+		
+	
+		
+
+	<!-- Footer -->
+	<footer class="bg3 p-t-75 p-b-32">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-6 col-lg-3 p-b-50">
+					<h4 class="stext-301 cl0 p-b-30">
+						Categories
+					</h4>
+
+					<ul>
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Women
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Men
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Shoes
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Watches
+							</a>
+						</li>
+					</ul>
+				</div>
+
+				<div class="col-sm-6 col-lg-3 p-b-50">
+					<h4 class="stext-301 cl0 p-b-30">
+						Help
+					</h4>
+
+					<ul>
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Track Order
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Returns 
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								Shipping
+							</a>
+						</li>
+
+						<li class="p-b-10">
+							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+								FAQs
+							</a>
+						</li>
+					</ul>
+				</div>
+
+				<div class="col-sm-6 col-lg-3 p-b-50">
+					<h4 class="stext-301 cl0 p-b-30">
+						GET IN TOUCH
+					</h4>
+
+					<p class="stext-107 cl7 size-201">
+						Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879
+					</p>
+
+					<div class="p-t-27">
+						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+							<i class="fa fa-facebook"></i>
+						</a>
+
+						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+							<i class="fa fa-instagram"></i>
+						</a>
+
+						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+							<i class="fa fa-pinterest-p"></i>
+						</a>
+					</div>
+				</div>
+
+				<div class="col-sm-6 col-lg-3 p-b-50">
+					<h4 class="stext-301 cl0 p-b-30">
+						Newsletter
+					</h4>
+
+					<form>
+						<div class="wrap-input1 w-full p-b-4">
+							<input class="input1 bg-none plh1 stext-107 cl7" type="text" name="email" placeholder="email@example.com">
+							<div class="focus-input1 trans-04"></div>
+						</div>
+
+						<div class="p-t-18">
+							<button class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+								Subscribe
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="p-t-40">
+				<div class="flex-c-m flex-w p-b-18">
+					<a href="#" class="m-all-1">
+						<img src="/images/icons/icon-pay-01.png" alt="ICON-PAY">
+					</a>
+
+					<a href="#" class="m-all-1">
+						<img src="/images/icons/icon-pay-02.png" alt="ICON-PAY">
+					</a>
+
+					<a href="#" class="m-all-1">
+						<img src="/images/icons/icon-pay-03.png" alt="ICON-PAY">
+					</a>
+
+					<a href="#" class="m-all-1">
+						<img src="/images/icons/icon-pay-04.png" alt="ICON-PAY">
+					</a>
+
+					<a href="#" class="m-all-1">
+						<img src="/images/icons/icon-pay-05.png" alt="ICON-PAY">
+					</a>
+				</div>
+
+				<p class="stext-107 cl6 txt-center">
+					<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a> &amp; distributed by <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+
+				</p>
+			</div>
+		</div>
+	</footer>
+
+
+	<!-- Back to top -->
+	<div class="btn-back-to-top" id="myBtn">
+		<span class="symbol-btn-back-to-top">
+			<i class="zmdi zmdi-chevron-up"></i>
+		</span>
+	</div>
+
+<!--===============================================================================================-->	
+	<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/vendor/bootstrap/js/popper.js"></script>
+	<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/vendor/select2/select2.min.js"></script>
+	<script>
+		$(".js-select2").each(function(){
+			$(this).select2({
+				minimumResultsForSearch: 20,
+				dropdownParent: $(this).next('.dropDownSelect2')
+			});
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="/vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+<!--===============================================================================================-->
+	<script src="/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+	<script>
+		$('.js-pscroll').each(function(){
+			$(this).css('position','relative');
+			$(this).css('overflow','hidden');
+			var ps = new PerfectScrollbar(this, {
+				wheelSpeed: 1,
+				scrollingThreshold: 1000,
+				wheelPropagation: false,
+			});
+
+			$(window).on('resize', function(){
+				ps.update();
+			})
+		});
+	</script>
+<!--===============================================================================================-->
+	<script src="/js/main.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+	<script>
+		document.getElementById('checkoutForm').addEventListener('submit', async function (event) {
+			event.preventDefault();
+
+			const totalPrice = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
+			const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
+			const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
+			const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.id;
+
+			console.log(paymentMethod);
+			
+			if (!addressId || !paymentMethod) {
+				Swal.fire({ icon: 'warning', title: 'Incomplete Information', text: 'Please select an address and a payment method.', confirmButtonText: 'OK' });
+				return;
+			}
+
+			const orderData = { addressId, totalAmount: totalPrice, discount ,  };
+
+			if (paymentMethod === 'Wallet') {
+				await placeOrder(orderData, 'Wallet');
+			} else if (paymentMethod === 'online payment') {
+				await initiateOnlinePayment(orderData);
+			} else {
+				await placeOrder(orderData, 'Cash On Delivery');
+			}
+
+		});
+
+		async function initiateOnlinePayment(orderData) {
+			try {
+				const response = await fetch('/user/create-razorpay-order', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ...orderData, currency: 'INR' })
+				});
+
+				const order = await response.json();
+				if (response.ok) {
+					openRazorpay(order);
+				} else {
+					alert('Error creating Razorpay order.');
+				}
+			} catch (error) {
+				console.error('Error initiating online payment:', error);
+			}
+		}
+
+		function openRazorpay(order) {
+			const options = {
+				key: 'rzp_test_3EYdWsxcryrgrR', // Replace with actual key
+				amount: order.amount,
+				currency: order.currency,
+				order_id: order.id,
+				handler: verifyPayment,
+				prefill: { name: 'Rafan', email: 'rafan123@gmail.com', contact: '8281652046' },
+				theme: { color: '#f37254' }
+			};
+			const rzp = new Razorpay(options);
+			rzp.open();
+		}
+
+		async function verifyPayment(response) {
+			try {
+				const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
+				const totalAmount = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
+				const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
+
+				const verifyResponse = await fetch('/user/verify-payment', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						razorpay_order_id: response.razorpay_order_id,
+						razorpay_payment_id: response.razorpay_payment_id,
+						razorpay_signature: response.razorpay_signature,
+						addressId,
+						totalAmount,
+						discount
+					})
+				});
+
+				const result = await verifyResponse.json();
+				if (verifyResponse.ok) {
+					Swal.fire({
+						icon: 'success',
+						title: 'Order Placed Successfully!',
+						confirmButtonText: 'OK'
+					}).then(() => {
+						window.location.href = `/user/order-success/${result.orderId}`;
+					});
+				} else {
+					alert('Payment verification failed.');
+				}
+			} catch (error) {
+				console.error('Error verifying payment:', error);
+			}
+		}
+
+		async function placeOrder(orderData, paymentMethod) {
+			try {
+				const response = await fetch('/user/place-order', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ...orderData, paymentMethod })
+				});
+
+				const result = await response.json();
+				if (response.ok && result.orderId) {
+					Swal.fire({ icon: 'success', title: 'Order Placed Successfully!', confirmButtonText: 'OK' })
+						.then(() => { window.location.href = `/user/order-success/${result.orderId}`; });
+				} else {
+					Swal.fire({ icon: 'error', title: 'Error', text: result.message || 'Error placing order. Please try again.', confirmButtonText: 'OK' });
+				}
+			} catch (error) {
+				console.error('Error placing order:', error);
+			}
+		}
+
+	</script>
+	
+
+	<script>
+	document.getElementById("applyCoupon").addEventListener("click", async function () {
+		const couponCode = document.getElementById("couponCode").value.trim();
+
+		try {
+			const response = await fetch('/user/addCoupon', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ couponCode }),
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				Swal.fire({
+					icon: 'success',
+					title: 'Coupon Applied!',
+					text: `Discount: ${data.discountAmount}. New total: ${data.newTotalPrice}`,
+					confirmButtonText: 'OK'
+				});
+
+				// Update the total price and discount amount in the UI
+				document.getElementById("discountAmount").textContent = `${data.discountAmount}`;
+				document.getElementById("totalPriceDisplay").textContent = `${data.newTotalPrice}`;
+				
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: 'Coupon Error',
+					text: data.message,
+					confirmButtonText: 'OK'
+				});
+			}
+		} catch (error) {
+			console.error('Error applying coupon:', error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Failed to apply coupon. Please try again later.',
+				confirmButtonText: 'OK'
+			});
+		}
+	});
+
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Validation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .image-section {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .image-section img {
+            width: 38vw;
+            height: 70vh;
+            border-radius: 10px;
+        }
+
+        .form-section {
+            flex: 1;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2d5a27;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .signup-btn:hover {
+            background: #3a7334;
+        }
+
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .resend-otp{
+            flex: 1;
+            border-radius: 5px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .signin-link {
+            text-align: center;
+        }
+
+        .signin-link a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+    </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Countdown Timer (2 minutes)
+        let timeLeft = 60; // 120 seconds (2 minutes)
+        const timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById("timer").innerText = "OTP expired";
+                // document.getElementById("submitBtn").disabled = true;
+                document.getElementById("resendBtn").disabled = false;
+            } else {
+                document.getElementById("timer").innerText = `OTP expires in ${timeLeft} seconds`;
+                timeLeft--;
+            }
+        }, 1000);
+    </script>
+        <script>
+            function verifyotp(event){
+                event.preventDefault(); // Prevent form submission if it's part of a form
+        
+                // Get the OTP value (assuming the OTP input has id 'otp')
+                const otp = document.getElementById('otp').value.trim();
+                
+                if(!otp){ // Check if the OTP input is empty
+                    Swal.fire({
+                        title: "Error!",
+                        text: "Please enter the OTP.",
+                        icon: "error"
+                    });
+                    return; // Stop execution if OTP is not provided
+                }
+        
+                fetch('/user/otp-validation', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": 'application/json'
+                    },
+                    body: JSON.stringify({ otp }) // Send the OTP value
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                if (data.success) {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Signup successful!",
+                            icon: "success",
+                            timer: 1000
+                        }).then(() => {
+                            window.location.href = "/user/login"; // Redirect to login page
+                        });
+                } else if (data.error) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: data.error,
+                        icon: "error"
+                    });
+                }
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        title: "Oops!",
+                        text: "Something went wrong, please try again.",
+                        icon: "error"
+                    });
+                });
+            }
+        </script>
+        
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            <img src="/signup.jpg" alt="Anime Character">
+        </div>
+        <div class="form-section">
+            <h1>OTP Validation</h1>
+            
+            
+            <form onsubmit="verifyotp(event)">
+                    <div class="form-group">
+                    <label for="otp">Enter OTP:</label>
+                    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+                </div>
+                <p id="error" style="color: red;"></p>
+                <p id="timer">OTP expires in 60 seconds</p>
+
+                <button type="submit"id="submitBtn" class="signup-btn">Verify OTP</button><br><br>
+            </form>
+            <form action="/user/resend-otp" method="get">
+                <button type="submit" class="resend-otp"  id="resendBtn">Resend OTP</button>
+            </form>
+        </div>
+    </div>
+        <% console.log('This is error msg'+error) %>
+        <% if (error) { %>
+            <p class="error"><%= error %></p>
+        <% } %>
+        <% if (message) { %>
+            <p class="success"><%= message %></p>
+        <% } %>
+    </div> 
+
+    <script>
+        // Function to hide the button for 1 minute
+        function hideResendButtonTemporarily() {
+            const resendButton = document.getElementById('resendBtn');
+            resendButton.style.visibility = 'hidden'; // Make the button invisible
+            
+            // Set a timer to make the button visible again after 1 minute (60,000 milliseconds)
+            setTimeout(() => {
+                resendButton.style.visibility = 'visible';
+            }, 60000); // 60 seconds
+        }
+    
+        // Call this function when you want to hide the button (e.g., right after the OTP is sent)
+        hideResendButtonTemporarily();
+    </script>
+</body>
+</html>
