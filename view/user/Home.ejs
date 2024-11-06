@@ -641,28 +641,29 @@
 			
 							<div class="block2-txt flex-w flex-t p-t-14">
 								<div class="block2-txt-child1 flex-col-l ">
-									<!-- Dynamic product name and link to detail page -->
-									<a href="/userproductd/<%= product._id %>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" style="color: aliceblue;">
+									<a href="/user/productd/<%= product._id %>" style="color: aliceblue;" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
 										<%= product.product_name %>
 									</a>
-			
-									<!-- Dynamic price -->
-
-									<span class="stext-105 cl3" style="color: aliceblue;">
-										<strong>₹<%= product.price %></strong>
-									</span>
-
-									<!-- <span class="stext-105 cl3" style="color: aliceblue;">
-										<strong>₹<%= product.price %></strong><span style="color: rgb(203, 15, 78); margin-left: 10px; margin-right: 5px;">M.R.P :</span><span style="color: red; text-decoration: line-through;">₹<%= product.price %></span>
-									</span> -->
-									
-								</div>
-			
-								<div class="block2-txt-child2 flex-r p-t-3">
-									<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2 add-to-wish-btn" data-product-id="<%= product._id %>">
-										<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
-										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-									</a>
+									<div style="display: flex; align-items: center;">
+										<% if (product.discountedPrice < product.price) { %>
+											<span style="color: red; font-weight: bold; margin-right: 10px; text-decoration: line-through;">
+												₹<%= product.price %>
+											</span>
+											<span style="color: green; font-weight: bold; margin-right: 10px;">
+												₹<%= product.discountedPrice %>
+											</span>
+											<span style="color: yellow; font-weight: bold; margin-right: 10px;">
+												(<%= product.discount %>% OFF)
+											</span>
+											<span style="color: yellowgreen; font-weight: bold; margin-left: auto;">
+												You save ₹<%= product.saveAmount %>
+											</span>
+										<% } else { %>
+											<span class="stext-105 cl3" style="color: aliceblue;">
+												₹<%= product.price %>
+											</span>
+										<% } %>
+									</div>
 								</div>
 							</div>
 						</a>

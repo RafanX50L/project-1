@@ -10,11 +10,10 @@ const path = require('path');
 const uploadPath = path.join(__dirname,'..', 'public', 'products');
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Check if the directory exists, if not, create it
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }
-        cb(null, uploadPath); // Ensure the directory exists
+        cb(null, uploadPath); 
     },
     filename: (req, file, cb) => {
         const timestamp = Date.now();
@@ -23,7 +22,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 3 * 1024 * 1024 } // 5 MB limit per file
+    limits: { fileSize: 3 * 1024 * 1024 } 
 }).array('product_images', 3);
 
 
@@ -31,7 +30,7 @@ const upload = multer({
 //admin middleware for checking if admin is logged in or not
 admin_route.use((req, res, next) => {
     if (req.path === '/login') {
-        return next(); // Skip login check for the login route
+        return next(); 
     }
     if (req.session.AloggedIN) {
         next();
@@ -74,14 +73,11 @@ admin_route.get('/products/add',admin_controller.getaddproduct);
 admin_route.post('/products/add', (req, res) => {
     upload(req, res, (err) => {
         if (err instanceof multer.MulterError) {
-            // Handle Multer-specific errors
             return res.status(400).json({ message: 'File upload error', error: err.message });
         } else if (err) {
-            // Handle other errors
             return res.status(500).json({ message: 'Error uploading images', error: err });
         }
 
-        // If files are uploaded, pass data to the controller to save product
         admin_controller.addProduct(req, res);
     });
 });

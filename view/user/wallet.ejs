@@ -432,39 +432,60 @@ h2 {
 					</ul>
 				</div>
 				<div class="con">
-                    <h2 class="mb-4 text-white">Order Management</h2>
-                    <div class="order-table">
-                        <div class="wallet-balance mb-3">
-                            <strong>Wallet Balance: ₹9166.20</strong>
-                        </div>
-                    
-                        <div class="transaction-history">
-                            <h4>Transaction History</h4>
-                            <table class="table table-dark table-hover mt-3">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Amount (₹)</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>23/9/2024</td>
-                                        <td><span class="badge badge-debit">Debit</span></td>
-                                        <td>2323.30</td>
-                                        <td>Payment for Order ID: 66f0faf63d4f651345ad2a44</td>
-                                    </tr>
-                                        
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-			</div>
+					<h2 class="mb-4 text-white" style="size: 100vh; font-weight: 1000; font-size: 50px;">Wallet</h2>
+					<% if (wallet.length===0) { %>
+						<div class="alert alert-warning">
+							Your cart is empty. Please add items to your cart before proceeding to checkout.
+						</div>
+						<% } else { %>
+						<div class="order-table">
+								<div class="wallet-balance mb-3">
+									<strong>Wallet Balance: ₹<%= wallet.Balance %></strong>
+								</div>
+							
+								<div class="transaction-history">
+									<h4>Transaction History</h4>
+									<table class="table table-dark table-hover mt-3">
+										<thead>
+											<tr>
+												<th>#</th>
+												<th>Date</th>
+												<th>Type</th>
+												<th>Amount (₹)</th>
+												<th>Description</th>
+											</tr>
+										</thead>
+										<tbody>
+											<% wallet.Transaction.forEach((wallet,index)=> { %>
+												<tr>
+													<td><%= index+1 %></td>
+													<td><%= new Date(wallet.date).toLocaleDateString('en-GB') %></td>
+													<td>
+														<% if (wallet.type === 'credit') { %>
+															<span class="badge badge-credit">Credit</span>
+														<% } else { %>
+															<span class="badge badge-debit">Debit</span>
+														<% } %>
+													</td>
+													
+													<td>₹ <%= wallet.amount %></td>
+													<td>
+														<span>
+															Payment for Order ID: <%= wallet.orderId %>
+														</span><br>
+														<span>
+															Reason : "<%= wallet.reason %>"
+														</span>
+													</td>
+												</tr>
+											<% }); %>	
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<% } %>
+				</div>
 		</div>
 	</section>
 	

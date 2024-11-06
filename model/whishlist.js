@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const wishlistSchema = new mongoose.Schema({  // Use a unique schema name
+const wishlistSchema = new mongoose.Schema({  
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user',

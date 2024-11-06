@@ -108,7 +108,9 @@ const toggleCouponStatus = async (req, res) => {
 };
 
 const getOffers = async (req,res) => {
+     
     const products = await Products.find();
+    
     const uniqueSubcategories = await Products.aggregate([
         {
             $group: {
@@ -143,36 +145,48 @@ const getOffers = async (req,res) => {
     }
 }
 
-const addOffers = async (req,res) => {
+const addOffers = async (req, res) => {
     try {
-        console.log(req.body);
-        
-        const {offerCode,discount,apply,value,validFrom,validUntil} = req.body
+        const { offerCode, discount, apply, value, validFrom, validUntil, productIds } = req.body;
 
         if (new Date(validUntil) <= new Date(validFrom)) {
             return res.status(400).json({ message: 'End date cannot be before start date or equal' });
         }
 
         const offerCheck = await Offers.findOne({ offerCode: offerCode });
-        if (!offerCheck) {
-            const newOffer = new Offers({
-                offerCode: offerCode,
-                discount: discount,
-                apply_by: apply,
-                value: value,
-                validFrom: validFrom,
-                validUntil: validUntil
-            });
-
-            await newOffer.save();
-            return res.redirect('/admin/offers');
-        } else {
+        if (offerCheck) {
             return res.status(400).json({ message: 'Offer already exists' });
         }
+
+        let field;
+        let condition = {};
+        if (apply === 'Product') {
+            field = 'product_name';
+            condition = { _id: { $in: productIds } };  
+        } else if (apply === 'Subcategory') {
+            field = 'sub_category';
+            condition = { sub_category: value };  
+        }
+
+        const newOffer = new Offers({
+            offerCode,
+            discount,
+            apply_by: apply,
+            value,
+            validFrom,
+            validUntil,
+            condition 
+        });
+
+        await newOffer.save();
+
+        return res.redirect('/admin/offers');
     } catch (error) {
         console.log(error);
+        res.status(500).send('Error adding the offer.');
     }
-}
+};
+
 
 const toggleOffersStatus = async (req, res) => {
     try {

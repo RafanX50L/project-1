@@ -267,7 +267,7 @@
 	</div>
 		
 
-	<!-- Shoping Cart -->
+	<!-- Shopping Cart -->
 	<form class="bg0 p-t-75 p-b-85">
 		<div class="container">
 			<div class="row">
@@ -279,74 +279,73 @@
 									<th class="column-1">Product</th>
 									<th class="column-2"></th>
 									<th class="column-3">Price</th>
+									<th class="column-3">Offer</th>
 									<th class="column-4" style="justify-content: center;">Quantity</th>
 									<th class="column-5">Total</th>
 									<th class="column-6"></th>
 								</tr>
-								<% if (cartItems.length===0) { %>
+								<% if (cartItems.length === 0) { %>
 									<div class="alert alert-warning">
 										Your cart is empty. Please add items to your cart before proceeding to checkout.
 									</div>
-									<% } else { %>
-										<% cartItems.forEach(item=> { %>
-											<tr class="table_row">
-												<td class="column-1">
-													<div>
-														<img style="width: 100%; " src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
+								<% } else { %>
+									<% cartItems.forEach(item => { %>
+										<tr class="table_row">
+											<td class="column-1">
+												<div>
+													<img style="width: 100%;" src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
+												</div>
+											</td>
+											<td class="column-2"><%= item.productId.product_name %></td>
+											<td class="column-3">₹<%= item.productId.price %></td>
+											<td class="column-3">
+												<% if (item.offerAmount > 0) { %>
+													-₹<%= item.offerAmount.toFixed(2) %>
+												<% } else { %>
+													-₹ 0.00
+												<% } %>
+											</td>
+											<td class="column-4">
+												<div class="product-quantity-container" style="display: inline-flex;">
+													<div class="cl8 hov-btn3 trans-04 flex-c-m">
+														<button class="btn decrement"
+															onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
+															<i class="fs-16 zmdi zmdi-minus"></i>
+														</button>
 													</div>
-												</td>
-												<td class="column-2" style="margin-left: 5px;">
-													<%= item.productId.product_name %>
-												</td>
-												<td class="column-3">$ <%= item.productId.price %>
-												</td>
-												<td class="column-4">
-													<div class="product-quantity-container" style="display: inline-flex;"> <!-- New wrapper div -->
-														<div class="cl8 hov-btn3 trans-04 flex-c-m">
-															<button class="btn decrement"
-																onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock%>')">
-																<i class="fs-16 zmdi zmdi-minus"></i>
-															</button>
-														</div>
-								
-								
-														<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product"
-															value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>">
-								
-														<div class="cl8 hov-btn3 trans-04 flex-c-m">
-															<button class="btn increment"
-																onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock%>')">
-																<i class="fs-16 zmdi zmdi-plus"></i>
-															</button>
-														</div>
+													<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product"
+														value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>">
+													<div class="cl8 hov-btn3 trans-04 flex-c-m">
+														<button class="btn increment"
+															onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
+															<i class="fs-16 zmdi zmdi-plus"></i>
+														</button>
 													</div>
-												</td>
-												<td class="column-5">$ <%= item.quantity * item.productId.price %>
-												</td>
-												<td class="column-6">
-													<!-- Add data-product-id attribute to store the productId -->
-													<div class="remove-btn" onclick="removeProductFromCart(this)"
-														data-product-id="<%= item.productId._id %>"><i class="fa-sharp-duotone fa-solid fa-trash"></i></div>
-												</td>
-								
-											</tr>
+												</div>
+											</td>
+											<td class="column-5">
+												₹<%= (item.discountedPrice) * item.quantity %>
+											</td>
+											<td class="column-6">
+												<div class="remove-btn" onclick="removeProductFromCart(this)"
+													data-product-id="<%= item.productId._id %>">
+													<i class="fa-sharp-duotone fa-solid fa-trash"></i>
+												</div>
+											</td>
+										</tr>
 									<% }); %>
 								<% } %>
-								
 							</table>
 						</div>
-						
-						
 					</div>
 				</div>
-	
+
 				<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
 					<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
 						<h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
-	
+
 						<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 trans-04 pointer" 
-								style="width: 40%; height: 70%;" 
-								onclick="updateCart()" > 
+								style="width: 40%; height: 70%;" onclick="updateCart()"> 
 							Update Cart
 						</button><br>
 						<div class="flex-w flex-t bor12 p-b-13">
@@ -354,10 +353,11 @@
 								<span class="stext-110 cl2">Subtotal:</span>
 							</div>
 							<div class="size-209">
-								<span class="mtext-110 cl2">$ <%= totalPrice %></span>
+								<span class="mtext-110 cl2">₹ <%= cartItems.reduce((total, item) => total + (item.productId.price * item.quantity), 0).toFixed(2) %>
+								</span>
 							</div>
 						</div>
-	
+
 						<div class="flex-w flex-t bor12 p-t-15 p-b-30">
 							<div class="size-208 w-full-ssm">
 								<span class="stext-110 cl2">Shipping:</span>
@@ -368,26 +368,36 @@
 								</p>
 							</div>
 						</div>
-	
+
+						<div class="flex-w flex-t bor12 p-b-13">
+							<div class="size-208">
+								<span class="stext-110 cl2">Offer Amount:</span>
+							</div>
+							<div class="size-209">
+								<span class="mtext-110 cl2">₹ <%= cartItems.reduce((total, item) => total + (item.offerAmount * item.quantity), 0).toFixed(2) %>
+								</span>
+							</div>
+						</div>
+
 						<div class="flex-w flex-t p-t-27 p-b-33">
 							<div class="size-208">
 								<span class="mtext-101 cl2">Total:</span>
 							</div>
 							<div class="size-209 p-t-1">
-								<span class="mtext-110 cl2">$ <%= totalPrice %></span>
+								<span class="mtext-110 cl2">₹ <%= cartItems.reduce((total, item) => total + (item.discountedPrice * item.quantity), 0).toFixed(2) %></span>
 							</div>
 						</div>
-	
-						<a href="/user/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" id="checkoutButton" <% if (cartItems.length === 0) { %> onclick="event.preventDefault();" style="pointer-events: none; opacity: 0.5;" <% } %>>
+
+						<a href="/user/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" 
+						id="checkoutButton" <% if (cartItems.length === 0) { %> onclick="event.preventDefault();" style="pointer-events: none; opacity: 0.5;" <% } %>>
 							Proceed to Checkout
 						</a>
-						
-						
 					</div>
 				</div>
 			</div>
 		</div>
 	</form>
+
 	
 		
 	

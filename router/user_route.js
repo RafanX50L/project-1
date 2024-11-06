@@ -60,10 +60,7 @@ const writeData = (data) => {
     fs.writeFileSync('ordes.json',JSON.stringify(data,null,2));
 }
 
-// Initialize orders.json if it doesn't  exists
 
-
-// Adjusted Routes without /user prefix
 user_route.get('/', user_Controller.landing);
 
 // Auth 
@@ -134,8 +131,7 @@ user_route.post('/wish/remove',cart_Controller.postWishlist)
 
 // User checkout routes
 user_route.get('/checkout', cart_Controller.checkOutget);
-// user_route.post('/place-order', cart_Controller.placeOrder);
-// user_route.post('/verify-payment',cart_Controller.verifyPayment)
+
 user_route.get('/order-success/:id', cart_Controller.orderSucsess);
 
 // User order history

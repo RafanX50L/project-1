@@ -27,13 +27,14 @@ const OfferSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'inactive'], // Only active and inactive statuses
-        default: 'active' // Default status
+        enum: ['active', 'inactive'], 
+        default: 'active' 
     },
     is_expired: {
         type: Boolean,
-        default: false // Default value for is_expired
-    }
+        default: false 
+    },
+    products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'products' }]
 },{timestamps:true});
 
 module.exports = mongoose.model('Offers',OfferSchema)

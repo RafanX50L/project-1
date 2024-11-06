@@ -4,32 +4,32 @@ const couponSchema = new mongoose.Schema({
     coupon_code: {
         type: String,
         required: true,
-        unique: true // Ensures the coupon code is unique
+        unique: true 
     },
     max_amount: {
         type: Number,
-        required: true // Maximum discount amount
+        required: true 
     },
     discount_percentage: {
         type: Number,
-        required: true // Discount percentage
+        required: true 
     },
     start_date: {
         type: Date,
-        required: true // Date when the coupon becomes active
+        required: true 
     },
     end_date: {
         type: Date,
-        required: true // Date when the coupon expires
+        required: true 
     },
     status: {
         type: String,
-        enum: ['active', 'inactive'], // Only active and inactive statuses
-        default: 'active' // Default status
+        enum: ['active', 'inactive'], 
+        default: 'active' 
     },
     is_expired: {
         type: Boolean,
-        default: false // Default value for is_expired
+        default: false 
     },
     
 },{timestamps:true});

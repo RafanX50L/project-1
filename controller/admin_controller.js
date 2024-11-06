@@ -285,14 +285,12 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, newStatus } = req.body;
 
-        // Find and update order status
         const updatedOrder = await Orders.findByIdAndUpdate(orderId, { status: newStatus }, { new: true });
         
         if (!updatedOrder) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // If order is cancelled, restock items
         if (newStatus === 'cancelled') {
             for (const item of updatedOrder.items) {
                 await Products.findByIdAndUpdate(
@@ -304,29 +302,27 @@ const updateOrderStatus = async (req, res) => {
             console.log('Products restocked');
         }
 
-        // If payment method was wallet or online and order is cancelled, process wallet refund
         if (newStatus === 'cancelled' && (updatedOrder.paymentMethod === 'Wallet' || updatedOrder.paymentMethod === 'online payment')) {
             console.log('Processing wallet refund...');
             
             let userWallet = await Wallet.findOne({ userId: updatedOrder.userId });
 
-            // Create a wallet if it doesn't exist
             if (!userWallet) {
                 userWallet = new Wallet({
                     userId: updatedOrder.userId,
                     Balance: 0,
+                    orderId: '',
                     transactions: []
                 });
             }
 
-            // Add refunded amount to wallet balance
             userWallet.Balance += updatedOrder.totalAmount;
 
-            // Log the refund transaction
             userWallet.Transaction.push({
                 amount: updatedOrder.totalAmount,
                 date: new Date(),
                 type: 'credit',
+                orderId:updatedOrder.orderId,
                 reason: 'Order Cancelled'
             });
 
@@ -334,7 +330,6 @@ const updateOrderStatus = async (req, res) => {
             console.log('Wallet refund successful');
         }
 
-        // Send success response
         res.json({ success: true, status: newStatus });
         console.log('Order status updated successfully');
         

@@ -27,6 +27,10 @@ const WalletSchema = new mongoose.Schema({
                 enum:["credit","Debit"],
                 required:true
             },
+            orderId:{
+                type:String,
+                required:true
+            },
             reason:{
                 type:String
             }

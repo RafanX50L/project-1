@@ -4,6 +4,8 @@ const nodemailer = require('nodemailer')
 const Category = require('../model/categoryModel');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const Offers = require('../model/offer'); 
+
 
 const loginget = async (req, res) => {
 
@@ -162,43 +164,44 @@ const allProducts = async (req, res) => {
             filter.product_name = { $regex: search, $options: 'i' }; 
         }
 
-        let products = await Products.find({...filter,stock:{$gt:0}})
+        let products = await Products.find({ ...filter, stock: { $gt: 0 } });
 
         if (sort) {
-            switch (sort) {
-                case 'popularity':
-                    products = products.sort((a, b) => b.popularity - a.popularity);
-                    break;
-                case 'rating':
-                    products = products.sort((a, b) => b.rating - a.rating);
-                    break;
-                case 'newness':
-                    products = products.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-                    break;
-                case 'price-low-to-high':
-                    products = products.sort((a, b) => a.price - b.price);
-                    break;
-                case 'price-high-to-low':
-                    products = products.sort((a, b) => b.price - a.price);
-                    break;
-                case 'a-to-z':
-                    products = products.sort((a, b) => a.product_name.localeCompare(b.product_name));
-                    break;
-                case 'z-to-a':
-                    products = products.sort((a, b) => b.product_name.localeCompare(a.product_name));
-                    break;
-                default:
-                    break;
-            }
+            products = sortProducts(products, sort);
         }
 
         const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
+        const activeOffers = await Offers.find({
+            validUntil: { $gte: new Date() },
+            status: 'active'
+        });
 
-        if (products && products.length > 0) {
-            res.render('user/product.ejs', { products, c: category, searchQuery: search || '', sortOption: sort || '' });
-        } else {
-            res.send('No products found.');
-        }
+        const productsWithOffers = products.map(product => {
+            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+            if (bestOffer.discount > 0) {
+                product.discount = bestOffer.discount;
+                product.discountedPrice = product.price - (product.price * bestOffer.discount / 100);
+                product.saveAmount = product.price - product.discountedPrice;
+            } else {
+                product.discount = 0;
+                product.discountedPrice = product.price;
+            }
+
+            return product;
+        });
+
+        res.render('user/product.ejs', {
+            products: productsWithOffers,
+            c: category,
+            searchQuery: search || '',
+            sortOption: sort || ''
+        });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('An error occurred while fetching products.');
@@ -206,73 +209,166 @@ const allProducts = async (req, res) => {
 };
 
 
+const sortProducts = (products, sortOption) => {
+    switch (sortOption) {
+        case 'popularity':
+            return products.sort((a, b) => b.popularity - a.popularity);
+        case 'rating':
+            return products.sort((a, b) => b.rating - a.rating);
+        case 'newness':
+            return products.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        case 'price-low-to-high':
+            return products.sort((a, b) => a.price - b.price);
+        case 'price-high-to-low':
+            return products.sort((a, b) => b.price - a.price);
+        case 'a-to-z':
+            return products.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        case 'z-to-a':
+            return products.sort((a, b) => b.product_name.localeCompare(a.product_name));
+        default:
+            return products;
+    }
+};
+
 const Movie = async (req, res) => {
     if (req.session.loggedIn) {
         const category = req.params.category;
-        console.log(category)
+
         const category1 = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
 
         try {
-            const products = await Products.find({ category: category, status: true ,stock:{$gt:0}});
+            let products = await Products.find({ category: category, status: true, stock: { $gt: 0 } });
+
             const uniqueSubcategories = await Products.aggregate([
-                {
-                    $match: { category: category }
-                },
-                {
-                    $group: {
-                        _id: "$sub_category",
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        sub_category: "$_id"
-                    }
-                }
+                { $match: { category: category } },
+                { $group: { _id: "$sub_category" } },
+                { $project: { _id: 0, sub_category: "$_id" } }
             ]);
-            console.log(uniqueSubcategories)
 
+            const activeOffers = await Offers.find({
+                validUntil: { $gte: new Date() },
+                status: 'active'
+            });
 
-            res.render('user/Movies.ejs', { subcategories: uniqueSubcategories, category: category, c: category1, products: products });
+            const productsWithOffers = products.map(product => {
+                const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+                const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+                const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === category);
+
+                const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+                const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+                if (bestOffer.discount > 0) {
+                    product.discount = bestOffer.discount;
+                    product.discountedPrice = product.price - (product.price * bestOffer.discount / 100);
+                    product.saveAmount = product.price - product.discountedPrice;
+                } else {
+                    product.discount = 0;
+                    product.discountedPrice = product.price;
+                }
+
+                return product;
+            });
+
+            res.render('user/Movies.ejs', {
+                subcategories: uniqueSubcategories,
+                category: category,
+                c: category1,
+                products: productsWithOffers
+            });
+
         } catch (error) {
             console.error(error);
             res.status(500).send("Error retrieving data");
         }
+    } else {
+        res.redirect('/user');
     }
-    else {
-        res.redirect('/user')
-    }
-
-}
+};
 
 const productdetail = async (req, res) => {
     if (req.session.loggedIn) {
         const id = req.query.id;
         const category1 = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
 
-
         try {
-            const product = await Products.findOne({ _id: id, status: true ,stock:{$gt:0} });
-            const category = product.category;
-            const Category = await Products.find({
-                category: category,
-                _id: { $ne: id }
-            });
-
-            if (!(product && category)) {
+            const product = await Products.findOne({ _id: id, status: true, stock: { $gt: 0 } });
+            if (!product) {
                 return res.status(404).send('Product not found');
             }
 
-            res.render('user/product-detail.ejs', { product: product, category: Category, c: category1 });
+            const category = product.category;
+            const relatedProducts = await Products.find({
+                category: category,
+                _id: { $ne: id },
+                stock: { $gt: 0 }
+            });
+
+            const activeOffers = await Offers.find({
+                validUntil: { $gte: new Date() },
+                status: 'active'
+            });
+
+            let bestDiscount = 0;
+            activeOffers.forEach(offer => {
+                const { apply_by, value, discount } = offer;
+                if (
+                    (apply_by === 'Product' && value === product.product_name) ||
+                    (apply_by === 'Subcategory' && value === product.sub_category) ||
+                    (apply_by === 'Category' && value === product.category)
+                ) {
+                    bestDiscount = Math.max(bestDiscount, discount);
+                }
+            });
+
+            if (bestDiscount > 0) {
+                product.discount = bestDiscount;
+                product.discountedPrice = product.price - (product.price * bestDiscount / 100);
+                product.saveAmount = product.price - product.discountedPrice;
+            } else {
+                product.discountedPrice = product.price;
+                product.saveAmount = 0;
+            }
+
+            const relatedProductsWithOffers = relatedProducts.map(relatedProduct => {
+                let relatedBestDiscount = 0;
+                activeOffers.forEach(offer => {
+                    const { apply_by, value, discount } = offer;
+                    if (
+                        (apply_by === 'Product' && value === relatedProduct.product_name) ||
+                        (apply_by === 'Subcategory' && value === relatedProduct.sub_category) ||
+                        (apply_by === 'Category' && value === relatedProduct.category)
+                    ) {
+                        relatedBestDiscount = Math.max(relatedBestDiscount, discount);
+                    }
+                });
+
+                if (relatedBestDiscount > 0) {
+                    relatedProduct.discount = relatedBestDiscount;
+                    relatedProduct.discountedPrice = relatedProduct.price - (relatedProduct.price * relatedBestDiscount / 100);
+                    relatedProduct.saveAmount = relatedProduct.price - relatedProduct.discountedPrice;
+                } else {
+                    relatedProduct.discountedPrice = relatedProduct.price;
+                    relatedProduct.saveAmount = 0;
+                }
+
+                return relatedProduct;
+            });
+
+            res.render('user/product-detail.ejs', {
+                product: product,
+                category: relatedProductsWithOffers,
+                c: category1
+            });
         } catch (error) {
             console.error('Error fetching product:', error);
-            res.status(500).redirect('/user/error')
+            res.status(500).redirect('/user/error');
         }
+    } else {
+        res.redirect('/user');
     }
-    else {
-        res.redirect('/user')
-    }
-}
+};
+
 
 const logout = async (req, res) => {
     try {
@@ -290,15 +386,48 @@ const logout = async (req, res) => {
 const validation = async (req, res) => {
     try {
         const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-        const products = await Products.find({stock:{$gt:0}});
-        
-        res.render('user/Home.ejs', { c: category, products: products });
-        
+        const products = await Products.find({ stock: { $gt: 0 } });
+        const activeOffers = await Offers.find({
+            validUntil: { $gte: new Date() },
+            status: 'active'
+        });
+
+        const productsWithOffers = products.map(product => {
+            let bestDiscount = 0;
+
+            activeOffers.forEach(offer => {
+                const { apply_by, value, discount } = offer;
+                if (
+                    (apply_by === 'Product' && value === product.product_name) ||
+                    (apply_by === 'Subcategory' && value === product.sub_category) ||
+                    (apply_by === 'Category' && value === product.category)
+                ) {
+                    bestDiscount = Math.max(bestDiscount, discount);
+                }
+            });
+
+            if (bestDiscount > 0) {
+                product.discount = bestDiscount;
+                product.discountedPrice = product.price - (product.price * bestDiscount / 100);
+                product.saveAmount = product.price - product.discountedPrice;
+            } else {
+                product.discountedPrice = product.price;
+                product.saveAmount = 0;
+            }
+
+            return product;
+        });
+
+        res.render('user/Home.ejs', {
+            c: category,
+            products: productsWithOffers
+        });
     } catch (error) {
         console.error("Error fetching categories:", error);
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 const landing = async (req, res) => {
     if(req.session.loggedIn){
