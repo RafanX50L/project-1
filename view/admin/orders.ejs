@@ -806,18 +806,13 @@
     <script src="js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    // Get the alert button and the hidden row
     document.addEventListener('DOMContentLoaded', function () {
-    // Select all alert buttons
     const alertButtons = document.querySelectorAll('.alert-btn');
     
-    // Loop through each button and add a click event listener
     alertButtons.forEach((button, index) => {
         button.addEventListener('click', function () {
-            // Find the corresponding hidden row
             const hiddenRow = button.closest('tr').nextElementSibling.querySelector('td');
             
-            // Toggle the visibility of the hidden row
             if (hiddenRow.style.display === 'none' || hiddenRow.style.display === '') {
                 hiddenRow.style.display = 'table-cell';
             } else {
@@ -835,9 +830,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const updateBtn = document.querySelector('.update-btn');
     const statusSelect = document.querySelector('.status-select');
     
-    let currentOrderId = null; // To store the order ID being edited
+    let currentOrderId = null; 
 
-    // Show modal when any edit button is clicked
     editButtons.forEach(button => {
         button.addEventListener('click', function() {
             currentOrderId = this.getAttribute('data-order-id');
@@ -845,17 +839,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Hide modal when the close button is clicked
     closeBtn.addEventListener('click', function() {
         modalOverlay.classList.add('hidden');
     });
 
-    // Update order status when "Update Status" button is clicked
     updateBtn.addEventListener('click', function() {
         if (currentOrderId) {
             const newStatus = statusSelect.value;
             
-            // Send AJAX request to update the order status
             fetch('/admin/update-order-status', {
                 method: 'POST',
                 headers: {
@@ -866,7 +857,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update the button text and style dynamically
                     const statusButton = document.querySelector(`button[data-order-id="${currentOrderId}"]`);
                     if (statusButton) {
                         statusButton.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
@@ -884,7 +874,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Function to determine button class based on status
     function getButtonClass(status) {
         switch (status) {
             case 'placed': return 'btn-light';
@@ -1008,7 +997,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         Array.from(statusSelect.options).forEach(option => {
             if (statusOrder.indexOf(option.value) < currentIndex) {
-                option.disabled = true; // Disable previous statuses
+                option.disabled = true; 
             }
         });
     });

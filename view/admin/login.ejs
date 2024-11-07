@@ -114,9 +114,8 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+            event.preventDefault(); 
     
-            // Clear previous errors
             document.getElementById('emailError').textContent = '';
             document.getElementById('passwordError').textContent = '';
     
@@ -124,22 +123,19 @@
             const password = document.getElementById('password').value;
             let valid = true;
     
-            // Email validation
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             if (!emailPattern.test(email)) {
                 document.getElementById('emailError').textContent = 'Please enter a valid email address.';
                 valid = false;
             }
     
-            // Password validation
             if (password.length < 6) {
                 document.getElementById('passwordError').textContent = 'Password must be at least 6 characters long.';
                 valid = false;
             }
     
-            // If validation is successful, submit the form
             if (valid) {
-                this.submit(); // Submit the form if everything is valid
+                this.submit(); 
             }
         });
     </script>

@@ -1085,14 +1085,12 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="js/main.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
-		// When the "Add to Cart" button is clicked
 		document.querySelectorAll('.add-to-cart-btn').forEach(function(button) {
 			button.addEventListener('click', function(e) {
 				e.preventDefault();
 				
 				const productId = this.getAttribute('data-product-id');
 	
-				// Send an AJAX request to the server to add the product to the cart
 				fetch('/user/cart/add', {
 					method: 'POST',
 					headers: {
@@ -1105,7 +1103,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				.then(response => response.json())
 				.then(data => {
 					if (data.success) {
-						// Use SweetAlert for success message
 						Swal.fire({
 							icon: 'success',
 							title: 'Success',
@@ -1113,7 +1110,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							confirmButtonText: 'OK'
 						});
 					}else if (data.message) {
-						// SweetAlert for already-in-wishlist message
 						Swal.fire({
 							icon: 'info',
 							title: 'Already in Cart',
@@ -1121,7 +1117,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							confirmButtonText: 'OK'
 						});
 					} else {
-						// SweetAlert for error message
 						Swal.fire({
 							icon: 'error',
 							title: 'Oops...',
@@ -1131,7 +1126,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 					}
 				})
 				.catch(error => {
-					// SweetAlert for catch error
 					Swal.fire({
 						icon: 'error',
 						title: 'Error',
@@ -1143,14 +1137,12 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			});
 		});
 
-		// when the "whishlist icon " button is caled
 		document.querySelectorAll('.add-to-wish-btn').forEach(function(button) {
 			button.addEventListener('click', function(e) {
 				e.preventDefault();
 				
 				const productId = this.getAttribute('data-product-id');
 	
-				// Send an AJAX request to the server to add the product to the cart
 				fetch('/user/wish/add', {
 					method: 'POST',
 					headers: {
@@ -1163,7 +1155,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				.then(response => response.json())
 				.then(data => {
 					if (data.success) {
-						// Use SweetAlert for success message
 						Swal.fire({
 							icon: 'success',
 							title: 'Success',
@@ -1171,7 +1162,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							confirmButtonText: 'OK'
 						});
 					}else if (data.message) {
-						// SweetAlert for already-in-wishlist message
 						Swal.fire({
 							icon: 'info',
 							title: data.title,
@@ -1179,7 +1169,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							confirmButtonText: 'OK'
 						});
 					} else {
-						// SweetAlert for error message
 						Swal.fire({
 							icon: 'error',
 							title: 'Oops...',
@@ -1189,7 +1178,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 					}
 				})
 				.catch(error => {
-					// SweetAlert for catch error
 					Swal.fire({
 						icon: 'error',
 						title: 'Error',

@@ -1023,37 +1023,31 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    // Open Add New Address Modal
     document.querySelector(".add-btn").addEventListener("click", function() {
-        document.getElementById("addAddressModal").style.display = "block"; // Show the Add Address modal
+        document.getElementById("addAddressModal").style.display = "block"; 
     });
 
-    // Open Edit Address Modal and populate it with the existing address details
 document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
     editBtn.addEventListener("click", function() {
-        // Get the address details from the clicked address container
         const addressContainer = editBtn.closest(".address-container");
         const addressDetails = addressContainer.querySelector(".address-details");
         
-        // Populate the Edit Address Modal with the current details
-        document.getElementById("editAddressId").value = addressContainer.dataset.id;  // Set the address ID
+        document.getElementById("editAddressId").value = addressContainer.dataset.id;  
         document.getElementById("editName").value = addressDetails.children[0].textContent;
         document.getElementById("editHouseNumber").value = addressDetails.children[1].textContent;
         document.getElementById("editStreet").value = addressDetails.children[2].textContent;
-        document.getElementById("editCity").value = addressDetails.children[3].textContent.split(',')[0]; // Only the city name
+        document.getElementById("editCity").value = addressDetails.children[3].textContent.split(',')[0]; 
         document.getElementById("editState").value = document.getElementById('state').value
         document.getElementById("editZip").value = document.getElementById('pin').value
-        document.getElementById("editPhone").value = addressDetails.children[5].textContent.split(': ')[1]; // Phone number
+        document.getElementById("editPhone").value = addressDetails.children[5].textContent.split(': ')[1]; 
 
-        // Show the Edit Address modal
         document.getElementById("editAddressModal").style.display = "block";
     });
 });
 
 
-    // Function to show SweetAlert on saving changes (Edit Address Modal)
     document.querySelector("#editAddressForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault(); 
 
         Swal.fire({
             title: 'Save Changes?',
@@ -1065,13 +1059,12 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
             confirmButtonText: 'Yes, save it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Submit the form if the user confirms
                 Swal.fire(
                     'Saved!',
                     'Your changes have been saved.',
                     'success'
                 ).then(() => {
-                    document.getElementById("editAddressForm").submit(); // Submit form after alert
+                    document.getElementById("editAddressForm").submit(); 
                 });
             }
         });
@@ -1080,7 +1073,7 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
 	document.querySelectorAll(".delete-icon").forEach(function(deleteBtn) {
     deleteBtn.addEventListener("click", function() {
         const addressContainer = deleteBtn.closest(".address-container");
-        const addressId = addressContainer.getAttribute("data-id"); // Get the address ID
+        const addressId = addressContainer.getAttribute("data-id"); 
 
         Swal.fire({
             title: 'Are you sure?',
@@ -1092,7 +1085,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Make DELETE request to the server
                 fetch(`/user/address/${addressId}`, {
 					method: 'DELETE',
 					headers: {
@@ -1104,7 +1096,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
 					if (data.message === 'Address deleted successfully') {
 						Swal.fire('Deleted!', 'The address has been deleted.', 'success')
 							.then(() => {
-								// Remove the address from the DOM
 								addressContainer.remove();
 							});
 					} else {
@@ -1122,24 +1113,21 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
 
 
 
-    // Modal close functionality (for both Add and Edit Address Modals)
     var closeModalButtons = document.querySelectorAll('.close');
     closeModalButtons.forEach(button => {
         button.onclick = function() {
-            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none'); // Close any open modal
+            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none'); 
         }
     });
 
-    // Close modal if the user clicks outside of the modal content
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none'; // Close the modal if user clicks outside of it
+            event.target.style.display = 'none'; 
         }
     }
 </script>
 <script>
     function validateForm() {
-        // Get form fields
         const name = document.getElementById("name").value.trim();
         const houseNumber = document.getElementById("houseNumber").value.trim();
         const street = document.getElementById("street").value.trim();
@@ -1149,7 +1137,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
         const country = document.getElementById("country").value.trim();
         const phone = document.getElementById("phone").value.trim();
 
-        // Check if any field is empty
         if (!name || !houseNumber || !street || !city || !state || !zip || !country || !phone) {
             Swal.fire({
                 icon: 'warning',
@@ -1159,7 +1146,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
             return false;
         }
 
-        // Check phone format
         const phonePattern = /^[+][0-9]{2} [0-9]{10}$/;
         if (!phonePattern.test(phone)) {
             Swal.fire({
@@ -1170,7 +1156,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
             return false;
         }
 
-        // ZIP code length check
         if (zip.length < 5 || zip.length > 10) {
             Swal.fire({
                 icon: 'error',
@@ -1180,7 +1165,6 @@ document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
             return false;
         }
 
-        // All validations passed
         return true;
     }
 </script>

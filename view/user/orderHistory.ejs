@@ -949,10 +949,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cancelButtons.forEach(button => {
         button.addEventListener('click', async function() {
-            const orderId = this.dataset.orderId; // Get the order ID from data attribute
-            console.log('Canceling order with ID:', orderId); // Debug log
+            const orderId = this.dataset.orderId; 
+            console.log('Canceling order with ID:', orderId); 
             
-            // Use SweetAlert for confirmation
             const { isConfirmed } = await Swal.fire({
                 title: 'Are you sure?',
                 text: 'Do you really want to cancel this order?',
@@ -965,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isConfirmed) {
                 try {
                     const response = await fetch(`/user/cancelOrder/${orderId}`, {
-                        method: 'POST', // Change to 'POST'
+                        method: 'POST', 
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -976,17 +975,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     const result = await response.json();
-                    // Show success message with SweetAlert
                     Swal.fire({
                         title: 'Cancelled!',
                         text: result.message,
                         icon: 'success',
                     });
 
-                    // Optionally, update the UI to reflect the change
-                    location.reload(); // Reload the page or update the order status in the UI
+                    location.reload(); 
                 } catch (error) {
-                    // Show error message with SweetAlert
                     Swal.fire({
                         title: 'Error!',
                         text: 'Error canceling order: ' + error.message,

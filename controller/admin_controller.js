@@ -346,7 +346,6 @@ const orderapprove = async (req, res) => {
     const userId = req.session.loggedIn;
     
     try {
-        // Ensure the orderId is valid
         const orderId = req.params.id;
         const order = await Orders.findById(orderId);
 
@@ -355,12 +354,10 @@ const orderapprove = async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        // Validate totalAmount
         if (typeof order.totalAmount !== 'number' || isNaN(order.totalAmount)) {
             return res.status(400).json({ message: 'Invalid total amount in the order' });
         }
 
-        // Update product stock for each item in the order
         for (const item of order.items) {
             try {
                 await Products.findByIdAndUpdate(
@@ -374,7 +371,6 @@ const orderapprove = async (req, res) => {
             }
         }
 
-        // Update the order's return status
         const updatedOrder = await Orders.findByIdAndUpdate(
             orderId,
             { returnStatus: 'approved' , status:'Returned' },
@@ -388,13 +384,11 @@ const orderapprove = async (req, res) => {
 
         console.log('Order approval successful');
         
-        // Ensure valid userId
         if (!userId) {
             return res.status(400).json({ message: 'User not logged in' });
         }
 
         if (order.paymentMethod === 'Wallet') {
-            // Retrieve or initialize user wallet
             let userWallet = await Wallet.findOne({ userId: userId });
             if (!userWallet) {
                 userWallet = new Wallet({
@@ -404,7 +398,6 @@ const orderapprove = async (req, res) => {
                 });
             }
 
-            // Add refund amount and transaction to wallet
             userWallet.Balance += order.totalAmount;
             userWallet.Transaction.push({
                 amount: order.totalAmount,
@@ -442,7 +435,6 @@ const orderReject = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
-        // Update the order's return status to 'rejected'
         const updatedOrder = await Orders.findByIdAndUpdate(
             orderId,
             { returnStatus: 'rejected' },

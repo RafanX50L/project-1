@@ -249,12 +249,10 @@
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
     <script>
-         // Handle edit button
          document.querySelectorAll('.edit-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const productId = this.getAttribute('data-id');
                 
-                // Fetch the product details and populate the modal
                 fetch(`/products/${productId}`)
                     .then(response => response.json())
                     .then(product => {
@@ -273,7 +271,6 @@
         document.getElementById('editForm').addEventListener('submit', function(event) {
             event.preventDefault();
     
-            // Form validation function
             function validateForm() {
                 const productName = document.getElementById("editProductName").value.trim();
                 const category = document.getElementById("editCategory").value.trim();
@@ -300,12 +297,10 @@
                 return true;
             }
     
-            // Perform validation first
             if (!validateForm()) {
-                return; // Stop if validation fails
+                return; 
             }
     
-            // Show SweetAlert confirmation
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to update this product?",
@@ -316,7 +311,6 @@
                 confirmButtonText: 'Yes, update it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Get product ID and updated data
                     const productId = document.getElementById('editProductId').value;
                     const updatedData = {
                         product_name: document.getElementById('editProductName').value,
@@ -327,7 +321,6 @@
                         description: document.getElementById('editDescription').value,
                     };
     
-                    // Fetch request to update the product
                     fetch(`/admin/products/edit/${productId}`, {
                         method: 'POST',
                         headers: {
@@ -338,13 +331,11 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Show success SweetAlert
                             Swal.fire(
                                 'Updated!',
                                 'The product has been updated successfully.',
                                 'success'
                             ).then(() => {
-                                // Optionally reload to show updated data
                                 window.location.href = "/admin/products";
                             });
                         }

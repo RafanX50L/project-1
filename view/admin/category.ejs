@@ -262,12 +262,12 @@
         
         listButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const categoryId = this.getAttribute('data-id');  // Fixed typo: changed from cateogoryId
-                console.log(categoryId);  // Corrected from productId to categoryId
-                const currentStatus = this.textContent === 'List';  // If the button says "List", it means the category is currently unlisted
+                const categoryId = this.getAttribute('data-id');  
+                console.log(categoryId);  
+                const currentStatus = this.textContent === 'List';
                 console.log(currentStatus);
                 
-                fetch(`/admin/categorytoggle-status/${categoryId}`, {  // Corrected fetch URL to include categoryId
+                fetch(`/admin/categorytoggle-status/${categoryId}`, {  
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -276,7 +276,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload();  // Update button text and other UI
+                        location.reload();  
                     } else {
                         alert(data.message || 'Failed to update the status');
                     }

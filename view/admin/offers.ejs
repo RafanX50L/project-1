@@ -561,19 +561,15 @@ h3 {
 </script>
 
 <script>
-    // Parse JSON data from script tags
     const products = JSON.parse(document.getElementById('productsData').textContent);
     const categories = JSON.parse(document.getElementById('categoriesData').textContent);
     const subcategories = JSON.parse(document.getElementById('subcategoriesData').textContent);
 
-    // Populate subcategory dropdown based on the selected "apply by" option
     function updateSubcategoryDropdown(applyDropdown, subcategoryDropdown) {
         const selectedOption = applyDropdown.value;
         
-        // Clear previous options
         subcategoryDropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
 
-        // Determine which options to use based on selection
         let options = [];
         if (selectedOption === 'Product') {
             options = products;
@@ -583,16 +579,14 @@ h3 {
             options = subcategories;
         }
 
-        // Populate the subcategory dropdown with the relevant options
         options.forEach(option => {
             const newOption = document.createElement('option');
-            newOption.textContent = option.product_name || option.Category || option.sub_category; // Adjust based on your data structure
-            newOption.textContent = option.product_name || option.Category || option.sub_category; // Adjust based on your data structure
+            newOption.textContent = option.product_name || option.Category || option.sub_category; 
+            newOption.textContent = option.product_name || option.Category || option.sub_category; 
             subcategoryDropdown.appendChild(newOption);
         });
     }
 
-    // Event listeners for "Add Coupon" modal
     document.getElementById('addCouponModal').addEventListener('shown.bs.modal', function() {
         const addApplyDropdown = this.querySelector('#applicableProducts');
         const addSubcategoryDropdown = this.querySelector('#applicableSubCategory');
@@ -602,7 +596,6 @@ h3 {
         });
     });
 
-    // Event listeners for "Edit Coupon" modal
     document.getElementById('editCouponModal').addEventListener('shown.bs.modal', function() {
         const editApplyDropdown = this.querySelector('#applicableProducts');
         const editSubcategoryDropdown = this.querySelector('#applicableSubCategory');
@@ -619,22 +612,19 @@ h3 {
 
     <script>
         $(document).ready(function() {
-    // Show the Add Coupon Modal
     $('#addCouponButton').on('click', function() {
         $('#addCouponModal').modal('show');
     });
 
-    // Show the Edit Coupon Modal with pre-filled values
     $(document).on('click', '.edit-btn', function() {
         const offerId = $(this).data('id');
-        const offerCode = $(this).data('code'); // Access data-code
-        const discount = $(this).data('discount'); // Access data-discount
-        const applicableProduct = $(this).data('apply'); // Access data-applicableproduct
-        const subcategory = $(this).data('value'); // Access data-subcategory
+        const offerCode = $(this).data('code'); 
+        const discount = $(this).data('discount'); 
+        const applicableProduct = $(this).data('apply'); 
+        const subcategory = $(this).data('value'); 
         const startDate = new Date($(this).data('start')).toISOString().slice(0, 10);
         const endDate = new Date($(this).data('end')).toISOString().slice(0, 10);
 
-        // Set values in the modal inputs
         $('#editOfferId').val(offerId);
         $('#editOfferCode').val(offerCode);
         $('#editDiscount').val(discount);
@@ -643,11 +633,9 @@ h3 {
         $('#editStartDate').val(startDate);
         $('#editEndDate').val(endDate);
 
-        // Show the modal
         $('#editCouponModal').modal('show');
     });
 
-    // Handle Add Coupon Form submission
     $('#addCouponForm').on('submit', function(e) {
         e.preventDefault(); 
 
@@ -670,7 +658,6 @@ h3 {
         });
     });
 
-    // Handle Edit Coupon Form submission
     $('#editCouponForm').on('submit', function(e) {
         e.preventDefault();
 
@@ -697,7 +684,6 @@ h3 {
 
     </script>
     <script>
-        // Handle list button clicks
         document.querySelectorAll('.list-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const offerId = this.getAttribute('data-id');
@@ -714,7 +700,6 @@ h3 {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Handle success or error
                     if (data.message) {
                         Swal.fire({
                             icon: 'success',
@@ -723,8 +708,7 @@ h3 {
                             confirmButtonText: 'OK'
                         });
     
-                        // Optionally refresh the page or update the button state
-                        location.reload(); // Reloads the page to see the updated status
+                        location.reload(); 
                     }
                 })
                 .catch(error => {

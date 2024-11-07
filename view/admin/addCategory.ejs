@@ -246,7 +246,7 @@
     <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
     <script>
         document.querySelector('form').addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent page reload
+        e.preventDefault(); 
         
         const formData = new FormData(this);
         fetch('/admin/category/add', {
@@ -255,10 +255,10 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data); // Handle server response
+            console.log(data); 
         })
         .catch(error => {
-            console.error('Error:', error); // Handle errors
+            console.error('Error:', error); 
         });
     });
 
@@ -268,7 +268,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             const form = document.getElementById("productForm");
     
-            // Form validation function
             function validateForm(event) {
                 const categoryName = document.getElementById("category_name").value.trim();
                 const description = document.getElementById("description").value.trim();
@@ -279,16 +278,13 @@
                     return false;
                 }
     
-                // If the validation passes
                 return true;
             }
     
-            // Submit event listener with SweetAlert confirmation
             form.addEventListener("submit", function(event) {
-                event.preventDefault(); // Prevent form submission first
+                event.preventDefault(); 
     
                 if (validateForm(event)) {
-                    // Show SweetAlert confirmation
                     Swal.fire({
                         title: 'Are you sure?',
                         text: "Do you want to add this category?",
@@ -299,7 +295,6 @@
                         confirmButtonText: 'Yes, add it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Proceed to submit the form
                             form.submit(); 
                         }
                     });

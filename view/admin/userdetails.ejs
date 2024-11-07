@@ -274,7 +274,6 @@
     <script src="js/main.js"></script>
     <script>
         function updateStatus(email, field, value) {
-            // Convert 'false'/'true' string to actual boolean value
             const booleanValue = (value === 'true');
     
             fetch(`/admin/user/update-status`, {
@@ -291,7 +290,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload(); // Refresh to reflect updated status
+                    location.reload(); 
                 } else {
                     alert('Failed to update status');
                 }

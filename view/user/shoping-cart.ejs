@@ -597,11 +597,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		function removeProductFromCart(buttonElement) {
-  // Retrieve the productId from the data attribute of the clicked button
   const productId = buttonElement.getAttribute('data-product-id');
 
   console.log(productId)
-  // Show SweetAlert confirmation before removing the product
   Swal.fire({
     title: 'Are you sure?',
     text: 'You will not be able to recover this product!',
@@ -612,7 +610,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     confirmButtonText: 'Yes, remove it!',
   }).then((result) => {
     if (result.isConfirmed) {
-      // Proceed with the removal if confirmed
       fetch(`/user/remove-from-cart/${productId}`, {
 			method: 'DELETE',
 			headers: {
@@ -638,60 +635,54 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
 		function incrementValue(event, productId, stock) {
 
-			event.preventDefault(); // Prevent page reload
+			event.preventDefault(); 
 			const input = document.querySelector(`input[data-product-id="${productId}"]`);
 			let currentValue = parseInt(input.value);
 
 	
-			// Check if current value is less than stock before incrementing
 			if (currentValue < 10) {
-				input.value = currentValue + 1; // Increment the value
+				input.value = currentValue + 1; 
 			} else {
-				alert(`Cannot exceed stock limit of ${10}.`); // Alert if stock limit is exceeded
+				alert(`Cannot exceed stock limit of ${10}.`); 
 			}
 		}
 	
 		function decrementValue(event, productId, stock) {
 
 
-			event.preventDefault(); // Prevent page reload
+			event.preventDefault(); 
 			const input = document.querySelector(`input[data-product-id="${productId}"]`);
 			let currentValue = parseInt(input.value);
 
-			// Check if current value is greater than 1 before decrementing
 			if (currentValue > 1) {
-				input.value = currentValue - 1; // Decrement the value
+				input.value = currentValue - 1; 
 			} else {
 				alert("Minimum quantity must be 1");
 			}
 		}
 
 		async function updateCart() {
-			const cartItems = document.querySelectorAll('input[data-product-id]'); // Select all quantity inputs
+			const cartItems = document.querySelectorAll('input[data-product-id]'); 
 			const updatedItems = [];
 
-			// Gather updated quantities
 			cartItems.forEach(input => {
-				const productId = input.dataset.productId; // Get product ID from data attribute
-				const quantity = parseInt(input.value); // Get the quantity value
-				updatedItems.push({ productId, quantity }); // Push to updated items array
+				const productId = input.dataset.productId; 
+				const quantity = parseInt(input.value); 
+				updatedItems.push({ productId, quantity }); 
 			});
 
-			// Send updated quantities to the server
 			try {
-				const response = await fetch('/user/update-cart', { // Update the URL according to your route
+				const response = await fetch('/user/update-cart', { 
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json', // Set content type
+						'Content-Type': 'application/json', 
 					},
-					body: JSON.stringify({ items: updatedItems }), // Convert to JSON
+					body: JSON.stringify({ items: updatedItems }), 
 				});
 
-				// Check for successful response
 				if (response.ok) {
 					const result = await response.json();
 					alert('Cart updated successfully!');
-					// Optionally refresh the cart or update UI here
 				} else {
 					throw new Error('Failed to update cart');
 				}

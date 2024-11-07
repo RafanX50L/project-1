@@ -262,18 +262,15 @@
     </div> 
 
     <script>
-        // Function to hide the button for 1 minute
         function hideResendButtonTemporarily() {
             const resendButton = document.getElementById('resendBtn');
-            resendButton.style.visibility = 'hidden'; // Make the button invisible
+            resendButton.style.visibility = 'hidden'; 
             
-            // Set a timer to make the button visible again after 1 minute (60,000 milliseconds)
             setTimeout(() => {
                 resendButton.style.visibility = 'visible';
-            }, 60000); // 60 seconds
+            }, 60000); 
         }
     
-        // Call this function when you want to hide the button (e.g., right after the OTP is sent)
         hideResendButtonTemporarily();
     </script>
 </body>

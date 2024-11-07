@@ -229,12 +229,10 @@
                                         <div class="form-group">
                                             <label for="product_images">Product Images</label>
                                             <input type="file" class="form-control" id="product_images" name="product_images" accept="image/*" multiple >
-                                            <!-- <input type="file" name="product_images" accept="image/*" multiple><br><br> -->
-                                            <!-- <input type="file" name="product_images" accept="image/*" multiple> -->
                                         </div>
                                         
                                         <div id="image_preview_container" class="d-flex flex-wrap">
-                                            <!-- This is where the image previews will be inserted dynamically -->
+
                                         </div>
                                         
             
@@ -260,7 +258,6 @@
                             &copy; <a href="#">Your Site Name</a>, All Right Reserved. 
                         </div>
                         <div class="col-12 col-sm-6 text-center text-sm-end">
-                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
                             Designed By <a href="https://htmlcodex.com">HTML Codex</a>
                             <br>Distributed By: <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
                         </div>
@@ -286,19 +283,17 @@
         let cropper;
         const fileInput = document.getElementById('product_images');
         const previewContainer = document.getElementById('image_preview_container');
-        const okButton = document.getElementById('okButton'); // OK button for saving the image
-        const cropButton = document.getElementById('cropButton'); // Crop button for cropping functionality
+        const okButton = document.getElementById('okButton'); 
+        const cropButton = document.getElementById('cropButton'); 
     
         fileInput.addEventListener('change', function (e) {
             const files = e.target.files;
     
-            // Clear previous image previews
             previewContainer.innerHTML = '';
     
             for (let i = 0; i < files.length; i++) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
-                    // Create a container for each image
                     const imageContainer = document.createElement('div');
                     imageContainer.classList.add('image-container');
                     
@@ -306,7 +301,6 @@
                     img.src = event.target.result;
                     img.classList.add('image-preview');
     
-                    // Action buttons (Crop and Delete)
                     const imageActions = document.createElement('div');
                     imageActions.classList.add('image-actions');
     
@@ -322,30 +316,25 @@
                     deleteBtn.type = 'button';
                     imageActions.appendChild(deleteBtn);
     
-                    // Add crop functionality to the crop button
                     cropBtn.addEventListener('click', function () {
                         if (cropper) {
                             cropper.destroy();
                         }
     
-                        // Initialize the cropper on image click
                         cropper = new Cropper(img, {
                             aspectRatio: 1,
                             viewMode: 1,
                             autoCropArea: 0.65
                         });
     
-                        // Hide crop button and show OK button
                         cropBtn.style.display = 'none';
-                        okButton.style.display = 'inline-block'; // Show the OK button
+                        okButton.style.display = 'inline-block'; 
                     });
     
-                    // Add delete functionality to the delete button
                     deleteBtn.addEventListener('click', function () {
                         previewContainer.removeChild(imageContainer);
                     });
     
-                    // Append image and actions to container
                     imageContainer.appendChild(img);
                     imageContainer.appendChild(imageActions);
                     previewContainer.appendChild(imageContainer);
@@ -354,31 +343,25 @@
             }
         });
     
-        // Click on the "OK" button
         okButton.addEventListener('click', function () {
             if (cropper) {
                 const canvas = cropper.getCroppedCanvas();
-                const croppedBase64 = canvas.toDataURL(); // Get the cropped image in Base64
+                const croppedBase64 = canvas.toDataURL(); 
     
-                // You can do whatever you want with the cropped image data here
-                console.log(croppedBase64); // For example, log the cropped image
+                console.log(croppedBase64); 
     
-                // Set the cropped image data to a hidden input field for form submission
                 document.getElementById('cropped_image').value = croppedBase64;
     
-                // Destroy the cropper after saving
                 cropper.destroy();
-                okButton.style.display = 'none'; // Hide the OK button after saving
+                okButton.style.display = 'none'; 
             }
         });
     
-        // Form submission handling (including cropped image data if cropping was applied)
         document.querySelector('form').addEventListener('submit', function (e) {
             e.preventDefault();
     
             const formData = new FormData(this);
             
-            // Add any additional data to the form (e.g., cropped image)
             const croppedImage = document.getElementById('cropped_image').value;
             if (croppedImage) {
                 formData.append('cropped_image', croppedImage);
@@ -390,10 +373,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data); // Handle server response
+                console.log(data); 
             })
             .catch(error => {
-                console.error('Error:', error); // Handle errors
+                console.error('Error:', error); 
             });
         });
     </script>
@@ -403,9 +386,8 @@
             const form = document.getElementById("productForm");
             const productImages = document.getElementById("product_images");
             const allowedExtensions = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
-            const maxImageSize = 2 * 1024 * 1024; // 2MB
+            const maxImageSize = 2 * 1024 * 1024; 
     
-            // Form validation function
             function validateForm(event) {
                 const productName = document.getElementById("product_name").value.trim();
                 const category = document.getElementById("category").value.trim();
@@ -457,11 +439,9 @@
                 return true;
             }
     
-            // Submit event listener with SweetAlert confirmation
             form.addEventListener("submit", function(event) {
-                event.preventDefault(); // Prevent form submission first
+                event.preventDefault(); 
                 if (validateForm(event)) {
-                    // Show SweetAlert confirmation
                     Swal.fire({
                         title: 'Are you sure?',
                         text: "Do you want to add this product?",
@@ -472,7 +452,7 @@
                         confirmButtonText: 'Yes, add it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            form.submit(); // Proceed to submit the form
+                            form.submit(); 
                         }
                     });
                 }

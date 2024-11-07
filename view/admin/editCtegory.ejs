@@ -233,9 +233,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById('editForm').addEventListener('submit', function(event) {
-            event.preventDefault();  // Prevent default form submission
+            event.preventDefault();  
             
-            // Validation before proceeding
             const categoryName = document.getElementById('editCategoryName').value.trim();
             const description = document.getElementById('editDescription').value.trim();
             
@@ -244,7 +243,6 @@
                 return false;
             }
 
-            // Confirmation using SweetAlert
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to update this category?",
@@ -261,19 +259,18 @@
                         description: document.getElementById('editDescription').value,
                     };
 
-                    // Proceed with fetch request to update the category
                     fetch(`/admin/categories/edit/${CategoryID}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(updatedData),  // Send the updated data as a JSON string
+                        body: JSON.stringify(updatedData),
                     })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! Status: ${response.status}`);
                         }
-                        return response.json();  // Parse the JSON response
+                        return response.json();
                     })
                     .then(data => {
                         console.log('Success:', data);
@@ -283,10 +280,10 @@
                                 'The category has been updated successfully.',
                                 'success'
                             ).then(() => {
-                                window.location.href = '/admin/category';  // Redirect after successful update
+                                window.location.href = '/admin/category';  
                             });
                         } else {
-                            Swal.fire("Error", data.message, "error");  // Show error message
+                            Swal.fire("Error", data.message, "error");  
                         }
                     })
                     .catch(error => {

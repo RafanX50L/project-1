@@ -389,34 +389,28 @@ const checkOutget = async (req, res) => {
         let subtotal = 0;
         let offerDiscount = 0;
 
-        // Process each cart item to calculate offer prices and discounts
         cart.items.forEach(item => {
             const product = item.productId;
 
-            // Finding applicable offers
             const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
             const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
             const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
 
-            // Get the best applicable offer based on maximum discount
             const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
             const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
 
             if (bestOffer.discount > 0) {
-                // Calculate discounted price and offer amount
                 item.offerPrice = product.price - (product.price * bestOffer.discount / 100);
                 item.offerAmount = (product.price * item.quantity) - (item.offerPrice * item.quantity);
                 item.discount = bestOffer.discount;
 
                 offerDiscount += item.offerAmount;
             } else {
-                // No discount applied
                 item.offerPrice = product.price;
                 item.offerAmount = 0;
                 item.discount = 0;
             }
 
-            // Calculate subtotal with offer applied prices
             subtotal += product.price * item.quantity;
         });
 
@@ -427,7 +421,7 @@ const checkOutget = async (req, res) => {
             subtotal: subtotal.toFixed(2),
             totalPrice: totalPrice.toFixed(2),
             offerDiscount: offerDiscount.toFixed(2),
-            couponDiscount: 0, // Can be updated separately if a coupon is applied
+            couponDiscount: 0, 
             c: category,
             addresses: user.addresses
         });
@@ -639,22 +633,18 @@ const verifyPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
         }
 
-        // Fetch active offers to determine the best discount for each item
         const activeOffers = await Offers.find({ status: 'active' });
 
         const orderItems = cart.items.map((item) => {
             const product = item.productId;
 
-            // Find applicable offers for the product
             const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
             const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
             const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
 
-            // Determine the best offer with the highest discount
             const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
             const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
 
-            // Calculate offer price and discount amount
             const offerPrice = bestOffer.discount > 0 
                 ? product.price - (product.price * bestOffer.discount / 100)
                 : product.price;
@@ -667,9 +657,9 @@ const verifyPayment = async (req, res) => {
                 productImage: product.product_images[0], 
                 quantity: item.quantity,
                 unitPrice: product.price,
-                offerPrice: offerPrice,                    // Add offerPrice if applicable
-                subtotal: product.price * item.quantity,       // Calculate subtotal based on offerPrice
-                offerAmount: offerAmount                    // Track the discount amount for this item
+                offerPrice: offerPrice,                    
+                subtotal: product.price * item.quantity,
+                offerAmount: offerAmount
             };
         });
 
@@ -717,7 +707,6 @@ const placeOrder = async (req, res) => {
         const orderItems = cart.items.map((item) => {
             const product = item.productId;
         
-            // Apply the offer logic to find the best applicable discount for each item
             const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
             const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
             const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
@@ -725,12 +714,10 @@ const placeOrder = async (req, res) => {
             const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
             const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
         
-            // Calculate offerPrice based on the best offer found
             const offerPrice = bestOffer.discount > 0
                 ? product.price - (product.price * bestOffer.discount / 100)
                 : product.price;
         
-            // Calculate subtotal with the offer price
             const subtotal = product.price * offerPrice;
         
             return {
@@ -739,8 +726,8 @@ const placeOrder = async (req, res) => {
                 productImage: product.product_images[0],
                 quantity: item.quantity,
                 unitPrice: product.price,
-                offerPrice: offerPrice,       // Include the offer price here
-                subtotal: subtotal            // Subtotal calculated with offer price
+                offerPrice: offerPrice,       
+                subtotal: subtotal            
             };
         });
         

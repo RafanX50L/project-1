@@ -553,7 +553,6 @@ h3 {
                     url: $(this).attr('action'),
                     data: $(this).serialize(),
                     success: function(response) {
-                        // Redirect on success
                         window.location.href = '/admin/coupons'; 
                     },
                     error: function(xhr) {
@@ -568,16 +567,14 @@ h3 {
                 });
             });
     
-            // Handle Edit Coupon Form submission
             $('#editCouponForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent the default form submission
+                e.preventDefault(); 
     
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
                     data: $(this).serialize(),
                     success: function(response) {
-                        // Redirect on success
                         window.location.href = '/admin/coupons'; 
                     },
                     error: function(xhr) {
@@ -594,7 +591,6 @@ h3 {
         });
     </script>
     <script>
-        // Handle list button clicks
         document.querySelectorAll('.list-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const couponId = this.getAttribute('data-id');
@@ -611,7 +607,6 @@ h3 {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Handle success or error
                     if (data.message) {
                         Swal.fire({
                             icon: 'success',
@@ -620,8 +615,7 @@ h3 {
                             confirmButtonText: 'OK'
                         });
     
-                        // Optionally refresh the page or update the button state
-                        location.reload(); // Reloads the page to see the updated status
+                        location.reload(); 
                     }
                 })
                 .catch(error => {

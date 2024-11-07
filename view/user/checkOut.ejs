@@ -864,7 +864,6 @@ document.getElementById("applyCoupon").addEventListener("click", async function 
                 confirmButtonText: 'OK'
             });
 
-            // Update the discount and total price in the UI
             document.getElementById("discountAmount").textContent = data.discountAmount.toFixed(2);
             document.getElementById("totalPriceDisplay").textContent = `${data.newTotalPrice.toFixed(2)}`;
             document.getElementById("removeCoupon").style.display = "inline-block";

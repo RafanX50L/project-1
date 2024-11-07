@@ -211,13 +211,10 @@
             const rememberMe = document.getElementById('terms').checked;
             const errorElement = document.getElementById('error');
             
-            // Clear previous error messages
             errorElement.textContent = '';
 
-            // Regular expression to match an email with a name before '@', and ending with 'gmail.com'
             const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
-            // Validate email
             if (username === '') {
                 errorElement.textContent = 'Email cannot be empty!';
                 return false;
@@ -228,7 +225,6 @@
                 return false;
             }
 
-            // Validate password
             if (password === '') {
                 errorElement.textContent = 'Password cannot be empty!';
                 return false;
@@ -239,13 +235,11 @@
                 return false;
             }
 
-            // Validate checkbox
             if (!rememberMe) {
                 errorElement.textContent = 'You must agree to terms & policy!';
                 return false;
             }
 
-            // If everything is valid, return true
             return true;
         }
 
@@ -263,19 +257,16 @@
             const result = await response.json();
             console.log(result.message)
             if (result.message === "success") {
-                // Navigate to OTP verification page or show a message
-                window.location.href = "/user/otp-validation"; // Replace with your OTP page URL
+                window.location.href = "/user/otp-validation"; 
             } else {
-                // Handle error
                 document.getElementById('error').textContent = result.message || 'Error signing up';
             }
         };
 
-        // Event listener for form submission
         document.getElementById('signupForm').addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault(); 
             if (validateForm()) {
-                handleSignup(); // Call signup function if validation passes
+                handleSignup(); 
             }
         });
     </script>
