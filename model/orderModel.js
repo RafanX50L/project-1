@@ -23,6 +23,10 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  offerPrice:{
+    type:Number,
+    default:0
+  },
   subtotal: {
     type: Number,
     required: true,
@@ -64,7 +68,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+    enum: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled' , 'Returned'],
     default: 'Pending',
   },
   paymentStatus: {
@@ -75,12 +79,21 @@ const orderSchema = new mongoose.Schema({
   orderDate: {
     type: Date,
     default: Date.now,
-  },
+  }, 
   deliveryDate: {
     type: Date, 
   },
-  discount:{
+  Coupon_discount:{
     type:Number,
+    default:0
+  },
+  returnStatus:{
+    type:String,
+    enum:['requested' , 'approved' , 'rejected']
+  },
+  Offer_discount:{
+    type:Number,
+    default:0
   }
 }, { timestamps: true });
 

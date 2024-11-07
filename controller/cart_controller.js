@@ -106,45 +106,46 @@ const getCartDetails = async (req, res) => {
 const addCoupon = async (req, res) => {
     const userId = req.session.loggedIn;
 
+    console.log('entered to add coupon');
+    
     try {
-        const { couponCode } = req.body;
+        const { couponCode, totalPrice} = req.body;
 
         const coupon = await Coupon.findOne({ coupon_code: couponCode });
         if (!coupon) {
             return res.status(400).json({ success: false, message: 'Invalid coupon code.' });
         }
 
-        const cart = await Cart.findOne({ userId });
-        if (!cart) {
-            return res.status(404).json({ success: false, message: 'Cart not found.' });
-        }
+        
 
         const now = new Date();
         if (coupon.end_date < now) {
             return res.status(400).json({ success: false, message: 'The coupon is expired.' });
         }
 
-        if (cart.totalPrice < coupon.max_amount) {
+        if (totalPrice < coupon.max_amount) {
             return res.status(400).json({
                 success: false,
                 message: `The total amount must be at least ${coupon.max_amount} to apply this coupon.`
             });
         }
 
-        if (cart.totalPrice > coupon.max_amount+10000) {
+        if (totalPrice > coupon.max_amount+10000) {
             return res.status(400).json({
                 success: false,
                 message: `The total amount must be less than ${coupon.max_amount+10000} to apply this coupon.`
             });
         }
-        console.log(cart.totalPrice);
+        console.log(totalPrice);
         
         const discount = Math.min(
-            (cart.totalPrice * coupon.discount_percentage) / 100,
+            (totalPrice * coupon.discount_percentage) / 100,
             coupon.max_amount
         );
 
-        const newTotalPrice = cart.totalPrice - discount;
+        const newTotalPrice = totalPrice - discount;
+        console.log(newTotalPrice,discount);
+        
 
 
         res.json({
@@ -371,46 +372,74 @@ const updatCart = async (req,res) => {
 }
 }
 
-const checkOutget = async(req,res)=>{
-  try {
-    const userId = req.session.loggedIn;
-    const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-    let user;
+const checkOutget = async (req, res) => {
+    try {
+        const userId = req.session.loggedIn;
 
-    const cart = await Cart.findOne({ userId }).populate({
-        path: 'items.productId',       
-        select: 'product_name price product_images' 
-      })
+        const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
+        const cart = await Cart.findOne({ userId }).populate('items.productId').exec();
+        const user = await User.findOne({ _id: userId });
 
-        
-    user = await User.findOne({ _id: userId  });
-    if (!cart) {
-        return res.status(404).json({ message: 'Cart not found' });
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        const activeOffers = await Offers.find({ status: 'active' });
+
+        let subtotal = 0;
+        let offerDiscount = 0;
+
+        // Process each cart item to calculate offer prices and discounts
+        cart.items.forEach(item => {
+            const product = item.productId;
+
+            // Finding applicable offers
+            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+            // Get the best applicable offer based on maximum discount
+            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+            if (bestOffer.discount > 0) {
+                // Calculate discounted price and offer amount
+                item.offerPrice = product.price - (product.price * bestOffer.discount / 100);
+                item.offerAmount = (product.price * item.quantity) - (item.offerPrice * item.quantity);
+                item.discount = bestOffer.discount;
+
+                offerDiscount += item.offerAmount;
+            } else {
+                // No discount applied
+                item.offerPrice = product.price;
+                item.offerAmount = 0;
+                item.discount = 0;
+            }
+
+            // Calculate subtotal with offer applied prices
+            subtotal += product.price * item.quantity;
+        });
+
+        const totalPrice = subtotal-offerDiscount;
+
+        res.render('user/checkOut.ejs', {
+            cartItems: cart.items,
+            subtotal: subtotal.toFixed(2),
+            totalPrice: totalPrice.toFixed(2),
+            offerDiscount: offerDiscount.toFixed(2),
+            couponDiscount: 0, // Can be updated separately if a coupon is applied
+            c: category,
+            addresses: user.addresses
+        });
+    } catch (error) {
+        console.error('Error in checkout:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
+};
 
-    let subtotal = 0;
-    cart.items.forEach(item => {
-        subtotal += item.quantity * item.productId.price;
-    });
+  
+  
 
-    let discount = cart.discount;
-    console.log(discount);
-    
-
-    let totalPrice = subtotal-discount;
-    res.render('user/checkOut.ejs', {
-        cartItems: cart.items,
-        subtotal: subtotal,
-        totalPrice: totalPrice,
-        discount:discount,
-        c:category,
-        addresses: user.addresses
-    });
-} catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
-}
-}
 
 const orderSucsess = async(req,res)=>{
     const id = req.params.id;
@@ -478,7 +507,8 @@ const orderCancel = async (req,res) => {
             return res.status(404).send('Order not found');
         }
 
-        let userWallet = await Wallet.findOne({ userId:userId });
+        if(order.paymentMethod === 'Wallet'){
+            let userWallet = await Wallet.findOne({ userId:userId });
 
             if (!userWallet) {
                 userWallet = new Wallet({
@@ -501,12 +531,38 @@ const orderCancel = async (req,res) => {
 
             await userWallet.save();
             console.log('Wallet refund successful');
+        }
         res.status(200).json({ message: 'Order canceled successfully', order: updatedOrder });
     } catch (error) {
         res.status(500).send('Server error: ' + error.message);
     }
 }
+const orderReturn = async (req,res) => {
+    const userId = req.session.loggedIn;
+    
+    try {
+        const orderId = req.params.id;
+       
+        const order = await Order.findById(orderId);
 
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { returnStatus: 'requested' }, 
+            { new: true } 
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).send('Order not found');
+        }
+        res.status(200).json({ message: 'Order canceled successfully', order: updatedOrder });
+    } catch (error) {
+        res.status(500).send('Server error: ' + error.message);
+    }
+}
 
 
 const getWallet = async (req,res) => {
@@ -525,13 +581,17 @@ const getWallet = async (req,res) => {
 }
 
 
-const createOrder = async (userId, addressId, totalAmount, discount, paymentMethod, items, subtotal, quantity) => {
+const createOrder = async ({ userId, addressId, totalAmount, discount, offerDiscount, paymentMethod, items, subtotal, quantity }) => {
+    console.log('entered to create order');
+    console.log(typeof(offerDiscount));
+
     const newOrder = new Order({
         userId,
         shippingAddress: addressId,
         paymentMethod,
         totalAmount,
-        discount,
+        Coupon_discount: discount,
+        Offer_discount: offerDiscount,
         items,
         subtotal,
         quantity,
@@ -544,6 +604,7 @@ const createOrder = async (userId, addressId, totalAmount, discount, paymentMeth
     await Cart.updateOne({ userId }, { $set: { items: [] } });
     return savedOrder;
 };
+
 
 
 const createRazorpayOrder = async (req, res) => {
@@ -567,7 +628,7 @@ const createRazorpayOrder = async (req, res) => {
 };
 
 const verifyPayment = async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, addressId, totalAmount, discount } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, addressId, totalAmount, discount, offerDiscount } = req.body;
     const userId = req.session.loggedIn;
 
     const isValid = verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
@@ -578,19 +639,59 @@ const verifyPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
         }
 
-        const orderItems = cart.items.map((item) => ({
-            productId: item.productId._id,
-            productName: item.productId.product_name,
-            productImage: item.productId.product_images[0], 
-            quantity: item.quantity,
-            unitPrice: item.productId.price,
-            subtotal: item.quantity * item.productId.price
-        }));
+        // Fetch active offers to determine the best discount for each item
+        const activeOffers = await Offers.find({ status: 'active' });
 
+        const orderItems = cart.items.map((item) => {
+            const product = item.productId;
+
+            // Find applicable offers for the product
+            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+            // Determine the best offer with the highest discount
+            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+            // Calculate offer price and discount amount
+            const offerPrice = bestOffer.discount > 0 
+                ? product.price - (product.price * bestOffer.discount / 100)
+                : product.price;
+
+            const offerAmount = (product.price - offerPrice) * item.quantity;
+
+            return {
+                productId: product._id,
+                productName: product.product_name,
+                productImage: product.product_images[0], 
+                quantity: item.quantity,
+                unitPrice: product.price,
+                offerPrice: offerPrice,                    // Add offerPrice if applicable
+                subtotal: product.price * item.quantity,       // Calculate subtotal based on offerPrice
+                offerAmount: offerAmount                    // Track the discount amount for this item
+            };
+        });
+
+ 
         const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
-
-        const savedOrder = await createOrder(userId, addressId, totalAmount, discount, 'online payment', orderItems, subtotal, totalQuantity);
+        console.log('sended to create order');
+        console.log(typeof(offerDiscount));
+        
+        const savedOrder = await createOrder({
+            userId,
+            addressId,
+            totalAmount,
+            discount,
+            offerDiscount,
+            paymentMethod: 'online payment',
+            items: orderItems,
+            subtotal,
+            quantity: totalQuantity
+        });
+        
+        
         
         res.json({ success: true, orderId: savedOrder._id });
     } else {
@@ -602,7 +703,7 @@ const verifyPayment = async (req, res) => {
 
 const placeOrder = async (req, res) => {
     try {
-        const { addressId, totalAmount, discount, paymentMethod } = req.body;
+        const { addressId, totalAmount, discount, paymentMethod , offerDiscount } = req.body;
         const userId = req.session.loggedIn;
 
         const cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -611,14 +712,38 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
         }
 
-        const orderItems = cart.items.map((item) => ({
-            productId: item.productId._id,
-            productName: item.productId.product_name,
-            productImage: item.productId.product_images[0],
-            quantity: item.quantity,
-            unitPrice: item.productId.price,
-            subtotal: item.quantity * item.productId.price
-        }));
+        const activeOffers = await Offers.find({ status: 'active' });
+
+        const orderItems = cart.items.map((item) => {
+            const product = item.productId;
+        
+            // Apply the offer logic to find the best applicable discount for each item
+            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+        
+            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+        
+            // Calculate offerPrice based on the best offer found
+            const offerPrice = bestOffer.discount > 0
+                ? product.price - (product.price * bestOffer.discount / 100)
+                : product.price;
+        
+            // Calculate subtotal with the offer price
+            const subtotal = product.price * offerPrice;
+        
+            return {
+                productId: product._id,
+                productName: product.product_name,
+                productImage: product.product_images[0],
+                quantity: item.quantity,
+                unitPrice: product.price,
+                offerPrice: offerPrice,       // Include the offer price here
+                subtotal: subtotal            // Subtotal calculated with offer price
+            };
+        });
+        
 
         const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
@@ -630,7 +755,8 @@ const placeOrder = async (req, res) => {
             shippingAddress: addressId,
             paymentMethod,
             totalAmount,
-            discount,
+            Coupon_discount: discount,
+            Offer_discount: offerDiscount,
             subtotal,
             quantity: totalQuantity,
             paymentStatus: paymentMethod === 'Cash On Delivery' || paymentMethod === 'Wallet' ? 'Unpaid' : 'Paid',
@@ -693,5 +819,6 @@ module.exports = {
     addCoupon,
     getWallet,
     verifyPayment,
-    createRazorpayOrder
+    createRazorpayOrder,
+    orderReturn
 }

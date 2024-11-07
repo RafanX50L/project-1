@@ -5,7 +5,8 @@ const Category = require('../model/categoryModel');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const Offers = require('../model/offer'); 
-
+const Wallet = require('../model/wallet'); 
+const Cart = require('../model/cartModel');
 
 const loginget = async (req, res) => {
 
@@ -101,6 +102,10 @@ const verifyOTP = async (req, res) => {
         }
 
         await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true } });
+
+        await Cart.create({ userId: user_Data._id, items: [] });
+        await Wallet.create({ userId: user_Data._id, Balance: 0, transactions: [] });
+
         res.status(200).json({ success: true, message: 'OTP verified successfully' });
     } catch (error) {
         await User.updateOne({ email: email }, { $unset: { otp: "" } });

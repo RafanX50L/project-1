@@ -141,6 +141,7 @@ user_route.get('/payment-success',(req,res) => {
     res.sendFile(path.join(__dirname,'success.html'))
 });
 user_route.post('/cancelOrder/:id',cart_Controller.orderCancel)
+user_route.post('/retun/:id',cart_Controller.orderReturn)
 
 //user wallet routes 
 user_route.get('/wallet',cart_Controller.getWallet)

@@ -142,6 +142,7 @@ h2 {
         }
 	</style>
     <style>
+		
         body {
             background-color: #121212;
             color: #e0e0e0;
@@ -421,28 +422,45 @@ h2 {
                                                 <td><%= Orders.quantity %></td>
                                                 <td><%= Orders.totalAmount %></td>
                                                 <td class="
-													<% if (Orders.status === 'pending') { %> text-muted <% } %>
-													<% if (Orders.status === 'processing') { %> text-primary <% } %>
+													<% if (Orders.status === 'placed') { %> text-primary <% } %>
 													<% if (Orders.status === 'shipped') { %> text-info <% } %>
 													<% if (Orders.status === 'delivered') { %> text-success <% } %>
 													<% if (Orders.status === 'cancelled') { %> text-danger <% } %>
-												">
+													<% if (Orders.status === 'Returned') { %> text-warning <% } %>
+													">
 													<%= Orders.status.charAt(0).toUpperCase() + Orders.status.slice(1) %>
 												</td>
 												
 
                                                 <td>
-													<a href="/user/orderdetails/<%= Orders._id %>" class="btn btn-details btn-sm me-2">Details</a>
+													<a href="/user/orderdetails/<%= Orders._id %>" class="btn  btn-outline-success">Details</a>
 													<button 
-														class="btn btn-cancel btn-sm" 
-														<% if (Orders.status === 'delivered' || Orders.status === 'cancelled') { %> 
-															style="visibility: hidden;"
+														class="btn btn-cancel btn" 
+														<% if (Orders.status === 'delivered' || Orders.status === 'cancelled' || Orders.status === 'Returned') { %> 
+															style="display: none;"
 														<% } %>
 														data-order-id="<%= Orders._id %>">
 														Cancel Order
 													</button>
+													<% if (Orders.status === 'delivered' && !Orders.returnStatus ) { %> 
+														<button class="return-btn btn btn-outline-warning" data-order-id="<%= Orders._id %>">
+															Return Order
+														</button>
+														
+													<% } else if (Orders.returnStatus == 'requested') { %>
+														<p class="btn btn-info">
+															Requested for Return
+														</p>
+													<% } else if (Orders.returnStatus == 'approved') { %>
+														<p class="btn btn-success">
+															Requested for Return Approved
+														</p>
+													<% } else if (Orders.returnStatus == 'rejected' ) { %>
+														<p class="btn btn-danger">
+															Requested for Return Rejected
+														</p>
+													<% } %>
 												</td>
-												
                                             </tr>
                                          <% }); %>
                                     </tbody>
@@ -871,6 +889,61 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const returnButtons = document.querySelectorAll('.return-btn');
+
+    returnButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            const orderId = this.getAttribute('data-order-id');
+			console.log(orderId);
+			
+			// Use SweetAlert for confirmation
+			const { isConfirmed } = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to retun this order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Return it!',
+                cancelButtonText: 'No, keep it'
+            });
+
+            if (isConfirmed) {
+                try {
+                    const response = await fetch(`/user/retun/${orderId}`, {
+                        method: 'POST', // Change to 'POST'
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+
+                    const result = await response.json();
+                    // Show success message with SweetAlert
+                    Swal.fire({
+                        title: 'Return request sended!',
+                        text: result.message,
+                        icon: 'success',
+                    });
+
+                    location.reload(); // Reload the page or update the order status in the UI
+                } catch (error) {
+                    // Show error message with SweetAlert
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error Returning order: ' + error.message,
+                        icon: 'error',
+                    });
+                }
+            }
+
+		});
+    });
+});
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const cancelButtons = document.querySelectorAll('.btn-cancel');
 

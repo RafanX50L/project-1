@@ -340,6 +340,132 @@ const updateOrderStatus = async (req, res) => {
 };
 
 
+const orderapprove = async (req, res) => {
+    console.log('Entered to approve return');
+    
+    const userId = req.session.loggedIn;
+    
+    try {
+        // Ensure the orderId is valid
+        const orderId = req.params.id;
+        const order = await Orders.findById(orderId);
+
+        if (!order) {
+            console.log('Order not found');
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Validate totalAmount
+        if (typeof order.totalAmount !== 'number' || isNaN(order.totalAmount)) {
+            return res.status(400).json({ message: 'Invalid total amount in the order' });
+        }
+
+        // Update product stock for each item in the order
+        for (const item of order.items) {
+            try {
+                await Products.findByIdAndUpdate(
+                    item.productId,
+                    { $inc: { stock: item.quantity } },
+                    { new: true }
+                );
+            } catch (err) {
+                console.log('Error updating product stock:', err);
+                return res.status(500).json({ message: 'Error updating product stock' });
+            }
+        }
+
+        // Update the order's return status
+        const updatedOrder = await Orders.findByIdAndUpdate(
+            orderId,
+            { returnStatus: 'approved' , status:'Returned' },
+            { new: true }
+        );
+
+        if (!updatedOrder) {
+            console.log('Order update failed');
+            return res.status(404).json({ message: 'Order update failed' });
+        }
+
+        console.log('Order approval successful');
+        
+        // Ensure valid userId
+        if (!userId) {
+            return res.status(400).json({ message: 'User not logged in' });
+        }
+
+        if (order.paymentMethod === 'Wallet') {
+            // Retrieve or initialize user wallet
+            let userWallet = await Wallet.findOne({ userId: userId });
+            if (!userWallet) {
+                userWallet = new Wallet({
+                    userId: userId,
+                    Balance: 0,
+                    Transaction: []
+                });
+            }
+
+            // Add refund amount and transaction to wallet
+            userWallet.Balance += order.totalAmount;
+            userWallet.Transaction.push({
+                amount: order.totalAmount,
+                date: new Date(),
+                type: 'credit',
+                orderId: order.orderId,
+                reason: 'Order Returned'
+            });
+
+            const savedWallet = await userWallet.save();
+            if (!savedWallet) {
+                console.log('Wallet update failed');
+                return res.status(500).json({ message: 'Failed to update wallet' });
+            }
+
+            console.log('Wallet refund successful');
+        }
+        
+        res.status(200).json({ message: 'Order approved successfully', order: updatedOrder });
+    } catch (error) {
+        console.log('Error:', error);
+        res.status(500).json({ message: 'Server error: ' + error.message });
+    }
+};
+
+const orderReject = async (req, res) => {
+    console.log('edntererd to ordere rejected');
+    
+    const orderId = req.params.id;
+
+    try {
+        const order = await Orders.findById(orderId);
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        // Update the order's return status to 'rejected'
+        const updatedOrder = await Orders.findByIdAndUpdate(
+            orderId,
+            { returnStatus: 'rejected' },
+            { new: true }
+        );
+
+        console.log('ordere rejected updated suc essfully');
+        
+        if (!updatedOrder) {
+            return res.status(404).send('Order not found');
+        }
+
+        res.status(200).json({ message: 'Order return rejected successfully', order: updatedOrder });
+    } catch (error) {
+        console.log(error);
+        
+        res.status(500).send('Server error: ' + error.message);
+    }
+};
+
+
+
+
 module.exports = {
     userdetails,
     updatestatus,
@@ -357,5 +483,7 @@ module.exports = {
     getaddproduct,
     orders,
     updateOrderStatus,
-    dashboard
+    dashboard,
+    orderapprove,
+    orderReject
 };

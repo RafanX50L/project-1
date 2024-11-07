@@ -39,7 +39,10 @@ admin_route.use((req, res, next) => {
     }
 });
 
-
+const test2 =(req,res,next)=>{
+    console.log("testing")
+    next()
+}
 //admin login route
 admin_route.get('/login',admin_controller.dashboard)
 admin_route.post('/login',admin_controller.postlogin)
@@ -57,10 +60,7 @@ admin_route.get('/chart', (req, res) => {
     res.render('admin/chart');
 });
 
-const test2 =(req,res,next)=>{
-    console.log("testing")
-    next()
-}
+
 // admin side products edit codes
 admin_route.get('/products', admin_controller.products_details);
 admin_route.get('/products/edit/:id', admin_controller.getproducts_editdetails);
@@ -104,6 +104,7 @@ const test= (req,res,next)=>{
     console.log('rafam')
     next()
 }
+
 admin_route.post('/category/add', admin_controller.postAddCategory);
 admin_route.post('/categorytoggle-status/:id', admin_controller.categoryToggle_status);
 admin_route.get('/categories/edit/:id', admin_controller.getCategory_editdetails);
@@ -137,5 +138,11 @@ admin_route.get('/offers',coponDeal_contrller.getOffers);
 admin_route.post('/offer/add',coponDeal_contrller.addOffers);
 admin_route.post('/offers/toggle-status',coponDeal_contrller.toggleOffersStatus)
 admin_route.post('/offers/edit',coponDeal_contrller.editOffer)
+
+
+// admin return rotues
+admin_route.post('/return/approve/:id',test2,admin_controller.orderapprove)
+admin_route.post('/return/reject/:id',test2,admin_controller.orderReject)
+
 
 module.exports = admin_route;
