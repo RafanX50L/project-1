@@ -16,6 +16,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "express": "^4.21.1",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
@@ -28,8 +29,10 @@
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
+    "pdfkit": "^0.15.1",
     "razorpay": "^2.9.5",
     "sharp": "^0.33.5",
-    "uid2": "^1.0.0"
+    "uid2": "^1.0.0",
+    "xlsx": "^0.18.5"
   }
 }

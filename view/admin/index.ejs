@@ -17,6 +17,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet"> 
     
     <!-- Icon Font Stylesheet -->
+     <!-- Bootstrap CSS -->
+<!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- jQuery, Popper.js, and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -29,6 +39,40 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    <style>
+        /* Styling the bar container */
+.bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--secondary-color);
+    padding: 15px;
+    color: #fff;
+    border-radius: 8px;
+    background-color: #191C24;
+}
+
+/* Left side text styling */
+.bar-left h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.bar-left p {
+    margin: 5px 0 0;
+    font-size: 0.9em;
+    color: #f1f1f1;
+}
+
+/* Right side button styling */
+.bar-right {
+    display: flex;
+    gap: 10px;
+}
+
+
+
+    </style>
 </head>
 
 <body>
@@ -174,7 +218,50 @@
             </nav>
             <!-- Navbar End -->
 
-
+            <div class="container-fluid pt-4 px-4">
+                <div class="bar">
+                    <div class="bar-left">
+                        <h2>Sales Report</h2>
+                        <p>Sales performance overview</p>
+                    </div>
+                    <div class="bar-right">
+                        <div class="dropdown bg-secondary">
+                            <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                📅 Report 
+                            </button>
+                            <ul class="dropdown-menu p-3 bg-secondary">
+                                <li><a class="dropdown-item" href="#" style="color: red;" onclick="setReportRange('today')">Today</a></li>
+                                <li><a class="dropdown-item" href="#" style="color: red;" onclick="setReportRange('7days')">Last 7 Days</a></li>
+                                <li><a class="dropdown-item" href="#" style="color: red;" onclick="setReportRange('1month')">Last 1 Month</a></li>
+                                <li><a class="dropdown-item" href="#" style="color: red;" onclick="setReportRange('3months')">Last 3 Months</a></li>
+                                <li>
+                                    <!-- Custom Date Range Picker -->
+                                    <div id="customDateRange" class="mt-2">
+                                        <label>Custom Date Range:</label>
+                                        <div class="d-flex flex-column bg-secondary">
+                                            <label for="startDate" class="form-label">Start Date:</label>
+                                            <input type="date" id="startDate"   onchange="checkDateOrder()">
+                                            
+                                            <label for="endDate" class="form-label">End Date:</label>
+                                            <input type="date" id="endDate"  onchange="checkDateOrder()">
+                                        </div>
+                                        <button class="btn btn-primary mt-2 w-100" onclick="applyCustomDateRange()">Apply</button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-info dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                ⬇️ Export Report
+                            </button>
+                            <div class="dropdown-menu bg-secondary" aria-labelledby="exportDropdown">
+                                <a class="dropdown-item" href="#" style="color: red;" id="exportPDF">Export as PDF</a>
+                                <a class="dropdown-item" href="#" style="color: red;" id="exportExcel">Export as Excel</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Sale & Revenue Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
@@ -182,8 +269,8 @@
                         <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-line fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Today Sale</p>
-                                <h6 class="mb-0">$1234</h6>
+                                <p class="mb-2">Total Revenue</p>
+                                <h5 class="mb-0">₹ <%= totalRevenue %></h5>
                             </div>
                         </div>
                     </div>
@@ -192,7 +279,7 @@
                             <i class="fa fa-chart-bar fa-3x text-primary"></i>
                             <div class="ms-3">
                                 <p class="mb-2">Total Sale</p>
-                                <h6 class="mb-0">$1234</h6>
+                                <h5 class="mb-0"><%= totalSales %></h5>
                             </div>
                         </div>
                     </div>
@@ -200,8 +287,8 @@
                         <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-area fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Today Revenue</p>
-                                <h6 class="mb-0">$1234</h6>
+                                <p class="mb-2">Average Order Value</p>
+                                <h5 class="mb-0">₹ <%= (totalSales > 0) ? (totalRevenue / totalSales).toFixed(2) : 0 %></h5>
                             </div>
                         </div>
                     </div>
@@ -209,8 +296,8 @@
                         <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-pie fa-3x text-primary"></i>
                             <div class="ms-3">
-                                <p class="mb-2">Total Revenue</p>
-                                <h6 class="mb-0">$1234</h6>
+                                <p class="mb-2">Total Discount Deduction </p>
+                                <h5 class="mb-0">₹ <%= totalDiscount %></h5>
                             </div>
                         </div>
                     </div>
@@ -253,75 +340,67 @@
                         <h6 class="mb-0">Recent Salse</h6>
                         <a href="">Show All</a>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table-responsive ">
                         <table class="table text-start align-middle table-bordered table-hover mb-0">
                             <thead>
                                 <tr class="text-white">
-                                    <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                    <th scope="col">S.NO</th>
                                     <th scope="col">Date</th>
-                                    <th scope="col">Invoice</th>
+                                    <th scope="col">Order ID</th>
                                     <th scope="col">Customer</th>
-                                    <th scope="col">Amount</th>
+                                    <th scope="col">Products</th>
+                                    <th scope="col">Original Price</th>
+                                    <th scope="col">Coupon Applied</th>
+                                    <th scope="col">Offer Applied</th>
+                                    <th scope="col">Final Amount</th>
                                     <th scope="col">Status</th>
-                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td>01 Jan 2045</td>
-                                    <td>INV-0123</td>
-                                    <td>Jhon Doe</td>
-                                    <td>$123</td>
-                                    <td>Paid</td>
-                                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td>01 Jan 2045</td>
-                                    <td>INV-0123</td>
-                                    <td>Jhon Doe</td>
-                                    <td>$123</td>
-                                    <td>Paid</td>
-                                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td>01 Jan 2045</td>
-                                    <td>INV-0123</td>
-                                    <td>Jhon Doe</td>
-                                    <td>$123</td>
-                                    <td>Paid</td>
-                                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td>01 Jan 2045</td>
-                                    <td>INV-0123</td>
-                                    <td>Jhon Doe</td>
-                                    <td>$123</td>
-                                    <td>Paid</td>
-                                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input" type="checkbox"></td>
-                                    <td>01 Jan 2045</td>
-                                    <td>INV-0123</td>
-                                    <td>Jhon Doe</td>
-                                    <td>$123</td>
-                                    <td>Paid</td>
-                                    <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                                </tr>
+                                <% orders.forEach((order, index) => { %>
+                                    <tr>
+                                        <td><%= index + 1 %></td>
+                                        <td><%= new Date(order.orderDate).toLocaleDateString('en-GB') %></td>
+                                        <td><%= order.orderId %></td>
+                                        <td><%= order.userId.name %></td>
+                                        <td>
+                                            <% order.items.forEach(item => { %>
+                                                <span><%= item.productName %></span><br>
+                                            <% }) %>
+                                        </td>
+                                        <td>₹ <%= order.subtotal %></td>
+                                        <td>₹ <%= order.Coupon_discount %></td>
+                                        <td>₹ <%= order.Offer_discount %></td>
+                                        <td>₹ <%= order.totalAmount %></td>
+                                        <td><%= order.status %></td>
+                                    </tr>
+                                <% }) %>
                             </tbody>
                         </table>
                     </div>
+                    
+                    <div class="pagination-controls">
+                        <% if (currentPage > 1) { %>
+                            <a href="?page=<%= currentPage - 1 %>&reportRange=<%= reportRange %>&startDate=<%= startDate %>&endDate=<%= endDate %>" >◀</a>
+                        <% } %>
+                        
+                        <span>Page <%= currentPage %> of <%= totalPages %></span>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="?page=<%= currentPage + 1 %>&reportRange=<%= reportRange %>&startDate=<%= startDate %>&endDate=<%= endDate %>" >▶</a>
+                        <% } %>
+                    </div>
+
+
+
+                    
                 </div>
             </div>
             <!-- Recent Sales End -->
 
 
             <!-- Widgets Start -->
-            <div class="container-fluid pt-4 px-4">
+            <!-- <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
                     <div class="col-sm-12 col-md-6 col-xl-4">
                         <div class="h-100 bg-secondary rounded p-4">
@@ -438,7 +517,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- Widgets End -->
 
 
@@ -479,6 +558,95 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script>
+        function setReportRange(range) {
+            window.location.href = `/admin/dashboard?reportRange=${range}`;
+        }
+
+        function applyCustomDateRange() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert("Start Date cannot be later than End Date.");
+                return;
+            }
+
+            window.location.href = `/admin/dashboard?startDate=${startDate}&endDate=${endDate}`;
+        }
+
+        document.getElementById('exportPDF').addEventListener('click', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (startDate && endDate) {
+                urlParams.set('startDate', startDate);
+                urlParams.set('endDate', endDate);
+            }
+
+            window.location.href = `/admin/export-sales-report?${urlParams.toString()}`;
+        });
+
+        document.getElementById('exportExcel').addEventListener('click', async function() {
+    // Get existing query parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Get start and end dates from the input fields
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    // Append custom date range if provided
+    if (startDate && endDate) {
+        urlParams.set('startDate', startDate); // Append or update startDate
+        urlParams.set('endDate', endDate);     // Append or update endDate
+    }
+
+    // Log the full query string to check the parameters
+    console.log('Final URL Params:', urlParams.toString());
+
+    try {
+        // Make the fetch request with updated URL
+        const response = await fetch(`/admin/export-sales-report-excel?${urlParams.toString()}`);
+
+        if (!response.ok) {
+            throw new Error('Failed to generate the Excel file');
+        }
+
+        const blob = await response.blob(); // Get the file as a Blob
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob); // Create a URL for the Blob
+        link.download = 'Sales_Report.xlsx'; // Set default download filename
+        link.click(); // Programmatically click the link to trigger download
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an issue exporting the report: ' + error.message);
+    }
+});
+
+
+
+        function checkDateOrder() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                alert("Start Date cannot be later than End Date.");
+                document.getElementById('endDate').value = ''; 
+            }
+        }
+
+        document.querySelector('[onclick="setReportRange(\'7days\')"]').addEventListener('click', () => setReportRange('7days'));
+        document.querySelector('[onclick="setReportRange(\'1month\')"]').addEventListener('click', () => setReportRange('1month'));
+        document.querySelector('[onclick="setReportRange(\'3months\')"]').addEventListener('click', () => setReportRange('3months'));
+
+        document.querySelector('[onclick="applyCustomDateRange()"]').addEventListener('click', applyCustomDateRange);
+
+        document.getElementById('startDate').addEventListener('change', checkDateOrder);
+        document.getElementById('endDate').addEventListener('change', checkDateOrder);
+
+    </script>
 </body>
 
 </html>

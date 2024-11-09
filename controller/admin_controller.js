@@ -8,6 +8,12 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const categoryModel = require('../model/categoryModel');
 const Wallet = require('../model/wallet')
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const XLSX = require('xlsx');
+const excel = require('exceljs');
+
+
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -26,7 +32,7 @@ const upload = multer({
 }).array('product_images', 3);
 
 
-const dashboard = async (req,res) =>  {
+const getlogin = async (req,res) =>  {
     res.render('admin/login.ejs')
 
 }
@@ -46,6 +52,503 @@ const postlogin = async(req,res)=>{
         
     }
 }
+
+const dashboard = async (req, res) => {
+    try {
+        const { reportRange, startDate, endDate } = req.query;
+        let page = parseInt(req.query.page) || 1;
+
+        page = Math.max(page, 1);
+
+        let filterCriteria = {};
+
+        if (reportRange === '7days') {
+            const dateLimit = new Date();
+            dateLimit.setDate(dateLimit.getDate() - 7);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (reportRange === 'today') {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0); 
+            const endOfToday = new Date();
+            endOfToday.setHours(23, 59, 59, 999); 
+            filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
+        } else if (reportRange === '1month') {
+            const dateLimit = new Date();
+            dateLimit.setMonth(dateLimit.getMonth() - 1);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (reportRange === '3months') {
+            const dateLimit = new Date();
+            dateLimit.setMonth(dateLimit.getMonth() - 3);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (startDate && endDate) {
+            filterCriteria.createdAt = { 
+                $gte: new Date(startDate), 
+                $lte: new Date(endDate) 
+            };
+        }
+
+        const recordsPerPage = 5;
+        const skip = (page - 1) * recordsPerPage;
+
+        const orders = await Orders.find(filterCriteria)
+            .populate('userId', 'name')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(recordsPerPage);
+
+        const totalOrders = await Orders.countDocuments(filterCriteria);
+        const totalPages = Math.ceil(totalOrders / recordsPerPage);
+
+        if (page > totalPages && totalPages > 0) {
+            return res.redirect(`?page=${totalPages}&reportRange=${reportRange}&startDate=${startDate}&endDate=${endDate}`);
+        }
+
+        let totalRevenue = 0;
+        let totalSales = 0;
+        let totalDiscount = 0;
+
+        orders.forEach((order) => {
+            if (order.status === 'delivered') {
+                totalRevenue += order.totalAmount;
+                totalDiscount += (order.Coupon_discount + order.Offer_discount);
+                totalSales++;
+            }
+        });
+
+        res.render('admin/index.ejs', {
+            totalDiscount, totalRevenue, totalSales, orders, 
+            currentPage: page, totalPages, reportRange, startDate, endDate
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error');
+    }
+};
+
+
+
+
+
+
+const pdfDownload = async (req, res) => {
+    try {
+        const { reportRange, startDate, endDate } = req.query;
+        let filterCriteria = {};
+
+        if (reportRange) {
+            const today = new Date();
+            switch (reportRange) {
+                case 'today':
+                    filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+                    break;
+                case '7days':
+                    const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
+                    filterCriteria.createdAt = { $gte: sevenDaysAgo };
+                    break;
+                case '1month':
+                    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+                    filterCriteria.createdAt = { $gte: oneMonthAgo };
+                    break;
+                case '3months':
+                    const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
+                    filterCriteria.createdAt = { $gte: threeMonthsAgo };
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (startDate && endDate) {
+            filterCriteria.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+        const orders = await Orders.find(filterCriteria).populate('userId', 'name').sort({ createdAt: 1 });
+
+        const totalRevenue = orders.reduce((total, order) => total + order.totalAmount, 0);
+        const totalSales = orders.length;
+        const averageOrderValue = totalSales > 0 ? (totalRevenue / totalSales).toFixed(2) : 0;
+
+        const doc = new PDFDocument({
+            size: 'A4',
+            margin: 30
+        });
+        doc.pipe(fs.createWriteStream('Sales_Report.pdf'));
+
+        const imagePath = '/Users/USER/OneDrive/Documents/Visual studio files/8th week project/public/images.png';
+        doc.image(imagePath, 20, 20, { width: 50, height: 50 }); 
+
+        doc.fillColor('#1976D2')
+            .fontSize(24)
+            .font('Helvetica-Bold')
+            .text('Sales Report', 220, 30, { align: 'left' }); 
+
+        doc.fontSize(12)
+            .fillColor('#707070')
+            .text(`Generated on ${new Date().toLocaleDateString()}`,20,60, { align: 'center' });
+        doc.moveDown(2);
+
+
+        const metricsSectionHeight = 100; 
+        const cardWidth = (doc.page.width - 80) / 3; 
+        const cardSpacing = 20;
+        const cardY = doc.y;
+
+        const metrics = [
+        { label: 'Total Completed Orders', value: totalSales, unit: '' },
+        { label: 'Total Revenue', value: totalRevenue.toLocaleString(), unit: 'Rs ' },
+        { label: 'Average Order Value', value: averageOrderValue.toLocaleString(), unit: 'Rs ' }
+        ];
+
+        metrics.forEach((metric, index) => {
+        const cardX = 20 + index * (cardWidth + cardSpacing); 
+
+        doc.fillColor('#FFFFFF')
+            .rect(cardX, cardY, cardWidth, metricsSectionHeight)
+            .strokeColor('#1976D2')
+            .lineWidth(1)
+            .stroke();
+
+        doc.fontSize(24).fillColor('#1976D2')
+            .font('Helvetica-Bold')
+            .text(`${metric.unit}${metric.value}`, cardX, cardY + 25, {
+            width: cardWidth,
+            align: 'center'
+            });
+
+        doc.fontSize(12).fillColor('#707070')
+            .font('Helvetica')
+            .text(metric.label, cardX, cardY + 60, {
+            width: cardWidth,
+            align: 'center'
+            });
+        });
+
+        doc.moveDown(3); 
+
+
+        doc.fillColor('#1976D2')
+            .fontSize(16)
+            .font('Helvetica-Bold')
+            .text('Order Details', 20, doc.y); 
+        doc.moveDown(1.5);
+
+        const xPositions = [20, 100, 210, 320 ,390, 460, 520];
+
+        const headers = ['Order ID', 'Customer', 'Products','Offer' ,'Coupon', 'Amount', 'Date'];
+        doc.fontSize(12).fillColor('#1976D2').font('Helvetica-Bold');
+
+        let headerY = doc.y;
+
+        headers.forEach((header, i) => {
+        doc.text(header, xPositions[i], headerY, { align: 'left' });
+        });
+
+        doc.moveDown(2.5);
+
+        orders.forEach((order, index) => {
+        const rowColor = index % 2 === 0 ? '#F5F5F5' : '#FFFFFF';
+        const baseRowHeight = 18; 
+
+        const productRows = order.items.length;
+        const rowHeight = baseRowHeight * (productRows + 1);
+
+        doc.fillColor(rowColor)
+            .rect(20, doc.y, doc.page.width - 40, rowHeight)
+            .fill();
+
+        let rowY = doc.y;
+
+        const customerName = order.userId.name;
+
+        doc.fillColor('black').fontSize(10)
+            .text(customerName, xPositions[1], rowY, { align: 'left' });
+
+        const couponApplied = order.Coupon_discount ? `Rs ${order.Coupon_discount}` : 'No Coupon';
+        const offerApplied = order.Offer_discount ? `Rs ${order.Offer_discount}` : 'No Offer';
+        const totalAmount = `Rs ${order.totalAmount.toLocaleString()}`;
+        const orderDate = new Date(order.createdAt).toLocaleDateString();
+
+        const columnData = [
+            order.orderId,
+            '', 
+            '', 
+            offerApplied,
+            couponApplied,
+            totalAmount,
+            orderDate
+        ];
+
+        columnData.forEach((data, i) => {
+            doc.text(data, xPositions[i], rowY, { align: 'left' });
+        });
+
+        rowY += baseRowHeight; 
+
+        order.items.forEach((item) => {
+            const productLine = `${item.productName} x ${item.quantity}`;
+            doc.text(productLine, xPositions[2], rowY, { align: 'left' });
+            rowY += baseRowHeight;
+        });
+
+        doc.moveDown(1.2);
+        });
+        
+
+        doc.end();
+
+        res.download('Sales_Report.pdf');
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error');
+    }
+};
+
+const excelDownload = async (req, res) => {
+    try {
+        const { startDate, endDate, reportRange } = req.query;
+        let filterCriteria = {};
+
+        if (reportRange) {
+            const today = new Date();
+            switch (reportRange) {
+                case 'today':
+                    filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+                    break;
+                case '7days':
+                    filterCriteria.createdAt = { $gte: new Date(today.setDate(today.getDate() - 7)) };
+                    break;
+                case '1month':
+                    filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 1)) };
+                    break;
+                case '3months':
+                    filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 3)) };
+                    break;
+            }
+        }
+
+        if (startDate && endDate) {
+            filterCriteria.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+        const orders = await Orders.find(filterCriteria)
+            .populate('userId', 'name')
+            .sort({ createdAt: -1 });
+
+        const formatCurrency = (amount) => {
+            return `${Math.floor(amount || 0)} Rs`;
+        };
+
+        const formatDate = (date) => new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        const formatCustomer = (user) => {
+            if (!user) return 'N/A';
+            const name = user.name || 'N/A';
+            return  `${name} `;
+        };
+
+        const formatProducts = (items) => {
+            return (items || []).map((item) => {
+                const name = item.productName.padEnd(10, ' ');
+                const price = item.unitPrice;
+                return `${name} (${price}Rs) × ${item.quantity.toString().padStart(3, ' ')}`;
+            }).join('\n');
+        };
+
+        const formatCoupon = (discount) => {
+            if (!discount) return 'No Coupon ';
+            return `-${discount}Rs`;
+        };
+
+        const formatOffer = (discount) => {
+            if (!discount) return 'No Offer ';
+            return `-${discount}Rs`;
+        };
+
+        const workbook = new excel.Workbook();
+        const worksheet = workbook.addWorksheet('Sales Report');
+
+        const stats = {
+            totalOrders: orders.length,
+            totalRevenue: orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0),
+            averageOrderValue: orders.length ? 
+                orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) / orders.length : 0
+        };
+
+        
+        worksheet.mergeCells('A1:G1'); 
+        worksheet.getCell('A1').value = 'COMPLETED SALES REPORT';
+        worksheet.getCell('A1').font = {
+            size: 16,
+            bold: true,
+            color: { argb: 'FFFFFF' }
+        };
+        worksheet.getCell('A1').fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '4472C4' }
+        };
+        worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        worksheet.mergeCells('A2:G2'); 
+        worksheet.getCell('A2').value = `Generated on ${formatDate(new Date())}`;
+        worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        worksheet.mergeCells('A4:C4');
+        worksheet.getCell('A4').value = 'Summary Statistics';
+        worksheet.getCell('A4').font = { bold: true };
+        worksheet.getCell('A4').fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'E0E0E0' }
+        };
+        worksheet.getCell('A4').alignment = { horizontal: 'left', vertical: 'middle' };
+
+        const statsRows = [
+            ['Total Orders:', stats.totalOrders],
+            ['Total Revenue:', formatCurrency(stats.totalRevenue)],
+            ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
+        ];
+
+        statsRows.forEach((row, index) => {
+            worksheet.getCell(`A${5 + index}`).value = row[0];
+            worksheet.getCell(`B${5 + index}`).value = row[1];
+            ['A', 'B'].forEach(col => {
+                const cell = worksheet.getCell(`${col}${5 + index}`);
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+        });
+
+        worksheet.mergeCells('A8:G8'); 
+        worksheet.getCell('A8').value = 'Order Details';
+        worksheet.getCell('A8').font = {
+            size: 14,
+            bold: true,
+            color: { argb: 'FFFFFF' }
+        };
+        worksheet.getCell('A8').fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '4472C4' }
+        };
+        worksheet.getCell('A8').alignment = { horizontal: 'center', vertical: 'middle' };
+        worksheet.getCell('A8').border = {
+            top: { style: 'medium' },
+            left: { style: 'medium' },
+            right: { style: 'medium' }
+        };
+
+        const headers = [
+            'Order ID',
+            'Customer Details',
+            'Products',
+            'Offers',
+            'Coupon',
+            'Amount',
+            'Date'
+        ];
+
+        const startRow = 9;
+        headers.forEach((header, index) => {
+            const cell = worksheet.getCell(startRow, index + 1);
+            cell.value = header;
+            cell.font = { bold: true };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'E0E0E0' }
+            };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+                top: { style: 'medium' },
+                bottom: { style: 'medium' },
+                left: { style: 'medium' },
+                right: { style: 'medium' }
+            };
+        });
+
+        orders.forEach((order, index) => {
+            const row = worksheet.getRow(startRow + index + 1);
+            row.values = [
+                order.orderId || '',
+                formatCustomer(order.userId),
+                formatProducts(order.items),
+                formatOffer(order.Offer_discount),
+                formatCoupon(order.Coupon_discount),
+                formatCurrency(order.totalAmount),
+                formatDate(order.createdAt)
+            ];
+            row.height = 30; 
+            row.alignment = { vertical: 'middle', wrapText: true };
+            
+            row.eachCell((cell, colNumber) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+                if (colNumber === 4 || colNumber === 5 || colNumber === 6) {
+                    cell.alignment = { horizontal: 'right', vertical: 'middle', wrapText: true };
+                } else if (colNumber === 1 || colNumber === 7) {
+                    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                } else {
+                    cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+                }
+            });
+        });
+
+        worksheet.columns = [
+            { width: 20 },  
+            { width: 30 },  
+            { width: 45 },  
+            { width: 15 },  
+            { width: 15 },  
+            { width: 15 },  
+            { width: 20 }   
+        ];
+
+        const lastRow = startRow + orders.length;
+        worksheet.views = [
+            { state: 'frozen', xSplit: 0, ySplit: startRow, topLeftCell: 'A' + (startRow + 1) }
+        ];
+
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename=Sales_Report.xlsx'
+        );
+
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        console.error('Excel generation error:', error);
+        res.status(500).send('Server error');
+    }
+
+};
+
+
+
 
 const userdetails = async (req, res) => {
     try {
@@ -475,7 +978,10 @@ module.exports = {
     getaddproduct,
     orders,
     updateOrderStatus,
-    dashboard,
+    getlogin,
     orderapprove,
-    orderReject
+    orderReject,
+    dashboard,
+    pdfDownload,
+    excelDownload
 };

@@ -44,13 +44,13 @@ const test2 =(req,res,next)=>{
     next()
 }
 //admin login route
-admin_route.get('/login',admin_controller.dashboard)
+admin_route.get('/login',admin_controller.getlogin)
 admin_route.post('/login',admin_controller.postlogin)
 
 // Admin routes
-admin_route.get('/dashboard', (req, res) => {
-    res.render('admin/index');
-});
+admin_route.get('/dashboard',admin_controller.dashboard);
+admin_route.get('/export-sales-report',admin_controller.pdfDownload);
+admin_route.get('/export-sales-report-excel',admin_controller.excelDownload);
 
 admin_route.get('/blank', (req, res) => {
     res.render('admin/blank');
