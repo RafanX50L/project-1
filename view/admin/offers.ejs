@@ -636,15 +636,47 @@ h3 {
         $('#editCouponModal').modal('show');
     });
 
+    // Validate form data on submission
+    function validateForm(form) {
+        const discount = form.find('input[name="discount"], input[name="editDiscount"]').val();
+        const validFrom = form.find('input[name="validFrom"], input[name="editStartDate"]').val();
+        const validUntil = form.find('input[name="validUntil"], input[name="editEndDate"]').val();
+        const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val();
+
+        if (discount < 1 || discount > 80) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Discount',
+                text: 'Discount must be between 1% and 80%.',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        if (new Date(validUntil) < new Date(validFrom)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Date Range',
+                text: 'End date cannot be earlier than start date.',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
     $('#addCouponForm').on('submit', function(e) {
-        e.preventDefault(); 
+        e.preventDefault();
+        
+        if (!validateForm($(this))) return;
 
         $.ajax({
             type: 'POST',
             url: $(this).attr('action'),
             data: $(this).serialize(),
             success: function(response) {
-                window.location.href = '/admin/offers'; 
+                window.location.href = '/admin/offers';
             },
             error: function(xhr) {
                 const errorMessage = xhr.responseJSON?.message || 'An unexpected error occurred.';
@@ -661,12 +693,14 @@ h3 {
     $('#editCouponForm').on('submit', function(e) {
         e.preventDefault();
 
+        if (!validateForm($(this))) return;
+
         $.ajax({
             type: 'POST',
             url: $(this).attr('action'),
             data: $(this).serialize(),
             success: function(response) {
-                window.location.href = '/admin/offers'; 
+                window.location.href = '/admin/offers';
             },
             error: function(xhr) {
                 const errorMessage = xhr.responseJSON?.message || 'An unexpected error occurred.';
@@ -680,7 +714,6 @@ h3 {
         });
     });
 });
-
 
     </script>
     <script>

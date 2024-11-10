@@ -444,7 +444,7 @@
 							<input type="text" id="originalTotal" value="<%= totalPrice %>" style="display: none;">
 							<div class="d-flex align-items-center">
 								<input type="text" id="couponCode" placeholder="Enter coupon code">
-								<button type="button" id="applyCoupon">Apply</button>
+								<button type="button" id="applyCoupon" style="display: inline-block;">Apply</button>
 								<button type="button" id="removeCoupon" style="height: 4vh; margin-left: 1vh; background-color: red; display: none;">Remove</button>
 							</div>
 							<div class="discount-info" id="discountInfo"></div>
@@ -867,6 +867,8 @@ document.getElementById("applyCoupon").addEventListener("click", async function 
             document.getElementById("discountAmount").textContent = data.discountAmount.toFixed(2);
             document.getElementById("totalPriceDisplay").textContent = `${data.newTotalPrice.toFixed(2)}`;
             document.getElementById("removeCoupon").style.display = "inline-block";
+			document.getElementById("applyCoupon").style.display = "none";
+
         } else {
             Swal.fire({
                 icon: 'error',
@@ -903,6 +905,7 @@ document.getElementById("applyCoupon").addEventListener("click", async function 
 				document.getElementById("totalPriceDisplay").textContent = originalTotal;
 
 				document.getElementById("removeCoupon").style.display = "none";
+				document.getElementById("applyCoupon").style.display = "inline-block";
 
 				document.getElementById("couponCode").value = "";
 

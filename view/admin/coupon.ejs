@@ -401,7 +401,7 @@ h3 {
             </div>
             <!-- Form End -->
 
-            <!-- Add Coupon Modal -->
+           <!-- Add Coupon Modal -->
             <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -417,11 +417,11 @@ h3 {
                                 </div>
                                 <div class="mb-3">
                                     <label for="maxAmount" class="form-label">Maximum Amount</label>
-                                    <input type="number" class="form-control" id="maxAmount" name="maxAmount" required>
+                                    <input type="number" class="form-control" id="maxAmount" name="maxAmount" required min="100" max="20000">
                                 </div>
                                 <div class="mb-3">
                                     <label for="discountPercentage" class="form-label">Discount Percentage</label>
-                                    <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" required>
+                                    <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" required min="1" max="80">
                                 </div>
                                 <div class="mb-3">
                                     <label for="startDate" class="form-label">Start Date</label>
@@ -438,7 +438,6 @@ h3 {
                 </div>
             </div>
 
-
             <!-- Edit Coupon Modal -->
             <div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="editCouponLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -448,7 +447,7 @@ h3 {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="editCouponForm" action="/admin/coupon/edit" method="post">
+                            <form id="editCouponForm" action="/admin/coupon/edit" method="POST">
                                 <input type="hidden" id="editCouponId" name="editCouponId">
                                 <div class="mb-3">
                                     <label for="editCouponCode" class="form-label">Coupon Code</label>
@@ -456,11 +455,11 @@ h3 {
                                 </div>
                                 <div class="mb-3">
                                     <label for="editMaxAmount" class="form-label">Maximum Amount</label>
-                                    <input type="number" class="form-control" id="editMaxAmount" name="editMaxAmount" required>
+                                    <input type="number" class="form-control" id="editMaxAmount" name="editMaxAmount" required min="100" max="20000">
                                 </div>
                                 <div class="mb-3">
                                     <label for="editDiscountPercentage" class="form-label">Discount Percentage</label>
-                                    <input type="number" class="form-control" id="editDiscountPercentage" name="editDiscountPercentage" required>
+                                    <input type="number" class="form-control" id="editDiscountPercentage" name="editDiscountPercentage" required min="1" max="80">
                                 </div>
                                 <div class="mb-3">
                                     <label for="editStartDate" class="form-label">Start Date</label>
@@ -523,10 +522,11 @@ h3 {
 
     <script>
         $(document).ready(function() {
+            // Open Modals
             $('#addCouponButton').on('click', function() {
                 $('#addCouponModal').modal('show');
             });
-    
+        
             $(document).on('click', '.edit-btn', function() {
                 const couponId = $(this).data('id');
                 const couponCode = $(this).data('code');
@@ -534,26 +534,66 @@ h3 {
                 const discountPercentage = $(this).data('discount');
                 const startDate = new Date($(this).data('start')).toISOString().slice(0, 10);
                 const endDate = new Date($(this).data('end')).toISOString().slice(0, 10);
-    
+        
                 $('#editCouponId').val(couponId);
                 $('#editCouponCode').val(couponCode);
                 $('#editMaxAmount').val(maxAmount);
                 $('#editDiscountPercentage').val(discountPercentage);
                 $('#editStartDate').val(startDate);
                 $('#editEndDate').val(endDate);
-    
+        
                 $('#editCouponModal').modal('show');
             });
-    
+        
+            // Validation Function
+            function validateForm(formId) {
+                const discountPercentage = $(`#${formId} #discountPercentage, #${formId} #editDiscountPercentage`).val();
+                const maxAmount = $(`#${formId} #maxAmount, #${formId} #editMaxAmount`).val();
+                const startDate = new Date($(`#${formId} #startDate, #${formId} #editStartDate`).val());
+                const endDate = new Date($(`#${formId} #endDate, #${formId} #editEndDate`).val());
+        
+                if (discountPercentage < 1 || discountPercentage > 80) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Discount',
+                        text: 'Discount percentage must be between 1 and 80.',
+                    });
+                    return false;
+                }
+        
+                if (maxAmount < 100 || maxAmount > 20000) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Maximum Amount',
+                        text: 'Maximum amount must be between 100 and 20,000.',
+                    });
+                    return false;
+                }
+                
+                if (endDate <= startDate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Date',
+                        text: 'End date must be after the start date.',
+                    });
+                    return false;
+                }
+        
+                return true;
+            }
+        
+            // Add Coupon Form Submission
             $('#addCouponForm').on('submit', function(e) {
-                e.preventDefault(); 
-    
+                e.preventDefault();
+                
+                if (!validateForm('addCouponForm')) return;
+        
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
                     data: $(this).serialize(),
                     success: function(response) {
-                        window.location.href = '/admin/coupons'; 
+                        window.location.href = '/admin/coupons';
                     },
                     error: function(xhr) {
                         const errorMessage = xhr.responseJSON?.message || 'An unexpected error occurred.';
@@ -566,16 +606,19 @@ h3 {
                     }
                 });
             });
-    
+        
+            // Edit Coupon Form Submission
             $('#editCouponForm').on('submit', function(e) {
-                e.preventDefault(); 
-    
+                e.preventDefault();
+        
+                if (!validateForm('editCouponForm')) return;
+        
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
                     data: $(this).serialize(),
                     success: function(response) {
-                        window.location.href = '/admin/coupons'; 
+                        window.location.href = '/admin/coupons';
                     },
                     error: function(xhr) {
                         const errorMessage = xhr.responseJSON?.message || 'An unexpected error occurred.';
@@ -589,7 +632,7 @@ h3 {
                 });
             });
         });
-    </script>
+        </script>
     <script>
         document.querySelectorAll('.list-btn').forEach(button => {
             button.addEventListener('click', function() {

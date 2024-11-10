@@ -891,7 +891,17 @@ const orderapprove = async (req, res) => {
             return res.status(400).json({ message: 'User not logged in' });
         }
 
-        if (order.paymentMethod === 'Wallet') {
+        if (updatedOrder.status = 'Returned') {
+            for (const item of updatedOrder.items) {
+                await Products.findByIdAndUpdate(
+                    item.productId,
+                    { $inc: { stock: item.quantity } },
+                    { new: true }
+                );
+            }
+            console.log('Products restocked');
+        }
+        if (order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment') {
             let userWallet = await Wallet.findOne({ userId: userId });
             if (!userWallet) {
                 userWallet = new Wallet({

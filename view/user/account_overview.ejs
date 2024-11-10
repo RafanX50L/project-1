@@ -460,68 +460,68 @@ button[type="submit"]:hover {
 			<div class="container">
 				<div class="breadcrumb"><a href="/user/home">Home</a> ><a href="/user/account"> My Account</a> > Account Overview </div>
 
-        <h1>MY ACCOUNT</h1>
-        <h2>ACCOUNT OVERVIEW</h2>
-        <div class="content">
-            <div class="sidebar1" >
-                <ul>
-                    <li><a href="/user/account" class="at">Personal Information</a></li>
-                    <li><a href="/user/address" class="at">Address</a></li>
-                    <li><a href="/user/changepassword" class="at">Change Password</a></li>
-                    <li><a href="/user/orderhistory" class="at">Order History</a></li>
-                    <li><a href="/user/wallet" class="at">Wallet</a></li>
-                    <li><a href="/user/logout" class="at">logout</a></li>
-                </ul>
-            </div>
-            <div class="main-content">
-                <div class="info-box">
-                    <h3>Personal Information</h3><br><br>
-                    <button class="edit-btn">EDIT</button>
-                    <div class="info-item">
-                        <span>Name</span>
-						<span>: <%= user.name %></span>
-                    </div>
-                    <div class="info-item">
-                        <span>Date of birth</span>
-                        <span>: <%= user.dob %></span>
-                    </div>
-                    <div class="info-item">
-                        <span>Phone number</span>
-                        <span>: <%= user.phone %></span>
-                    </div>
-                    <div class="info-item">
-                        <span>Email address</span>
-                        <span>: <%= user.email %></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+				<h1>MY ACCOUNT</h1>
+				<h2>ACCOUNT OVERVIEW</h2>
+				<div class="content">
+					<div class="sidebar1" >
+						<ul>
+							<li><a href="/user/account" class="at">Personal Information</a></li>
+							<li><a href="/user/address" class="at">Address</a></li>
+							<li><a href="/user/changepassword" class="at">Change Password</a></li>
+							<li><a href="/user/orderhistory" class="at">Order History</a></li>
+							<li><a href="/user/wallet" class="at">Wallet</a></li>
+							<li><a href="/user/logout" class="at">logout</a></li>
+						</ul>
+					</div>
+					<div class="main-content">
+						<div class="info-box">
+							<h3>Personal Information</h3><br><br>
+							<button class="edit-btn">EDIT</button>
+							<div class="info-item">
+								<span>Name</span>
+								<span>: <%= user.name %></span>
+							</div>
+							<div class="info-item">
+								<span>Date of birth</span>
+								<span>: <%= user.dob %></span>
+							</div>
+							<div class="info-item">
+								<span>Phone number</span>
+								<span>: <%= user.phone %></span>
+							</div>
+							<div class="info-item">
+								<span>Email address</span>
+								<span>: <%= user.email %></span>
+							</div>
+						</div>
+					</div>
+				</div>
+    		</div>
 		</section>
 
 		<!-- Edit Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h3>Edit Personal Information</h3>
-        <form id="editForm" action="/user/account" method="POST">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" value="<%= user.name %>" required>
-            </div>
-            <div class="form-group">
-                <label for="dob">Date of Birth</label>
-                <input type="date" id="dob" name="dob" value="<%= user.dob %>" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" value="<%= user.phone %>" pattern="[+][0-9]{2} [0-9]{10}" required>
-                <small>Format: +91 1234567890</small>
-            </div>
-            <button type="submit">Save Changes</button>
-        </form>
-    </div>
-</div>
+		<div id="editModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<h3>Edit Personal Information</h3>
+				<form id="editForm" action="/user/account" method="POST">
+					<div class="form-group">
+						<label for="name">Name</label>
+						<input type="text" id="name" name="name" value="<%= user.name %>" required>
+					</div>
+					<div class="form-group">
+						<label for="dob">Date of Birth</label>
+						<input type="date" id="dob" name="dob" value="<%= user.dob %>" required>
+					</div>
+					<div class="form-group">
+						<label for="phone">Phone Number</label>
+						<input type="tel" id="phone" name="phone" value="<%= user.phone %>" pattern="[+][0-9]{2} [0-9]{10}" required>
+						<small>Format: +91 1234567890</small>
+					</div>
+					<button type="submit">Save Changes</button>
+				</form>
+			</div>
+		</div>
 
 
 
@@ -937,46 +937,67 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		const modal = document.getElementById("editModal");
 		const editBtn = document.querySelector(".edit-btn");
 		const closeBtn = document.querySelector(".close");
-		
+	
+		// Open Modal
 		editBtn.addEventListener("click", () => {
 			modal.style.display = "block";
 		});
-		
+	
+		// Close Modal
 		closeBtn.addEventListener("click", () => {
 			modal.style.display = "none";
 		});
-		
+	
 		window.addEventListener("click", (event) => {
 			if (event.target == modal) {
 				modal.style.display = "none";
 			}
 		});
-		
+	
 		document.getElementById("editForm").addEventListener("submit", function(event) {
 			event.preventDefault(); 
-		
+	
 			const name = document.getElementById("name").value.trim();
 			const dob = document.getElementById("dob").value.trim();
 			const phone = document.getElementById("phone").value.trim();
-		
-			const namePattern = /^[a-zA-Z\s]+$/;
-			const phonePattern = /^\+\d{2}\s\d{10}$/; 
-		
+	
+			// Validation Patterns
+			const namePattern = /^[a-zA-Z\s]+$/; // Only letters and spaces
+			const phonePattern = /^\+\d{2}\s\d{10}$/; // Phone number format +91 1234567890
+	
+			// Strict validation checks
 			if (!name || !namePattern.test(name)) {
-				Swal.fire("Invalid Name", "Name can only contain letters and spaces.", "error");
+				Swal.fire("Invalid Name", "Name can only contain letters and spaces, and must not be empty.", "error");
 				return;
 			}
-		
+	
 			if (!dob) {
 				Swal.fire("Invalid Date of Birth", "Please enter a valid date.", "error");
 				return;
 			}
-		
+	
+			// Check if Date of Birth is less than today's date
+			const today = new Date();
+			const birthDate = new Date(dob);
+			if (birthDate > today) {
+				Swal.fire("Invalid Date of Birth", "Date of Birth cannot be in the future.", "error");
+				return;
+			}
+	
 			if (!phone || !phonePattern.test(phone)) {
 				Swal.fire("Invalid Phone Number", "Phone number must be in +91 1234567890 format.", "error");
 				return;
 			}
-		
+	
+			// Check if the phone number consists of the same digit repeated (e.g., +91 0000000000)
+			const phoneWithoutFormat = phone.replace(/\s+/g, ''); // Remove spaces
+			const repeatedDigitPattern = /^(\+\d{2})(\d)\2{9}$/; // Checks if all digits are the same after +91
+			if (repeatedDigitPattern.test(phoneWithoutFormat)) {
+				Swal.fire("Invalid Phone Number", "Phone number cannot be composed of the same repeated digit (e.g., +91 0000000000).", "error");
+				return;
+			}
+	
+			// Confirm before submission
 			Swal.fire({
 				title: 'Are you sure?',
 				text: "Do you want to update your details?",
@@ -987,20 +1008,21 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				confirmButtonText: 'Yes, update it!'
 			}).then((result) => {
 				if (result.isConfirmed) {
-					this.submit(); 
-		
+					this.submit(); // Submit the form if confirmed
+	
 					Swal.fire(
 						'Updated!',
 						'Your details have been updated successfully.',
 						'success'
 					).then(() => {
-						modal.style.display = "none"; 
+						modal.style.display = "none"; // Close the modal
 					});
 				}
 			});
 		});
-		</script>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	</script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		
 		
 

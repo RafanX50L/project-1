@@ -210,6 +210,7 @@ const getWishlist = async (req, res) => {
     try {
         const userId = req.session.loggedIn;
 
+        const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
         const wishlist = await Wishlist.findOne({ userId })
             .populate('items.productId')
             .exec();
@@ -238,7 +239,7 @@ const getWishlist = async (req, res) => {
         await wishlist.save();
 
 
-        res.render('user/wishlist.ejs', { wishlist: wishlist });
+        res.render('user/wishlist.ejs', { wishlist: wishlist , c:category });
     } catch (error) {
         console.error('Error fetching wishlist:', error);
         res.status(500).send('Internal Server Error');
@@ -377,7 +378,13 @@ const checkOutget = async (req, res) => {
         const userId = req.session.loggedIn;
 
         const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-        const cart = await Cart.findOne({ userId }).populate('items.productId').exec();
+        const cart = await Cart.findOne({ userId })
+            .populate({
+                path: 'items.productId',
+                match: { stock: { $gte: 1 } ,status:true}
+            })
+            .exec();
+
         const user = await User.findOne({ _id: userId });
 
         if (!cart) {
@@ -389,7 +396,9 @@ const checkOutget = async (req, res) => {
         let subtotal = 0;
         let offerDiscount = 0;
 
-        cart.items.forEach(item => {
+        const availableItems = cart.items.filter(item => item.productId && item.productId.stock >= 1);
+
+        availableItems.forEach(item => {
             const product = item.productId;
 
             const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
@@ -397,7 +406,7 @@ const checkOutget = async (req, res) => {
             const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
 
             const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
-            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+            const bestOffer = applicableOffers.reduce((max, offer) => (offer.discount > max.discount ? offer : max), { discount: 0 });
 
             if (bestOffer.discount > 0) {
                 item.offerPrice = product.price - (product.price * bestOffer.discount / 100);
@@ -414,10 +423,10 @@ const checkOutget = async (req, res) => {
             subtotal += product.price * item.quantity;
         });
 
-        const totalPrice = subtotal-offerDiscount;
+        const totalPrice = subtotal - offerDiscount;
 
         res.render('user/checkOut.ejs', {
-            cartItems: cart.items,
+            cartItems: availableItems,
             subtotal: subtotal.toFixed(2),
             totalPrice: totalPrice.toFixed(2),
             offerDiscount: offerDiscount.toFixed(2),
@@ -430,10 +439,6 @@ const checkOutget = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
-  
-  
-
 
 const orderSucsess = async(req,res)=>{
     const id = req.params.id;
@@ -481,13 +486,7 @@ const orderCancel = async (req,res) => {
             return res.status(404).send('Order not found');
         }
 
-        for (const item of order.items) {
-            await Product.findByIdAndUpdate(
-                item.productId,
-                { $inc: { stock: item.quantity } }, 
-                { new: true }
-            );
-        }
+        
 
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
@@ -501,7 +500,15 @@ const orderCancel = async (req,res) => {
             return res.status(404).send('Order not found');
         }
 
-        if(order.paymentMethod === 'Wallet'){
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(
+                item.productId,
+                { $inc: { stock: item.quantity } }, 
+                { new: true }
+            );
+        }
+
+        if(order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment'){
             let userWallet = await Wallet.findOne({ userId:userId });
 
             if (!userWallet) {
@@ -635,40 +642,40 @@ const verifyPayment = async (req, res) => {
 
         const activeOffers = await Offers.find({ status: 'active' });
 
-        const orderItems = cart.items.map((item) => {
-            const product = item.productId;
+        // Filter only items with stock >= 1
+        const orderItems = cart.items
+            .filter(item => item.productId && item.productId.stock >= 1 && item.productId.status == true)
+            .map(item => {
+                const product = item.productId;
 
-            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
-            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
-            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+                const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+                const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+                const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
 
-            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
-            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+                const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+                const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
 
-            const offerPrice = bestOffer.discount > 0 
-                ? product.price - (product.price * bestOffer.discount / 100)
-                : product.price;
+                const offerPrice = bestOffer.discount > 0 
+                    ? product.price - (product.price * bestOffer.discount / 100)
+                    : product.price;
 
-            const offerAmount = (product.price - offerPrice) * item.quantity;
+                const offerAmount = (product.price - offerPrice) * item.quantity;
 
-            return {
-                productId: product._id,
-                productName: product.product_name,
-                productImage: product.product_images[0], 
-                quantity: item.quantity,
-                unitPrice: product.price,
-                offerPrice: offerPrice,                    
-                subtotal: product.price * item.quantity,
-                offerAmount: offerAmount
-            };
-        });
+                return {
+                    productId: product._id,
+                    productName: product.product_name,
+                    productImage: product.product_images[0], 
+                    quantity: item.quantity,
+                    unitPrice: product.price,
+                    offerPrice: offerPrice,                    
+                    subtotal: product.price * item.quantity,
+                    offerAmount: offerAmount
+                };
+            });
 
- 
-        const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
-        console.log('sended to create order');
-        console.log(typeof(offerDiscount));
-        
+
         const savedOrder = await createOrder({
             userId,
             addressId,
@@ -681,8 +688,6 @@ const verifyPayment = async (req, res) => {
             quantity: totalQuantity
         });
         
-        
-        
         res.json({ success: true, orderId: savedOrder._id });
     } else {
         res.status(400).json({ success: false, message: 'Payment verification failed.' });
@@ -691,9 +696,10 @@ const verifyPayment = async (req, res) => {
 
 
 
+
 const placeOrder = async (req, res) => {
     try {
-        const { addressId, totalAmount, discount, paymentMethod , offerDiscount } = req.body;
+        const { addressId, totalAmount, discount, paymentMethod, offerDiscount } = req.body;
         const userId = req.session.loggedIn;
 
         const cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -704,38 +710,39 @@ const placeOrder = async (req, res) => {
 
         const activeOffers = await Offers.find({ status: 'active' });
 
-        const orderItems = cart.items.map((item) => {
-            const product = item.productId;
-        
-            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
-            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
-            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
-        
-            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
-            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
-        
-            const offerPrice = bestOffer.discount > 0
-                ? product.price - (product.price * bestOffer.discount / 100)
-                : product.price;
-        
-            const subtotal = product.price * offerPrice;
-        
-            return {
-                productId: product._id,
-                productName: product.product_name,
-                productImage: product.product_images[0],
-                quantity: item.quantity,
-                unitPrice: product.price,
-                offerPrice: offerPrice,       
-                subtotal: subtotal            
-            };
-        });
-        
+        // Filter only items with stock >= 1
+        const orderItems = cart.items
+            .filter(item => item.productId && item.productId.stock >= 1 && item.productId.status == true)
+            .map(item => {
+                const product = item.productId;
 
-        const totalQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+                const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+                const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+                const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+                const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+                const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+                const offerPrice = bestOffer.discount > 0
+                    ? product.price - (product.price * bestOffer.discount / 100)
+                    : product.price;
+
+                const subtotal = product.price * offerPrice;
+
+                return {
+                    productId: product._id,
+                    productName: product.product_name,
+                    productImage: product.product_images[0],
+                    quantity: item.quantity,
+                    unitPrice: product.price,
+                    offerPrice: offerPrice,
+                    subtotal: subtotal
+                };
+            });
+
+        const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-        
         const newOrder = new Order({
             userId,
             items: orderItems,
@@ -750,8 +757,6 @@ const placeOrder = async (req, res) => {
             status: 'Placed',
             orderDate: new Date()
         });
-
-        const savedOrder = await newOrder.save();
 
         if (paymentMethod === 'Wallet') {
             const userWallet = await Wallet.findOne({ userId });
@@ -769,11 +774,12 @@ const placeOrder = async (req, res) => {
                 amount: totalAmount,
                 date: new Date(),
                 type: 'Debit',
-                orderId:savedOrder.orderId ,
+                orderId: savedOrder.orderId,
                 reason: 'Order Payment'
             });
             await userWallet.save();
         }
+        const savedOrder = await newOrder.save();
 
         await Cart.updateOne({ userId }, { $set: { items: [] } });
 
@@ -783,11 +789,6 @@ const placeOrder = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to place the order. Please try again later.' });
     }
 };
-
-
-
-
-
 
 module.exports = { 
     addToCart,

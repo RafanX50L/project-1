@@ -290,49 +290,71 @@
 									</div>
 								<% } else { %>
 									<% cartItems.forEach(item => { %>
-										<tr class="table_row">
-											<td class="column-1">
-												<div>
-													<img style="width: 100%;" src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
-												</div>
-											</td>
-											<td class="column-2"><%= item.productId.product_name %></td>
-											<td class="column-3">₹<%= item.productId.price %></td>
-											<td class="column-3">
-												<% if (item.offerAmount > 0) { %>
-													-₹<%= item.offerAmount.toFixed(2) %>
-												<% } else { %>
-													-₹ 0.00
-												<% } %>
-											</td>
-											<td class="column-4">
-												<div class="product-quantity-container" style="display: inline-flex;">
-													<div class="cl8 hov-btn3 trans-04 flex-c-m">
-														<button class="btn decrement"
-															onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
-															<i class="fs-16 zmdi zmdi-minus"></i>
-														</button>
+										<% if (item.productId.stock == 0 || item.productId.status == false) { %>
+
+											<tr class="table_row">
+												<td class="column-1">
+													<div>
+														<img style="width: 100%;" src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
 													</div>
-													<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product"
-														value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>">
-													<div class="cl8 hov-btn3 trans-04 flex-c-m">
-														<button class="btn increment"
-															onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
-															<i class="fs-16 zmdi zmdi-plus"></i>
-														</button>
+												</td>
+												<td class="column-2"><%= item.productId.product_name %></td>
+												<td class="column-3">₹<%= item.productId.price %></td>
+												<td style="color: green;">The Product </td>
+												<td style="color: green;">currently </td>
+												<td style="color: green;">UnAvailable</td>
+												<td class="column-6">
+													<div class="remove-btn" onclick="removeProductFromCart(this)"
+														data-product-id="<%= item.productId._id %>">
+														<i class="fa-sharp-duotone fa-solid fa-trash"></i>
 													</div>
-												</div>
-											</td>
-											<td class="column-5">
-												₹<%= (item.discountedPrice) * item.quantity %>
-											</td>
-											<td class="column-6">
-												<div class="remove-btn" onclick="removeProductFromCart(this)"
-													data-product-id="<%= item.productId._id %>">
-													<i class="fa-sharp-duotone fa-solid fa-trash"></i>
-												</div>
-											</td>
-										</tr>
+												</td>
+											</tr>
+										<% } else { %>
+											<tr class="table_row">
+												<td class="column-1">
+													<div>
+														<img style="width: 100%;" src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
+													</div>
+												</td>
+												<td class="column-2"><%= item.productId.product_name %></td>
+												<td class="column-3">₹<%= item.productId.price %></td>
+												<td class="column-3">
+													<% if (item.offerAmount > 0) { %>
+														-₹<%= item.offerAmount.toFixed(2) %>
+													<% } else { %>
+														-₹ 0.00
+													<% } %>
+												</td>
+												<td class="column-4">
+													<div class="product-quantity-container" style="display: inline-flex;">
+														<div class="cl8 hov-btn3 trans-04 flex-c-m">
+															<button class="btn decrement"
+																onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
+																<i class="fs-16 zmdi zmdi-minus"></i>
+															</button>
+														</div>
+														<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product"
+															value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>">
+														<div class="cl8 hov-btn3 trans-04 flex-c-m">
+															<button class="btn increment"
+																onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
+																<i class="fs-16 zmdi zmdi-plus"></i>
+															</button>
+														</div>
+													</div>
+												</td>
+												<td class="column-5">
+													₹<%= (item.discountedPrice) * item.quantity %>
+												</td>
+												<td class="column-6">
+													<div class="remove-btn" onclick="removeProductFromCart(this)"
+														data-product-id="<%= item.productId._id %>">
+														<i class="fa-sharp-duotone fa-solid fa-trash"></i>
+													</div>
+												</td>
+											</tr>
+										<% } %>
 									<% }); %>
 								<% } %>
 							</table>
@@ -388,15 +410,21 @@
 							</div>
 						</div>
 
+						<!-- Proceed to Checkout Button -->
 						<a href="/user/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" 
-						id="checkoutButton" <% if (cartItems.length === 0) { %> onclick="event.preventDefault();" style="pointer-events: none; opacity: 0.5;" <% } %>>
+							id="checkoutButton" 
+							<% if (cartItems.every(item => item.productId.stock == 0 || item.productId.status == false)) { %> 
+								onclick="event.preventDefault();" style="pointer-events: none; opacity: 0.5;" 
+							<% } %>>
 							Proceed to Checkout
 						</a>
+
 					</div>
 				</div>
 			</div>
 		</div>
 	</form>
+
 
 	
 		
@@ -597,104 +625,132 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		function removeProductFromCart(buttonElement) {
-  const productId = buttonElement.getAttribute('data-product-id');
+			const productId = buttonElement.getAttribute('data-product-id');
 
-  console.log(productId)
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'You will not be able to recover this product!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, remove it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch(`/user/remove-from-cart/${productId}`, {
-			method: 'DELETE',
-			headers: {
-			'Content-Type': 'application/json',
-			}
-		})
-		.then(response => response.json())
-		.then(data => {
-			if (data.success) {
-				Swal.fire('Success!', 'Product removed from cart!', 'success');
-				
-			}
-			window.location.reload();
-		})
-		.catch(error => {
-			console.error('Error:', error);
-			Swal.fire('Error!', 'Something went wrong.', 'error');
-		});
+			console.log(productId)
+			Swal.fire({
+				title: 'Are you sure?',
+				text: 'You will not be able to recover this product!',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#3085d6',
+				confirmButtonText: 'Yes, remove it!',
+			}).then((result) => {
+				if (result.isConfirmed) {
+				fetch(`/user/remove-from-cart/${productId}`, {
+						method: 'DELETE',
+						headers: {
+						'Content-Type': 'application/json',
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							Swal.fire('Success!', 'Product removed from cart!', 'success');
+							
+						}
+						window.location.reload();
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						Swal.fire('Error!', 'Something went wrong.', 'error');
+					});
 
-    }
-  });
-}
+				}
+			});
+		}
 
-		function incrementValue(event, productId, stock) {
-
+		async function incrementValue(event, productId, stock) {
 			event.preventDefault(); 
 			const input = document.querySelector(`input[data-product-id="${productId}"]`);
 			let currentValue = parseInt(input.value);
-
-	
-			if (currentValue < 10) {
-				input.value = currentValue + 1; 
+			let max;
+			
+			if (stock > 10) {
+				max = 10;
 			} else {
-				alert(`Cannot exceed stock limit of ${10}.`); 
+				max = stock;
+			}
+
+			if (currentValue < max) {
+				input.value = currentValue + 1;
+
+				const cartItems = document.querySelectorAll('input[data-product-id]'); 
+				const updatedItems = [];
+
+				cartItems.forEach(input => {
+					const productId = input.dataset.productId; 
+					const quantity = parseInt(input.value); 
+					updatedItems.push({ productId, quantity }); 
+				});
+
+				try {
+					const response = await fetch('/user/update-cart', { 
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json', 
+						},
+						body: JSON.stringify({ items: updatedItems }), 
+					});
+
+					if (response.ok) {
+						const result = await response.json();
+					} else {
+						throw new Error('Failed to update cart');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					alert('There was an error updating the cart. Please try again.');
+				}
+			} else {
+				alert(`Cannot exceed stock limit of ${max}.`); 
 			}
 		}
-	
-		function decrementValue(event, productId, stock) {
 
-
+		async function decrementValue(event, productId, stock) {
 			event.preventDefault(); 
 			const input = document.querySelector(`input[data-product-id="${productId}"]`);
 			let currentValue = parseInt(input.value);
 
 			if (currentValue > 1) {
-				input.value = currentValue - 1; 
+				input.value = currentValue - 1;
+
+				const cartItems = document.querySelectorAll('input[data-product-id]'); 
+				const updatedItems = [];
+
+				cartItems.forEach(input => {
+					const productId = input.dataset.productId; 
+					const quantity = parseInt(input.value); 
+					updatedItems.push({ productId, quantity }); 
+				});
+
+				try {
+					const response = await fetch('/user/update-cart', { 
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json', 
+						},
+						body: JSON.stringify({ items: updatedItems }), 
+					});
+
+					if (response.ok) {
+						const result = await response.json();
+					} else {
+						throw new Error('Failed to update cart');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					alert('There was an error updating the cart. Please try again.');
+				}
 			} else {
 				alert("Minimum quantity must be 1");
 			}
 		}
 
-		async function updateCart() {
-			const cartItems = document.querySelectorAll('input[data-product-id]'); 
-			const updatedItems = [];
-
-			cartItems.forEach(input => {
-				const productId = input.dataset.productId; 
-				const quantity = parseInt(input.value); 
-				updatedItems.push({ productId, quantity }); 
-			});
-
-			try {
-				const response = await fetch('/user/update-cart', { 
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json', 
-					},
-					body: JSON.stringify({ items: updatedItems }), 
-				});
-
-				if (response.ok) {
-					const result = await response.json();
-					alert('Cart updated successfully!');
-				} else {
-					throw new Error('Failed to update cart');
-				}
-			} catch (error) {
-				console.error('Error:', error);
-				alert('There was an error updating the cart. Please try again.');
-			}
-		}
-
-		
-
+		const checkoutMessage = "<%= typeof message !== 'undefined' ? message : '' %>";
 	</script>
+	
 
 </body>
 </html>

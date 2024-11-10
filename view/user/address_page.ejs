@@ -561,50 +561,51 @@ button[type="submit"]:hover {
 	</div>
 	
 
-<!-- Edit Address Modal -->
-<div id="editAddressModal" class="modal">
-	<div class="modal-content">
-		<span class="close">&times;</span>
-		<h3>Edit Address</h3>
-		<form id="editAddressForm" action="/user/address/edit" method="POST">
-			<input type="hidden" id="editAddressId" name="addressId" value="">
-			<div class="form-group">
-				<label for="editName">Name</label>
-				<input type="text" id="editName" name="name" required>
-			</div>
-			<div class="form-group">
-				<label for="editHouseNumber">House/Flat Number</label>
-				<input type="text" id="editHouseNumber" name="houseNumber" required>
-			</div>
-			<div class="form-group">
-				<label for="editStreet">Street</label>
-				<input type="text" id="editStreet" name="street" required>
-			</div>
-			<div class="form-group">
-				<label for="editCity">City</label>
-				<input type="text" id="editCity" name="city" required>
-			</div>
-			<div class="form-group">
-				<label for="editState">State</label>
-				<input type="text" id="editState" name="state" required>
-			</div>
-			<div class="form-group">
-				<label for="editZip">ZIP Code</label>
-				<input type="text" id="editZip" name="zip" required>
-			</div>
-			<div class="form-group">
-				<label for="editCountry">Country</label>
-				<input type="text" id="editCountry" name="country" value="India" required>
-			</div>
-			<div class="form-group">
-				<label for="editPhone">Phone Number</label>
-				<input type="tel" id="editPhone" name="phone" pattern="[+][0-9]{2} [0-9]{10}" required>
-				<small>Format: +91 1234567890</small>
-			</div>
-			<button type="submit">Save Changes</button>
-		</form>
+	<!-- Edit Address Modal -->
+	<div id="editAddressModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h3>Edit Address</h3>
+			<form id="editAddressForm" action="/user/address/edit" method="POST">
+				<input type="hidden" id="editAddressId" name="addressId" value="">
+				<div class="form-group">
+					<label for="editName">Name</label>
+					<input type="text" id="editName" name="name" required>
+				</div>
+				<div class="form-group">
+					<label for="editHouseNumber">House/Flat Number</label>
+					<input type="text" id="editHouseNumber" name="houseNumber" required>
+				</div>
+				<div class="form-group">
+					<label for="editStreet">Street</label>
+					<input type="text" id="editStreet" name="street" required>
+				</div>
+				<div class="form-group">
+					<label for="editCity">City</label>
+					<input type="text" id="editCity" name="city" required>
+				</div>
+				<div class="form-group">
+					<label for="editState">State</label>
+					<input type="text" id="editState" name="state" required>
+				</div>
+				<div class="form-group">
+					<label for="editZip">ZIP Code</label>
+					<input type="text" id="editZip" name="zip" required>
+				</div>
+				<div class="form-group">
+					<label for="editCountry">Country</label>
+					<input type="text" id="editCountry" name="country" value="India" required>
+				</div>
+				<div class="form-group">
+					<label for="editPhone">Phone Number</label>
+					<input type="tel" id="editPhone" name="phone" pattern="[+][0-9]{2} [0-9]{10}" required>
+					<small>Format: +91 1234567890</small>
+				</div>
+				<button type="submit">Save Changes</button>
+			</form>
+		</div>
 	</div>
-</div>
+
 
 	
 
@@ -1022,152 +1023,243 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="/js/main.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    document.querySelector(".add-btn").addEventListener("click", function() {
-        document.getElementById("addAddressModal").style.display = "block"; 
-    });
 
-document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
-    editBtn.addEventListener("click", function() {
-        const addressContainer = editBtn.closest(".address-container");
-        const addressDetails = addressContainer.querySelector(".address-details");
-        
-        document.getElementById("editAddressId").value = addressContainer.dataset.id;  
-        document.getElementById("editName").value = addressDetails.children[0].textContent;
-        document.getElementById("editHouseNumber").value = addressDetails.children[1].textContent;
-        document.getElementById("editStreet").value = addressDetails.children[2].textContent;
-        document.getElementById("editCity").value = addressDetails.children[3].textContent.split(',')[0]; 
-        document.getElementById("editState").value = document.getElementById('state').value
-        document.getElementById("editZip").value = document.getElementById('pin').value
-        document.getElementById("editPhone").value = addressDetails.children[5].textContent.split(': ')[1]; 
-
-        document.getElementById("editAddressModal").style.display = "block";
-    });
-});
-
-
-    document.querySelector("#editAddressForm").addEventListener("submit", function(event) {
-        event.preventDefault(); 
-
-        Swal.fire({
-            title: 'Save Changes?',
-            text: "Do you want to save the changes made to the address?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, save it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire(
-                    'Saved!',
-                    'Your changes have been saved.',
-                    'success'
-                ).then(() => {
-                    document.getElementById("editAddressForm").submit(); 
-                });
-            }
-        });
-    });
-
-	document.querySelectorAll(".delete-icon").forEach(function(deleteBtn) {
-    deleteBtn.addEventListener("click", function() {
-        const addressContainer = deleteBtn.closest(".address-container");
-        const addressId = addressContainer.getAttribute("data-id"); 
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/user/address/${addressId}`, {
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				})
-				.then(response => response.json())
-				.then(data => {
-					if (data.message === 'Address deleted successfully') {
-						Swal.fire('Deleted!', 'The address has been deleted.', 'success')
-							.then(() => {
-								addressContainer.remove();
-							});
-					} else {
-						Swal.fire('Error!', 'There was a problem deleting the address.', 'error');
-					}
-				})
-				.catch(error => {
-					Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
+	<script>
+		// Add Address Modal
+		document.querySelector(".add-btn").addEventListener("click", function() {
+			document.getElementById("addAddressModal").style.display = "block"; 
+		});
+	
+		// Edit Address Modal
+		document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
+			editBtn.addEventListener("click", function() {
+				const addressContainer = editBtn.closest(".address-container");
+				const addressDetails = addressContainer.querySelector(".address-details");
+	
+				document.getElementById("editAddressId").value = addressContainer.dataset.id;  
+				document.getElementById("editName").value = addressDetails.children[0].textContent;
+				document.getElementById("editHouseNumber").value = addressDetails.children[1].textContent;
+				document.getElementById("editStreet").value = addressDetails.children[2].textContent;
+				document.getElementById("editCity").value = addressDetails.children[3].textContent.split(',')[0]; 
+				document.getElementById("editState").value = document.getElementById('state').value
+				document.getElementById("editZip").value = document.getElementById('pin').value
+				document.getElementById("editPhone").value = addressDetails.children[5].textContent.split(': ')[1]; 
+	
+				document.getElementById("editAddressModal").style.display = "block";
+			});
+		});
+	
+		// Validation function for both Add and Edit Address forms
+		function validateForm(form) {
+			const name = form.querySelector("[name='name']").value.trim();
+			const houseNumber = form.querySelector("[name='houseNumber']").value.trim();
+			const street = form.querySelector("[name='street']").value.trim();
+			const city = form.querySelector("[name='city']").value.trim();
+			const state = form.querySelector("[name='state']").value.trim();
+			const zip = form.querySelector("[name='zip']").value.trim();
+			const country = form.querySelector("[name='country']").value.trim();
+			const phone = form.querySelector("[name='phone']").value.trim();
+	
+			// Name Validation (Only letters and spaces, 2-50 characters)
+			const namePattern = /^[a-zA-Z\s]{2,50}$/;
+			if (!namePattern.test(name)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid Name',
+					text: 'Name should only contain letters and spaces, and be 2 to 50 characters long.',
 				});
+				return false;
+			}
+	
+			// House Number Validation (Alphanumeric, 1-10 characters)
+			const housePattern = /^[a-zA-Z0-9\s]{1,10}$/;
+			if (!housePattern.test(houseNumber)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid House/Flat Number',
+					text: 'House/Flat Number should be alphanumeric and up to 10 characters.',
+				});
+				return false;
+			}
+	
+			// Street Validation (Alphanumeric and spaces, 2-50 characters)
+			const streetPattern = /^[a-zA-Z0-9\s]{2,50}$/;
+			if (!streetPattern.test(street)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid Street',
+					text: 'Street should be alphanumeric and 2 to 50 characters long.',
+				});
+				return false;
+			}
+	
+			// City Validation (Only letters and spaces, 2-50 characters)
+			const cityPattern = /^[a-zA-Z\s]{2,50}$/;
+			if (!cityPattern.test(city)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid City',
+					text: 'City should only contain letters and spaces, and be 2 to 50 characters long.',
+				});
+				return false;
+			}
+	
+			// State Validation (Only letters and spaces, 2-50 characters)
+			const statePattern = /^[a-zA-Z\s]{2,50}$/;
+			if (!statePattern.test(state)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid State',
+					text: 'State should only contain letters and spaces, and be 2 to 50 characters long.',
+				});
+				return false;
+			}
+	
+			// ZIP Code Validation (Numeric, 5-10 digits)
+			const zipPattern = /^[0-9]{5,10}$/;
+			if (!zipPattern.test(zip)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid ZIP Code',
+					text: 'ZIP Code should be numeric and between 5 to 10 digits.',
+				});
+				return false;
+			}
+	
+			// Country Validation (Only letters and spaces, 2-50 characters)
+			const countryPattern = /^[a-zA-Z\s]{2,50}$/;
+			if (!countryPattern.test(country)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid Country',
+					text: 'Country should only contain letters and spaces, and be 2 to 50 characters long.',
+				});
+				return false;
+			}
+	
+			// Phone Validation (Format: +91 1234567890)
+			const phonePattern = /^[+][0-9]{2} [0-9]{10}$/;
+			// Check if phone number consists of the same digits
+			const sameDigitPattern = /^(\d)\1{9}$/; // Matches 1111111111, 2222222222, etc.
+			
+			// Remove the country code (+91) and check the rest of the phone number
+			const cleanedPhone = phone.replace(/[^\d]/g, ''); // Remove any non-numeric characters
+			const phoneWithoutCountryCode = cleanedPhone.substring(2); // Remove '+91' part
+	
+			// If the phone number is valid but contains only the same digits, return false
+			if (sameDigitPattern.test(phoneWithoutCountryCode)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid Phone Number',
+					text: 'Phone number cannot be made up of the same digits after the country code.',
+				});
+				return false;
+			}
+	
+			if (!phonePattern.test(phone)) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Invalid Phone Number',
+					text: 'Phone number must match the format +91 1234567890.',
+				});
+				return false;
+			}
+	
+			return true;
+		}
+	
+		// Attach validation to both forms
+		document.getElementById("addAddressForm").onsubmit = function(event) {
+			if (!validateForm(this)) {
+				event.preventDefault(); // Prevent form submission if validation fails
+			}
+		};
+	
+		document.getElementById("editAddressForm").onsubmit = function(event) {
+			event.preventDefault(); // Prevent form submission for confirmation dialog
+	
+			if (validateForm(this)) {
+				Swal.fire({
+					title: 'Save Changes?',
+					text: "Do you want to save the changes made to the address?",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes, save it!'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						Swal.fire(
+							'Saved!',
+							'Your changes have been saved.',
+							'success'
+						).then(() => {
+							this.submit(); // Submit the form after confirmation
+						});
+					}
+				});
+			}
+		};
+	
+		// Delete Address functionality (No changes here)
+		document.querySelectorAll(".delete-icon").forEach(function(deleteBtn) {
+			deleteBtn.addEventListener("click", function() {
+				const addressContainer = deleteBtn.closest(".address-container");
+				const addressId = addressContainer.getAttribute("data-id"); 
+	
+				Swal.fire({
+					title: 'Are you sure?',
+					text: "You won't be able to revert this!",
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes, delete it!'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						fetch(`/user/address/${addressId}`, {
+							method: 'DELETE',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						})
+						.then(response => response.json())
+						.then(data => {
+							if (data.message === 'Address deleted successfully') {
+								Swal.fire('Deleted!', 'The address has been deleted.', 'success')
+									.then(() => {
+										addressContainer.remove();
+									});
+							} else {
+								Swal.fire('Error!', 'There was a problem deleting the address.', 'error');
+							}
+						})
+						.catch(error => {
+							Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
+						});
+					}
+				});
+			});
+		});
+	
+		// Close modals functionality (No changes here)
+		var closeModalButtons = document.querySelectorAll('.close');
+		closeModalButtons.forEach(button => {
+			button.onclick = function() {
+				document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none'); 
+			}
+		});
+	
+		window.onclick = function(event) {
+			if (event.target === document.getElementById("addAddressModal") || event.target === document.getElementById("editAddressModal")) {
+				event.target.style.display = "none";
+			}
+		};
+	</script>
+	
+	
+	
 
-            }
-        });
-    });
-});
-
-
-
-    var closeModalButtons = document.querySelectorAll('.close');
-    closeModalButtons.forEach(button => {
-        button.onclick = function() {
-            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none'); 
-        }
-    });
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none'; 
-        }
-    }
-</script>
-<script>
-    function validateForm() {
-        const name = document.getElementById("name").value.trim();
-        const houseNumber = document.getElementById("houseNumber").value.trim();
-        const street = document.getElementById("street").value.trim();
-        const city = document.getElementById("city").value.trim();
-        const state = document.getElementById("state").value.trim();
-        const zip = document.getElementById("zip").value.trim();
-        const country = document.getElementById("country").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-
-        if (!name || !houseNumber || !street || !city || !state || !zip || !country || !phone) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Oops...',
-                text: 'All fields are required and cannot be empty.',
-            });
-            return false;
-        }
-
-        const phonePattern = /^[+][0-9]{2} [0-9]{10}$/;
-        if (!phonePattern.test(phone)) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Phone Number',
-                text: 'Phone number must match format +91 1234567890.',
-            });
-            return false;
-        }
-
-        if (zip.length < 5 || zip.length > 10) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid ZIP Code',
-                text: 'ZIP Code must be between 5 and 10 digits.',
-            });
-            return false;
-        }
-
-        return true;
-    }
-</script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 		
 		

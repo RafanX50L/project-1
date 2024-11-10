@@ -33,6 +33,8 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 
 <!--===============================================================================================-->
 </head>
@@ -664,6 +666,9 @@
 											</span>
 										<% } %>
 									</div>
+									<button class="add-to-wish-btn" data-product-id=<%= product._id %>>
+										<i class="fas fa-heart" style="font-size: 15px; color: #f44336;"></i> 
+									</button>									  
 								</div>
 							</div>
 						</a>
@@ -1140,9 +1145,17 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		document.querySelectorAll('.add-to-wish-btn').forEach(function(button) {
 			button.addEventListener('click', function(e) {
 				e.preventDefault();
-				
+
+				// Retrieve the productId correctly
 				const productId = this.getAttribute('data-product-id');
-	
+				console.log('jkkdjfgd'+productId);
+				
+				// Ensure the productId is valid (i.e., it is a non-empty string)
+				if (!productId || productId.trim() === '') {
+					console.error("Invalid product ID:", productId);
+					return;
+				}
+
 				fetch('/user/wish/add', {
 					method: 'POST',
 					headers: {
@@ -1161,7 +1174,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							text: 'Product added to Wishlist!',
 							confirmButtonText: 'OK'
 						});
-					}else if (data.message) {
+					} else if (data.message) {
 						Swal.fire({
 							icon: 'info',
 							title: data.title,
@@ -1172,7 +1185,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 						Swal.fire({
 							icon: 'error',
 							title: 'Oops...',
-							text: 'Error adding product to Whishlist. Please try again!',
+							text: 'Error adding product to Wishlist. Please try again!',
 							confirmButtonText: 'OK'
 						});
 					}
@@ -1188,6 +1201,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				});
 			});
 		});
+
 
 	</script>
 	

@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 const Offers = require('../model/offer'); 
 const Wallet = require('../model/wallet'); 
 const Cart = require('../model/cartModel');
+require('dotenv').config(); 
+const jwt = require('jsonwebtoken');
+
 
 const loginget = async (req, res) => {
 
@@ -160,6 +163,161 @@ const sendOTPEmail = (userEmail, otp) => {
     });
 };
 
+
+
+// Create Nodemailer transporter using your email service (Gmail in this case)
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Using Gmail as an example
+    auth: {
+        user: process.env.EMAIL_USER,  // Email address from the environment variable
+        pass: process.env.EMAIL_PASS   // Email password or App password
+    }
+});
+
+// Forgot password GET handler (render forgot password page)
+const forgotPassword = async (req, res) => {
+    try {
+        res.render('user/forgotPassword');  // Render the forgot password page
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error rendering forgot password page' });
+    }
+};
+
+// POST handler for processing the forgot password request (send reset email)
+const postForgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Check if the user exists
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'No user exists with this email'
+            });
+        }
+
+        // Generate a reset token using JWT
+        const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+
+        // Create a reset link
+        const resetLink = `${req.protocol}://${req.get('host')}/user/resetPassword?token=${resetToken}`;
+
+        // Set up email data
+        const mailOptions = {
+            from: process.env.EMAIL_USER, // Your email address from environment variable
+            to: email, // User's email address
+            subject: 'Password Reset Request',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f7f7f7; border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                    <h2 style="color: #333333; text-align: center;">Password Reset Request</h2>
+                    <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+                        You requested a password reset. Click the button below to reset your password:
+                    </p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="${resetLink}" style="text-decoration: none;">
+                            <button style="background-color: #007bff; color: #ffffff; border: none; padding: 12px 24px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;">
+                                Change Password
+                            </button>
+                        </a>
+                    </div>
+                    <p style="color: #555555; font-size: 14px; line-height: 1.5;">
+                        If you did not request this, please ignore this email.
+                    </p>
+                    <p style="text-align: center; font-size: 12px; color: #888888;">
+                        © 2023 Your Company | All rights reserved
+                    </p>
+                </div>
+            `
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error("Error sending email:", error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error sending email, please try again later'
+                });
+            } else {
+                console.log("Password reset email sent:", info.response);
+                res.status(200).json({
+                    success: true,
+                    message: 'Password reset link has been sent to your email'
+                });
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+const getResetPassword = async (req, res) => {
+    try {
+        const { token } = req.query;  // Get token from query string
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
+            if (err) {
+                return res.status(400).json({ message: 'Invalid or expired token' });
+            }
+            // Render the reset password form and pass the token to it
+            res.render('user/resetPassword', { token: token });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+// Reset password handler (verify token and reset the password)
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        // Verify the token using JWT secret key from .env
+        jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
+            if (err) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid or expired token'
+                });
+            }
+
+            // Find the user by ID from the decoded token
+            const user = await User.findById(decoded.userId);
+            if (!user) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'User not found'
+                });
+            }
+
+            // Directly set the password to the new one (without hashing)
+            user.password = newPassword;
+
+            // Clear the reset token and expiration fields if any
+            user.resetToken = undefined;
+            user.resetTokenExpiration = undefined;
+
+            // Save the updated user
+            await user.save();
+
+            res.status(200).json({
+                success: true,
+                message: 'Password updated successfully'
+            });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
+
+
 const allProducts = async (req, res) => {
     try {
         const { search, sort } = req.query; 
@@ -169,13 +327,17 @@ const allProducts = async (req, res) => {
             filter.product_name = { $regex: search, $options: 'i' }; 
         }
 
-        let products = await Products.find({ ...filter, stock: { $gt: 0 } });
-
+        const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
+        const includedCategoryNames = category.map(category => category.category_name);
+        let products = await Products.find({
+            ...filter,
+            stock: { $gt: 0 },
+            category: { $in: includedCategoryNames }
+        });
         if (sort) {
             products = sortProducts(products, sort);
         }
 
-        const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
         const activeOffers = await Offers.find({
             validUntil: { $gte: new Date() },
             status: 'active'
@@ -391,7 +553,11 @@ const logout = async (req, res) => {
 const validation = async (req, res) => {
     try {
         const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-        const products = await Products.find({ stock: { $gt: 0 } });
+        const includedCategoryNames = category.map(category => category.category_name);
+        const products = await Products.find({ 
+            stock: { $gt: 0 },
+            category: { $in: includedCategoryNames }
+        });        
         const activeOffers = await Offers.find({
             validUntil: { $gte: new Date() },
             status: 'active'
@@ -667,4 +833,8 @@ module.exports = {
     addressDelete,
     changepassword,
     updatePassword,
+    forgotPassword,
+    postForgotPassword,
+    getResetPassword,
+    resetPassword
 };

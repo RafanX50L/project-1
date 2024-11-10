@@ -14,7 +14,7 @@ user_route.use(passport.initialize());
 user_route.use(passport.session());
 
 user_route.use(async (req, res, next) => {
-    const publicPaths = ['/login', '/signup','/resend-otp', '/otp-validation', '/logout' , '/auth/google' , '/auth/google/callback','/success','/','/failure'];
+    const publicPaths = ['/login','/forgotPassword', '/resetPassword','/signup','/resend-otp', '/otp-validation', '/logout' , '/auth/google' , '/auth/google/callback','/success','/','/failure'];
 
     if (publicPaths.includes(req.path)) {
         return next();
@@ -93,6 +93,12 @@ user_route.get('/otp-validation', (req, res) => {
 user_route.post('/otp-validation', user_Controller.verifyOTP);
 
 user_route.get('/resend-otp', user_Controller.resendOTP);
+
+//user forgot password
+user_route.get('/forgotPassword',user_Controller.forgotPassword);
+user_route.post('/forgotPassword',user_Controller.postForgotPassword);
+user_route.get('/resetPassword', user_Controller.getResetPassword);
+user_route.post('/resetPassword',user_Controller.resetPassword);
 
 // Logout route
 user_route.get('/logout', user_Controller.logout);
