@@ -14,7 +14,17 @@ user_route.use(passport.initialize());
 user_route.use(passport.session());
 
 user_route.use(async (req, res, next) => {
-    const publicPaths = ['/login','/forgotPassword', '/resetPassword','/signup','/resend-otp', '/otp-validation', '/logout' , '/auth/google' , '/auth/google/callback','/success','/','/failure'];
+    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation', '/logout', '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
+
+    if (req.session.loggedIn && publicPaths.includes(req.path)) {
+        return res.redirect('/user/home');
+    }
+    
+    next(); 
+});
+
+user_route.use(async (req, res, next) => {
+    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation', '/logout', '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
 
     if (publicPaths.includes(req.path)) {
         return next();
@@ -22,8 +32,8 @@ user_route.use(async (req, res, next) => {
 
     if (req.session.loggedIn) {
         try {
-            const user = await User.findOne({ _id: req.session.loggedIn }); 
-    
+            const user = await User.findOne({ _id: req.session.loggedIn });
+
             if (user && user.isblocked === false && user.verify === true) {
                 return next();
             } else {
@@ -33,13 +43,15 @@ user_route.use(async (req, res, next) => {
             }
         } catch (error) {
             console.error('Error checking user block status:', error);
-            res.redirect('/user/login'); 
+            res.redirect('/user/login');
         }
     } else {
         res.redirect('/user/login');
     }
-    
 });
+
+
+
 // razor pay credentials
 const razorpay = new Razorpay({
     key_id:process.env.key_id,
