@@ -165,31 +165,27 @@ const sendOTPEmail = (userEmail, otp) => {
 
 
 
-// Create Nodemailer transporter using your email service (Gmail in this case)
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Using Gmail as an example
+    service: 'gmail', 
     auth: {
-        user: process.env.EMAIL_USER,  // Email address from the environment variable
-        pass: process.env.EMAIL_PASS   // Email password or App password
+        user: process.env.EMAIL_USER,  
+        pass: process.env.EMAIL_PASS   
     }
 });
 
-// Forgot password GET handler (render forgot password page)
 const forgotPassword = async (req, res) => {
     try {
-        res.render('user/forgotPassword');  // Render the forgot password page
+        res.render('user/forgotPassword');  
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error rendering forgot password page' });
     }
 };
 
-// POST handler for processing the forgot password request (send reset email)
 const postForgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Check if the user exists
         const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(400).json({
@@ -198,16 +194,13 @@ const postForgotPassword = async (req, res) => {
             });
         }
 
-        // Generate a reset token using JWT
         const resetToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 
-        // Create a reset link
         const resetLink = `${req.protocol}://${req.get('host')}/user/resetPassword?token=${resetToken}`;
 
-        // Set up email data
         const mailOptions = {
-            from: process.env.EMAIL_USER, // Your email address from environment variable
-            to: email, // User's email address
+            from: process.env.EMAIL_USER, 
+            to: email, 
             subject: 'Password Reset Request',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f7f7f7; border-radius: 8px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
@@ -232,7 +225,6 @@ const postForgotPassword = async (req, res) => {
             `
         };
 
-        // Send the email
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.error("Error sending email:", error);
@@ -256,12 +248,11 @@ const postForgotPassword = async (req, res) => {
 
 const getResetPassword = async (req, res) => {
     try {
-        const { token } = req.query;  // Get token from query string
+        const { token } = req.query;  
         jwt.verify(token, process.env.JWT_SECRET_KEY, (err, decoded) => {
             if (err) {
                 return res.status(400).json({ message: 'Invalid or expired token' });
             }
-            // Render the reset password form and pass the token to it
             res.render('user/resetPassword', { token: token });
         });
     } catch (error) {
@@ -271,12 +262,10 @@ const getResetPassword = async (req, res) => {
 };
 
 
-// Reset password handler (verify token and reset the password)
 const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
 
-        // Verify the token using JWT secret key from .env
         jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
             if (err) {
                 return res.status(400).json({
@@ -285,7 +274,6 @@ const resetPassword = async (req, res) => {
                 });
             }
 
-            // Find the user by ID from the decoded token
             const user = await User.findById(decoded.userId);
             if (!user) {
                 return res.status(400).json({
@@ -294,14 +282,11 @@ const resetPassword = async (req, res) => {
                 });
             }
 
-            // Directly set the password to the new one (without hashing)
             user.password = newPassword;
 
-            // Clear the reset token and expiration fields if any
             user.resetToken = undefined;
             user.resetTokenExpiration = undefined;
 
-            // Save the updated user
             await user.save();
 
             res.status(200).json({

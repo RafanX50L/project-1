@@ -53,12 +53,10 @@ const editCoupon = async (req, res) => {
     try {
         const { editCouponId, editCouponCode, editMaxAmount, editDiscountPercentage, editStartDate, editEndDate } = req.body;
 
-        // Validate the date range
         if (new Date(editEndDate) <= new Date(editStartDate)) {
             return res.status(400).json({ message: 'End date cannot be before start date' });
         }
 
-        // Check if another coupon with the same code exists (excluding the current coupon being edited)
         const existingCoupon = await Coupon.findOne({ 
             coupon_code: editCouponCode, 
             _id: { $ne: editCouponId } 
@@ -68,7 +66,6 @@ const editCoupon = async (req, res) => {
             return res.status(409).json({ message: 'Coupon code already exists' });
         }
 
-        // Proceed with updating the coupon if no conflicts
         const updatedCoupon = await Coupon.findByIdAndUpdate(
             editCouponId,
             {
@@ -78,11 +75,11 @@ const editCoupon = async (req, res) => {
                 start_date: editStartDate,
                 end_date: editEndDate
             },
-            { new: true } // Return the updated document
+            { new: true } 
         );
 
         if (updatedCoupon) {
-            return res.redirect('/admin/coupons'); // Redirect on successful update
+            return res.redirect('/admin/coupons'); 
         } else {
             return res.status(404).json({ message: 'Coupon not found' });
         }
@@ -232,22 +229,19 @@ const editOffer = async (req, res) => {
     try {
         const { editOfferId, ediOfferCode, editDiscount, apply, value, editStartDate, editEndDate } = req.body;
 
-        // Check if the end date is before the start date
         if (new Date(editEndDate) <= new Date(editStartDate)) {
             return res.status(400).json({ message: 'End date cannot be before start date' });
         }
 
-        // Check if the offer code already exists, excluding the current offer
         const existingOffer = await Offers.findOne({
             offerCode: ediOfferCode,
-            _id: { $ne: editOfferId } // Exclude the current offer being updated
+            _id: { $ne: editOfferId } 
         });
 
         if (existingOffer) {
             return res.status(400).json({ message: 'Offer code already exists' });
         }
 
-        // Proceed with updating the offer
         const updatedOffer = await Offers.findByIdAndUpdate(
             editOfferId,
             {
@@ -258,7 +252,7 @@ const editOffer = async (req, res) => {
                 start_date: editStartDate,
                 end_date: editEndDate
             },
-            { new: true } // Return the updated offer
+            { new: true } 
         );
 
         if (updatedOffer) {

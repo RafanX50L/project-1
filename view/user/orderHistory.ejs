@@ -897,7 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const orderId = this.getAttribute('data-order-id');
 			console.log(orderId);
 			
-			// Use SweetAlert for confirmation
 			const { isConfirmed } = await Swal.fire({
                 title: 'Are you sure?',
                 text: 'Do you really want to retun this order?',
@@ -910,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isConfirmed) {
                 try {
                     const response = await fetch(`/user/retun/${orderId}`, {
-                        method: 'POST', // Change to 'POST'
+                        method: 'POST', 
                         headers: {
                             'Content-Type': 'application/json',
                         },
@@ -921,16 +920,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     const result = await response.json();
-                    // Show success message with SweetAlert
                     Swal.fire({
                         title: 'Return request sended!',
                         text: result.message,
                         icon: 'success',
                     });
 
-                    location.reload(); // Reload the page or update the order status in the UI
+                    location.reload(); 
                 } catch (error) {
-                    // Show error message with SweetAlert
                     Swal.fire({
                         title: 'Error!',
                         text: 'Error Returning order: ' + error.message,

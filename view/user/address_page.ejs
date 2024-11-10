@@ -1025,12 +1025,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
 
 	<script>
-		// Add Address Modal
 		document.querySelector(".add-btn").addEventListener("click", function() {
 			document.getElementById("addAddressModal").style.display = "block"; 
 		});
 	
-		// Edit Address Modal
 		document.querySelectorAll(".edit-icon").forEach(function(editBtn) {
 			editBtn.addEventListener("click", function() {
 				const addressContainer = editBtn.closest(".address-container");
@@ -1049,7 +1047,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			});
 		});
 	
-		// Validation function for both Add and Edit Address forms
 		function validateForm(form) {
 			const name = form.querySelector("[name='name']").value.trim();
 			const houseNumber = form.querySelector("[name='houseNumber']").value.trim();
@@ -1168,15 +1165,14 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			return true;
 		}
 	
-		// Attach validation to both forms
 		document.getElementById("addAddressForm").onsubmit = function(event) {
 			if (!validateForm(this)) {
-				event.preventDefault(); // Prevent form submission if validation fails
+				event.preventDefault(); 
 			}
 		};
 	
 		document.getElementById("editAddressForm").onsubmit = function(event) {
-			event.preventDefault(); // Prevent form submission for confirmation dialog
+			event.preventDefault(); 
 	
 			if (validateForm(this)) {
 				Swal.fire({
@@ -1194,14 +1190,13 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							'Your changes have been saved.',
 							'success'
 						).then(() => {
-							this.submit(); // Submit the form after confirmation
+							this.submit(); 
 						});
 					}
 				});
 			}
 		};
 	
-		// Delete Address functionality (No changes here)
 		document.querySelectorAll(".delete-icon").forEach(function(deleteBtn) {
 			deleteBtn.addEventListener("click", function() {
 				const addressContainer = deleteBtn.closest(".address-container");
@@ -1242,7 +1237,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			});
 		});
 	
-		// Close modals functionality (No changes here)
 		var closeModalButtons = document.querySelectorAll('.close');
 		closeModalButtons.forEach(button => {
 			button.onclick = function() {

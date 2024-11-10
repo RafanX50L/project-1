@@ -938,12 +938,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		const editBtn = document.querySelector(".edit-btn");
 		const closeBtn = document.querySelector(".close");
 	
-		// Open Modal
 		editBtn.addEventListener("click", () => {
 			modal.style.display = "block";
 		});
 	
-		// Close Modal
 		closeBtn.addEventListener("click", () => {
 			modal.style.display = "none";
 		});
@@ -961,11 +959,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			const dob = document.getElementById("dob").value.trim();
 			const phone = document.getElementById("phone").value.trim();
 	
-			// Validation Patterns
-			const namePattern = /^[a-zA-Z\s]+$/; // Only letters and spaces
-			const phonePattern = /^\+\d{2}\s\d{10}$/; // Phone number format +91 1234567890
+			const namePattern = /^[a-zA-Z\s]+$/; 
+			const phonePattern = /^\+\d{2}\s\d{10}$/; 
 	
-			// Strict validation checks
 			if (!name || !namePattern.test(name)) {
 				Swal.fire("Invalid Name", "Name can only contain letters and spaces, and must not be empty.", "error");
 				return;
@@ -976,7 +972,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				return;
 			}
 	
-			// Check if Date of Birth is less than today's date
 			const today = new Date();
 			const birthDate = new Date(dob);
 			if (birthDate > today) {
@@ -989,15 +984,13 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				return;
 			}
 	
-			// Check if the phone number consists of the same digit repeated (e.g., +91 0000000000)
-			const phoneWithoutFormat = phone.replace(/\s+/g, ''); // Remove spaces
-			const repeatedDigitPattern = /^(\+\d{2})(\d)\2{9}$/; // Checks if all digits are the same after +91
+			const phoneWithoutFormat = phone.replace(/\s+/g, ''); 
+			const repeatedDigitPattern = /^(\+\d{2})(\d)\2{9}$/; 
 			if (repeatedDigitPattern.test(phoneWithoutFormat)) {
 				Swal.fire("Invalid Phone Number", "Phone number cannot be composed of the same repeated digit (e.g., +91 0000000000).", "error");
 				return;
 			}
 	
-			// Confirm before submission
 			Swal.fire({
 				title: 'Are you sure?',
 				text: "Do you want to update your details?",
@@ -1008,14 +1001,14 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				confirmButtonText: 'Yes, update it!'
 			}).then((result) => {
 				if (result.isConfirmed) {
-					this.submit(); // Submit the form if confirmed
+					this.submit(); 
 	
 					Swal.fire(
 						'Updated!',
 						'Your details have been updated successfully.',
 						'success'
 					).then(() => {
-						modal.style.display = "none"; // Close the modal
+						modal.style.display = "none"; 
 					});
 				}
 			});

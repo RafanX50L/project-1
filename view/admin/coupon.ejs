@@ -522,7 +522,6 @@ h3 {
 
     <script>
         $(document).ready(function() {
-            // Open Modals
             $('#addCouponButton').on('click', function() {
                 $('#addCouponModal').modal('show');
             });
@@ -545,7 +544,6 @@ h3 {
                 $('#editCouponModal').modal('show');
             });
         
-            // Validation Function
             function validateForm(formId) {
                 const discountPercentage = $(`#${formId} #discountPercentage, #${formId} #editDiscountPercentage`).val();
                 const maxAmount = $(`#${formId} #maxAmount, #${formId} #editMaxAmount`).val();
@@ -582,7 +580,6 @@ h3 {
                 return true;
             }
         
-            // Add Coupon Form Submission
             $('#addCouponForm').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -607,7 +604,6 @@ h3 {
                 });
             });
         
-            // Edit Coupon Form Submission
             $('#editCouponForm').on('submit', function(e) {
                 e.preventDefault();
         
