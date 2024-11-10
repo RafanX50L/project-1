@@ -305,52 +305,31 @@ const resetPassword = async (req, res) => {
 
 const allProducts = async (req, res) => {
     try {
-        const { search, sort } = req.query; 
+        const { search, sort } = req.query;
         const filter = { status: true };
 
         if (search) {
-            filter.product_name = { $regex: search, $options: 'i' }; 
+            filter.product_name = { $regex: search, $options: 'i' };
         }
 
-        const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-        const includedCategoryNames = category.map(category => category.category_name);
+        const categories = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
+        const includedCategoryNames = categories.map(category => category.category_name);
+
         let products = await Products.find({
             ...filter,
             stock: { $gt: 0 },
             category: { $in: includedCategoryNames }
         });
+
         if (sort) {
             products = sortProducts(products, sort);
         }
 
-        const activeOffers = await Offers.find({
-            validUntil: { $gte: new Date() },
-            status: 'active'
-        });
-
-        const productsWithOffers = products.map(product => {
-            const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
-            const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
-            const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
-
-            const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
-            const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
-
-            if (bestOffer.discount > 0) {
-                product.discount = bestOffer.discount;
-                product.discountedPrice = product.price - (product.price * bestOffer.discount / 100);
-                product.saveAmount = product.price - product.discountedPrice;
-            } else {
-                product.discount = 0;
-                product.discountedPrice = product.price;
-            }
-
-            return product;
-        });
+        products = await applyOffersToProducts(products);
 
         res.render('user/product.ejs', {
-            products: productsWithOffers,
-            c: category,
+            products,
+            c:categories,
             searchQuery: search || '',
             sortOption: sort || ''
         });
@@ -359,7 +338,6 @@ const allProducts = async (req, res) => {
         res.status(500).send('An error occurred while fetching products.');
     }
 };
-
 
 const sortProducts = (products, sortOption) => {
     switch (sortOption) {
@@ -378,9 +356,37 @@ const sortProducts = (products, sortOption) => {
         case 'z-to-a':
             return products.sort((a, b) => b.product_name.localeCompare(a.product_name));
         default:
-            return products;
+            return products; 
     }
 };
+
+const applyOffersToProducts = async (products) => {
+    const activeOffers = await Offers.find({
+        validUntil: { $gte: new Date() },
+        status: 'active'
+    });
+
+    return products.map(product => {
+        const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+        const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+        const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+        const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+        const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+        if (bestOffer.discount > 0) {
+            product.discount = bestOffer.discount;
+            product.discountedPrice = product.price - (product.price * bestOffer.discount / 100);
+            product.saveAmount = product.price - product.discountedPrice;
+        } else {
+            product.discount = 0;
+            product.discountedPrice = product.price;
+        }
+
+        return product;
+    });
+};
+
 
 const Movie = async (req, res) => {
     if (req.session.loggedIn) {

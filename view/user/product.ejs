@@ -311,33 +311,31 @@
 		</div>
 	</div>
 	
-	<!-- Product -->
-	<div class="bg0 m-t-23 p-b-140" style="background-color: black;">
-		<div class="container">
-			<div class="flex-w flex-sb-m p-b-52">
-				
+<!-- Product Section -->
+<div class="bg0 m-t-23 p-b-140" style="background-color: black;">
+    <div class="container">
+        <div class="flex-w flex-sb-m p-b-52">
+            <!-- Filter and Search Buttons -->
+            <div class="flex-w flex-c-m m-tb-10">
+                <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+                    <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+                    <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                    Filter
+                </div>
 
-				<div class="flex-w flex-c-m m-tb-10">
-					<div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
-						<i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
-						<i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-						 Filter
-					</div>
-
-					<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
-						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
-						<i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-						Search   
-					</div>
-					
-				</div>
-				
-				<!-- Search product -->
-				<div class="dis-none panel-search w-full p-t-10 p-b-15">
-					<form action="/user/allProducts" method="get">
+                <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+                    <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                    <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                    Search
+                </div>
+            </div>
+            
+            <!-- Search Product -->
+            <div class="dis-none panel-search w-full p-t-10 p-b-15">
+                <form action="/user/allProducts" method="get">
 					<div class="bor8 dis-flex p-l-15">
 						<button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-						<i class="zmdi zmdi-search"></i>
+							<i class="zmdi zmdi-search"></i>
 						</button>
 						<input
 							class="mtext-107 cl2 size-114 plh2 p-r-15"
@@ -346,132 +344,134 @@
 							placeholder="Search"
 							value="<%= searchQuery %>"
 						>
+						<!-- Include the sort option to preserve its state when submitting search -->
+						<input type="hidden" name="sort" value="<%= sortOption %>">
 					</div>
-					</form>
-				</div>
+				</form>
 				
+            </div>
+            
+            <!-- Filter Sorting Options -->
+            <div class="dis-none panel-filter w-full p-t-10">
+                <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                    <div class="filter-col1 p-r-15 p-b-27">
+                        <div class="mtext-102 cl2 p-b-15">
+                            Sort By
+                        </div>
+                        
+                        <form id="sortForm" action="/user/allProducts" method="get">
+                            <!-- Preserve the search query if it exists -->
+                            <input type="hidden" name="search" value="<%= searchQuery %>">
+                        
+                            <!-- Sorting Options with Auto-Submit on Change -->
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="default" <%= sortOption === 'default' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Default
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="popularity" <%= sortOption === 'popularity' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Popularity
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="rating" <%= sortOption === 'rating' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Average Rating
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="newness" <%= sortOption === 'newness' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                New Arrivals
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="price-low-to-high" <%= sortOption === 'price-low-to-high' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Price: Low to High
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="price-high-to-low" <%= sortOption === 'price-high-to-low' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Price: High to Low
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="a-to-z" <%= sortOption === 'a-to-z' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                A - Z
+                            </label>
+                        
+                            <label class="radio-container">
+                                <input type="radio" name="sort" value="z-to-a" <%= sortOption === 'z-to-a' ? 'checked' : '' %> onchange="this.form.submit()">
+                                <span class="radio-checkmark"></span>
+                                Z - A
+                            </label>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-				<!-- Filter -->
-				<div class="dis-none panel-filter w-full p-t-10">
-					<div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
-						<div class="filter-col1 p-r-15 p-b-27">
-							<div class="mtext-102 cl2 p-b-15">
-								Sort By
-							</div>
-							
-							<form id="sortForm">
-								<label class="radio-container">
-									<input type="radio" name="sort" value="default" checked>
-									<span class="radio-checkmark"></span>
-									Default
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="popularity">
-									<span class="radio-checkmark"></span>
-									Popularity
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="rating">
-									<span class="radio-checkmark"></span>
-									Average Rating
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="newness">
-									<span class="radio-checkmark"></span>
-									New Arrivals
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="price-low-to-high">
-									<span class="radio-checkmark"></span>
-									Price: Low to High
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="price-high-to-low">
-									<span class="radio-checkmark"></span>
-									Price: High to Low
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="a-to-z">
-									<span class="radio-checkmark"></span>
-									A - Z
-								</label>
-						
-								<label class="radio-container">
-									<input type="radio" name="sort" value="z-to-a">
-									<span class="radio-checkmark"></span>
-									Z - A
-								</label>
-							</form>
-						</div>
-					</div>
-				</div>
-			</div>
+        <!-- Products Display -->
+        <div class="row isotope-grid">
+            <% products.forEach(product => { %>
+                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
+                    <a class="block2" href="/user/productd?id=<%= product._id %>">
+                        <div class="block2-pic hov-img0">
+                            <img style="height: 40vh; width: 40vh; align-items: center;" src="/products/<%= product.product_images[0] %>" alt="IMG-PRODUCT">
+                            <a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
+                                Add To Cart
+                            </a>
+                        </div>
 
-			
+                        <div class="block2-txt flex-w flex-t p-t-14">
+                            <div class="block2-txt-child1 flex-col-l ">
+                                <a href="/user/productd/<%= product._id %>" style="color: aliceblue;" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                    <%= product.product_name %>
+                                </a>
+                                <div style="display: flex; align-items: center;">
+                                    <% if (product.discountedPrice < product.price) { %>
+                                        <span style="color: red; font-weight: bold; margin-right: 10px; text-decoration: line-through;">
+                                            ₹<%= product.price %>
+                                        </span>
+                                        <span style="color: green; font-weight: bold; margin-right: 10px;">
+                                            ₹<%= product.discountedPrice %>
+                                        </span>
+                                        <span style="color: yellow; font-weight: bold; margin-right: 10px;">
+                                            (<%= product.discount %>% OFF)
+                                        </span>
+                                        <span style="color: yellowgreen; font-weight: bold; margin-left: auto;">
+                                            You save ₹<%= product.saveAmount %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="stext-105 cl3" style="color: aliceblue;">
+                                            ₹<%= product.price %>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <% }); %>
+        </div>
 
-			<div class="row isotope-grid">
-				<% products.forEach(product => { %>
-					<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
-						<!-- Block2 -->
-						<a class="block2" href="/user/productd?id=<%= product._id %>">
-							<div class="block2-pic hov-img0">
-								<!-- Dynamic image source -->
-								<img style="height: 40vh; width: 40vh; align-items: center;" src="/products/<%= product.product_images[0] %>" alt="IMG-PRODUCT">
-			
-								<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
-									Add To Cart
-								</a>
-							</div>
-			
-							<div class="block2-txt flex-w flex-t p-t-14">
-								<div class="block2-txt-child1 flex-col-l ">
-									<a href="/user/productd/<%= product._id %>" style="color: aliceblue;" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-										<%= product.product_name %>
-									</a>
-									<div style="display: flex; align-items: center;">
-										<% if (product.discountedPrice < product.price) { %>
-											<span style="color: red; font-weight: bold; margin-right: 10px; text-decoration: line-through;">
-												₹<%= product.price %>
-											</span>
-											<span style="color: green; font-weight: bold; margin-right: 10px;">
-												₹<%= product.discountedPrice %>
-											</span>
-											<span style="color: yellow; font-weight: bold; margin-right: 10px;">
-												(<%= product.discount %>% OFF)
-											</span>
-											<span style="color: yellowgreen; font-weight: bold; margin-left: auto;">
-												You save ₹<%= product.saveAmount %>
-											</span>
-										<% } else { %>
-											<span class="stext-105 cl3" style="color: aliceblue;">
-												₹<%= product.price %>
-											</span>
-										<% } %>
-									</div>
-								</div>
-							</div>
-							
-						</a>
-					</div>
-				<% }); %>
-			</div>
-			
-			
-			
-			
-			<div class="flex-c-m flex-w w-full p-t-45">
-				<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-					Load More
-				</a>
-			</div>
-			<br><br>
-	</div>
+        <!-- Load More Button -->
+        <div class="flex-c-m flex-w w-full p-t-45">
+            <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+                Load More
+            </a>
+        </div>
+        <br><br>
+    </div>
+</div>
+
+
 		
 
 	<!-- Footer -->
@@ -884,13 +884,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="js/main.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const sortForm = document.getElementById('sortForm');
-			sortForm.addEventListener('change', function() {
-				const selectedSort = document.querySelector('input[name="sort"]:checked').value;
-				window.location.href = `/user/allProducts?sort=${selectedSort}`;
-			});
-		})
 
 
 		document.querySelectorAll('.add-to-cart-btn').forEach(function(button) {
