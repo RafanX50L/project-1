@@ -464,6 +464,23 @@
             opacity: 0.5;
         }
 
+        .newicon {
+            position: relative; /* Enable positioning for the dot */
+            padding: 10px;
+            font-size: 24px;
+        }
+
+        .newicon::after {
+            content: ""; /* Empty content to create the dot */
+            position: absolute;
+            top: 1px; /* Position at top */
+            right: 1px; /* Position at right */
+            width: 8px; /* Width of the dot */
+            height: 8px; /* Height of the dot */
+            background-color: red; /* Color of the dot */
+            border-radius: 50%; /* Make the dot circular */
+        }
+
         </style>
 </head>
 
@@ -640,7 +657,12 @@
                                                 </td>
                                                 <td>
                                                     <div class="action-buttons">
-                                                        <button class="alert-btn">¡</button>
+                                                        
+                                                        <% if (order.returnStatus == 'requested') { %>
+                                                            <button class="alert-btn newicon">¡</button>
+                                                        <% } else { %>
+                                                            <button class="alert-btn">¡</button>
+                                                        <% } %>                                                        
                                                         <button class="edit-btn" <% if (order.status === 'delivered' || order.status === 'cancelled' || order.status === 'Returned') { %> 
                                                             style="visibility: hidden;"
                                                         <% } %> data-order-id="<%= order._id %>">✏️</button> 

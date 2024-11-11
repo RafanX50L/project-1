@@ -346,6 +346,7 @@
 						>
 						<!-- Include the sort option to preserve its state when submitting search -->
 						<input type="hidden" name="sort" value="<%= sortOption %>">
+						<input type="hidden" name="category" value="<%= categoryOption %>">
 					</div>
 				</form>
 				
@@ -362,6 +363,8 @@
                         <form id="sortForm" action="/user/allProducts" method="get">
                             <!-- Preserve the search query if it exists -->
                             <input type="hidden" name="search" value="<%= searchQuery %>">
+							<input type="hidden" name="category" value="<%= categoryOption %>">
+
                         
                             <!-- Sorting Options with Auto-Submit on Change -->
                             <label class="radio-container">
@@ -413,6 +416,34 @@
                             </label>
                         </form>
                     </div>
+					<!-- Filter by Category Options -->
+					<div class="filter-col1 p-r-15 p-b-27">
+						<div class="mtext-102 cl2 p-b-15">
+							Filter By Category
+						</div>
+
+						<form id="filterForm" action="/user/allProducts" method="get">
+							<!-- Preserve the search query and sort option if they exist -->
+							<input type="hidden" name="search" value="<%= searchQuery %>">
+							<input type="hidden" name="sort" value="<%= sortOption %>">
+
+							<!-- Category Options with Auto-Submit on Change -->
+							<label class="radio-container">
+								<input type="radio" name="category" value="" <%= !categoryOption ? 'checked' : '' %> onchange="this.form.submit()">
+								<span class="radio-checkmark"></span>
+								All Categories
+							</label>
+
+							<% c.forEach(category => { %>
+								<label class="radio-container">
+									<input type="radio" name="category" value="<%= category.category_name %>" <%= categoryOption === category.category_name ? 'checked' : '' %> onchange="this.form.submit()">
+									<span class="radio-checkmark"></span>
+									<%= category.category_name %>
+								</label>
+							<% }) %>
+						</form>
+					</div>
+
                 </div>
             </div>
         </div>

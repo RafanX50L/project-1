@@ -236,7 +236,7 @@ const pdfDownload = async (req, res) => {
             .text('Order Details', 20, doc.y); 
         doc.moveDown(1.5);
 
-        const xPositions = [20, 100, 210, 320 ,390, 460, 520];
+        const xPositions = [20, 100, 210, 320 ,380, 450, 510];
 
         const headers = ['Order ID', 'Customer', 'Products','Offer' ,'Coupon', 'Amount', 'Date'];
         doc.fontSize(12).fillColor('#1976D2').font('Helvetica-Bold');

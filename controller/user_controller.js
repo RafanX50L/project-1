@@ -305,39 +305,44 @@ const resetPassword = async (req, res) => {
 
 const allProducts = async (req, res) => {
     try {
-        const { search, sort } = req.query;
-        const filter = { status: true };
+        const { search, sort, category } = req.query;
+        const filter = { status: true, stock: { $gt: 0 } }; 
 
         if (search) {
             filter.product_name = { $regex: search, $options: 'i' };
         }
 
-        const categories = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
-        const includedCategoryNames = categories.map(category => category.category_name);
+        if (category) {
+            filter.category = category;
+        }
 
-        let products = await Products.find({
-            ...filter,
-            stock: { $gt: 0 },
-            category: { $in: includedCategoryNames }
-        });
+        const categories = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
+
+        let products = await Products.find(filter);
+
+        products = await applyOffersToProducts(products);
 
         if (sort) {
             products = sortProducts(products, sort);
         }
 
-        products = await applyOffersToProducts(products);
+        
 
         res.render('user/product.ejs', {
             products,
-            c:categories,
-            searchQuery: search || '',
-            sortOption: sort || ''
+            c: categories,
+            searchQuery: search || '', 
+            sortOption: sort || '',   
+            categoryOption: category || '' 
         });
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).send('An error occurred while fetching products.');
     }
 };
+
+
+
 
 const sortProducts = (products, sortOption) => {
     switch (sortOption) {
@@ -348,9 +353,9 @@ const sortProducts = (products, sortOption) => {
         case 'newness':
             return products.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         case 'price-low-to-high':
-            return products.sort((a, b) => a.price - b.price);
+            return products.sort((a, b) => a.discountedPrice - b.discountedPrice);
         case 'price-high-to-low':
-            return products.sort((a, b) => b.price - a.price);
+            return products.sort((a, b) => b.discountedPrice - a.discountedPrice);
         case 'a-to-z':
             return products.sort((a, b) => a.product_name.localeCompare(b.product_name));
         case 'z-to-a':
