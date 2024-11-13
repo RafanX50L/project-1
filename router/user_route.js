@@ -14,7 +14,7 @@ user_route.use(passport.initialize());
 user_route.use(passport.session());
 
 user_route.use(async (req, res, next) => {
-    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation', '/logout', '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
+    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation',  '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
 
     if (req.session.loggedIn && publicPaths.includes(req.path)) {
         return res.redirect('/user/home');
@@ -50,8 +50,6 @@ user_route.use(async (req, res, next) => {
     }
 });
 
-
-
 // razor pay credentials
 const razorpay = new Razorpay({
     key_id:process.env.key_id,
@@ -71,7 +69,6 @@ const readData = () =>{
 const writeData = (data) => {
     fs.writeFileSync('ordes.json',JSON.stringify(data,null,2));
 }
-
 
 user_route.get('/', user_Controller.landing);
 
@@ -167,6 +164,11 @@ user_route.get('/wallet',cart_Controller.getWallet)
 //user paymetn routes 
 user_route.post('/create-razorpay-order',cart_Controller.createRazorpayOrder);
 user_route.post('/verify-payment',cart_Controller.verifyPayment);
-user_route.post('/place-order',cart_Controller.placeOrder)
+user_route.post('/place-order',cart_Controller.placeOrder);
+user_route.post('/save-order',cart_Controller.saveFailedOrder);
+user_route.post('/retryPayment',cart_Controller.retryPayment)
+
+//user ordere details
+user_route.get('/downloadInvoice',cart_Controller.invoice)
 
 module.exports = user_route;

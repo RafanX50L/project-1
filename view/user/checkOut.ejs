@@ -429,6 +429,10 @@
 									<li class="list-group-item d-flex justify-content-between justcommon">
 										<span>Coupon Discount:</span>
 										<span>-₹<span id="discountAmount"><%= couponDiscount %></span></span>
+									</li>	
+									<li class="list-group-item d-flex justify-content-between justcommon">
+										<span>Delivery Cahrge:</span>
+										<span>+₹<span id="deliveryCharge"><%= deliveryCharge  %></span></span>
 									</li>									
 									<li class="list-group-item d-flex justify-content-between justcommon">
 										<strong>Total:</strong>
@@ -723,8 +727,12 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
 			const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.id;
 			const offerDiscount = parseFloat(document.getElementById("offerDiscount").textContent.replace('$', '').trim()) || 0;
+			const deliveryCharge = parseFloat(document.getElementById("deliveryCharge").textContent.replace('$', '').trim()) || 0;
 
 			console.log(''+typeof(offerDiscount));
+			console.log('total price '+totalPrice);
+			console.log('deliery charge'+deliveryCharge);
+			
 			
 			console.log(paymentMethod , offerDiscount);
 			
@@ -733,14 +741,18 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				return;
 			}
 
-			const orderData = { addressId, totalAmount: totalPrice, discount ,offerDiscount  };
+			const orderData = { addressId, totalAmount: totalPrice, discount ,offerDiscount ,deliveryCharge  };
 
 			if (paymentMethod === 'Wallet') {
 				await placeOrder(orderData, 'Wallet');
 			} else if (paymentMethod === 'online payment') {
 				await initiateOnlinePayment(orderData);
 			} else {
-				await placeOrder(orderData, 'Cash On Delivery');
+				if(totalPrice<1000){
+					await placeOrder(orderData, 'Cash On Delivery');
+				}else{
+					Swal.fire({ icon: 'info',title: 'Cash On Delivery Unavailable',text: 'For orders over ₹1000, please select a different payment method.',confirmButtonText: 'Choose Payment Method'});
+				}
 			}
 
 		});
@@ -765,18 +777,101 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		}
 
 		function openRazorpay(order) {
+			console.log('order amount ');
+			
 			const options = {
-				key: 'rzp_test_3EYdWsxcryrgrR', 
+				key: 'rzp_test_3EYdWsxcryrgrR',
 				amount: order.amount,
 				currency: order.currency,
 				order_id: order.id,
 				handler: verifyPayment,
 				prefill: { name: 'Rafan', email: 'rafan123@gmail.com', contact: '8281652046' },
-				theme: { color: '#f37254' }
+				theme: { color: '#0000' }
 			};
+
 			const rzp = new Razorpay(options);
+
+			rzp.on('payment.failed', function(response) {
+				console.log('Payment failed:', response);
+				
+				saveOrderWithFailure(response);
+				
+				Swal.fire({
+					icon: 'error',
+					title: 'Payment Failed',
+					text: 'Your payment was not successful. Please try again.',
+					confirmButtonText: 'Retry'
+				});
+			});
+
 			rzp.open();
 		}
+
+		async function saveOrderWithFailure(response) {
+			const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
+			const totalAmount = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
+			const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
+			const offerDiscount = parseFloat(document.getElementById("offerDiscount").textContent.replace('$', '').trim()) || 0;
+			const deliveryCharge = parseFloat(document.getElementById("deliveryCharge").textContent.replace('$', '').trim()) || 0;		
+
+			console.log(discount);
+			
+			const orderData = {
+				razorpay_order_id: response.error.metadata.order_id,
+				razorpay_payment_id: response.error.payment_id,
+				paymentStatus: 'failed',
+				addressId,
+				totalAmount,
+				discount,
+				offerDiscount,
+				deliveryCharge,
+				errorMessage: response.error.description, 
+			};
+
+			try {
+				const saveResponse = await fetch('/user/save-order', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(orderData)
+				});
+
+				const result = await saveResponse.json();
+				
+				if (saveResponse.ok) {
+					console.log('Order saved with failed payment status');
+					
+					const orderId = result.orderId;  
+					
+					Swal.fire({
+						icon: 'info',
+						title: 'Order Saved',
+						text: 'Your order has been saved with payment pending status. You may complete the payment later.',
+						confirmButtonText: 'Okay',
+					}).then(() => {
+						window.location.href = `/user/orderdetails/${orderId}`;
+					});
+
+				} else {
+					console.error('Error saving failed payment order:', result);
+					Swal.fire({
+						icon: 'error',
+						title: 'Order Save Failed',
+						text: 'There was an issue saving your order. Please contact support if this issue persists.',
+						confirmButtonText: 'Okay'
+					});
+				}
+
+			} catch (error) {
+				console.error('Error saving failed payment order:', error);
+				Swal.fire({
+					icon: 'error',
+					title: 'Order Save Failed',
+					text: 'An error occurred while saving your order. Please try again later.',
+					confirmButtonText: 'Okay'
+				});
+			}
+		}
+
 
 		async function verifyPayment(response) {
 			try {
@@ -784,7 +879,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				const totalAmount = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
 				const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
 				const offerDiscount = parseFloat(document.getElementById("offerDiscount").textContent.replace('$', '').trim()) || 0;
+				const deliveryCharge = parseFloat(document.getElementById("deliveryCharge").textContent.replace('$', '').trim()) || 0;
 
+				console.log();
+				
 				const verifyResponse = await fetch('/user/verify-payment', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -795,7 +893,8 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 						addressId,
 						totalAmount,
 						discount,
-						offerDiscount
+						offerDiscount,
+						deliveryCharge
 					})
 				});
 
@@ -809,8 +908,13 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 						window.location.href = `/user/order-success/${result.orderId}`;
 					});
 				} else {
-					alert('Payment verification failed.');
-				}
+					Swal.fire({
+						icon: 'success',
+						title: 'Order Placed without money!',
+						confirmButtonText: 'OK'
+					}).then(() => {
+						window.location.href = `/user/orderhistory`;
+					});				}
 			} catch (error) {
 				console.error('Error verifying payment:', error);
 			}

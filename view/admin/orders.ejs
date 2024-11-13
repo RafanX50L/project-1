@@ -663,7 +663,7 @@
                                                         <% } else { %>
                                                             <button class="alert-btn">¡</button>
                                                         <% } %>                                                        
-                                                        <button class="edit-btn" <% if (order.status === 'delivered' || order.status === 'cancelled' || order.status === 'Returned') { %> 
+                                                        <button class="edit-btn" <% if (order.status === 'delivered' || order.status === 'cancelled' || order.status === 'Returned' || order.status === 'Payment pending') { %> 
                                                             style="visibility: hidden;"
                                                         <% } %> data-order-id="<%= order._id %>">✏️</button> 
                                                     </div>
@@ -698,6 +698,7 @@
                                                                 <% } %>
                                                             </div>
                                                             <h5 class="" style="color: red; margin-top: -2%;">Offer Discount: - ₹<%= order.Offer_discount %></h5>
+                                                            <h5 class="" style="color: rgb(247, 217, 119); ">Delivery charge: + ₹<%= order.deliveryCharge %></h5>
                                                             <h5 class="" style="color: rgb(10, 247, 10); margin-top: 3%; margin-bottom: 5%;">Total price: ₹<%= order.totalAmount %></h5>
                                                             
                                                         <!-- Loop through items for each order -->

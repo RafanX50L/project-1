@@ -7,10 +7,13 @@ const Order = require('../model/orderModel');
 const Wishlist = require('../model/whishlist');
 const Coupon = require('../model/coupon');
 const Razorpay = require('razorpay');
-const fs = require('fs')
 const crypto = require('crypto');
 const Wallet = require('../model/wallet');
 const Offers = require('../model/offer'); 
+const path = require('path');
+const fs = require("fs");
+const PDFDocument = require("pdfkit");
+
 
 
 
@@ -422,8 +425,9 @@ const checkOutget = async (req, res) => {
 
             subtotal += product.price * item.quantity;
         });
+        let deliveryCharge = subtotal*0.08;
 
-        const totalPrice = subtotal - offerDiscount;
+        const totalPrice = (subtotal - offerDiscount)+deliveryCharge;
 
         res.render('user/checkOut.ejs', {
             cartItems: availableItems,
@@ -432,6 +436,7 @@ const checkOutget = async (req, res) => {
             offerDiscount: offerDiscount.toFixed(2),
             couponDiscount: 0, 
             c: category,
+            deliveryCharge:deliveryCharge,
             addresses: user.addresses
         });
     } catch (error) {
@@ -582,7 +587,7 @@ const getWallet = async (req,res) => {
 }
 
 
-const createOrder = async ({ userId, addressId, totalAmount, discount, offerDiscount, paymentMethod, items, subtotal, quantity }) => {
+const createOrder = async ({ userId, addressId, totalAmount, discount, offerDiscount, paymentMethod, items, subtotal, quantity , deliveryCharge }) => {
     console.log('entered to create order');
     console.log(typeof(offerDiscount));
 
@@ -593,6 +598,7 @@ const createOrder = async ({ userId, addressId, totalAmount, discount, offerDisc
         totalAmount,
         Coupon_discount: discount,
         Offer_discount: offerDiscount,
+        deliveryCharge:deliveryCharge,
         items,
         subtotal,
         quantity,
@@ -610,11 +616,11 @@ const createOrder = async ({ userId, addressId, totalAmount, discount, offerDisc
 
 const createRazorpayOrder = async (req, res) => {
     console.log('razorpay crarteing is working..');
-    
+    const { totalAmount } = req.body;
+    const amountInPaise = Math.round(totalAmount * 100);
     try {
-        const { totalAmount } = req.body;
         const options = {
-            amount: totalAmount * 100,
+            amount: amountInPaise,
             currency: 'INR',
             receipt: 'receipt#1',
             notes: {}
@@ -628,8 +634,40 @@ const createRazorpayOrder = async (req, res) => {
     }
 };
 
+
+const retryPayment = async (req,res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature,orderId} = req.body;
+        const userId = req.session.loggedIn;
+
+        console.log('orderId '+orderId);
+        
+        const isValid = verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+        if (isValid) {
+            const order = await Order.findByIdAndUpdate(
+                orderId,
+                { status: 'placed', paymentStatus: 'paid' },
+                { new: true } 
+            );
+            if(!order){
+
+                res.json({ success: false });
+            }
+            else{
+                res.json({success:true})
+            }
+
+        }
+        else{
+            res.json({success:false})
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 const verifyPayment = async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, addressId, totalAmount, discount, offerDiscount } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, addressId, totalAmount, discount, offerDiscount ,deliveryCharge } = req.body;
     const userId = req.session.loggedIn;
 
     const isValid = verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
@@ -682,6 +720,7 @@ const verifyPayment = async (req, res) => {
             totalAmount,
             discount,
             offerDiscount,
+            deliveryCharge:deliveryCharge,
             paymentMethod: 'online payment',
             items: orderItems,
             subtotal,
@@ -690,16 +729,146 @@ const verifyPayment = async (req, res) => {
         
         res.json({ success: true, orderId: savedOrder._id });
     } else {
-        res.status(400).json({ success: false, message: 'Payment verification failed.' });
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Cart is empty' });
+        }
+
+        const activeOffers = await Offers.find({ status: 'active' });
+
+        // Filter only items with stock >= 1
+        const orderItems = cart.items
+            .filter(item => item.productId && item.productId.stock >= 1 && item.productId.status == true)
+            .map(item => {
+                const product = item.productId;
+
+                const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+                const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+                const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+                const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+                const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+                const offerPrice = bestOffer.discount > 0 
+                    ? product.price - (product.price * bestOffer.discount / 100)
+                    : product.price;
+
+                const offerAmount = (product.price - offerPrice) * item.quantity;
+
+                return {
+                    productId: product._id,
+                    productName: product.product_name,
+                    productImage: product.product_images[0], 
+                    quantity: item.quantity,
+                    unitPrice: product.price,
+                    offerPrice: offerPrice,                    
+                    subtotal: product.price * item.quantity,
+                    offerAmount: offerAmount
+                };
+            });
+
+        const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+        const newOrder = new Order({
+            userId,
+            shippingAddress: addressId,
+            totalAmount,
+            Coupon_discount: discount,
+            Offer_discount: offerDiscount,
+            deliveryCharge:deliveryCharge,
+            paymentMethod: 'online payment',
+            items: orderItems,
+            subtotal,
+            quantity: totalQuantity,
+            paymentStatus: 'Unpaid',
+            status: 'Payment pending',
+            orderDate: new Date()
+        });
+        
+    
+        const savedOrder = await newOrder.save();
+        await Cart.updateOne({ userId }, { $set: { items: [] } });
+        res.status(400).json({ success: true,orderId: savedOrder._id });
     }
 };
 
+const saveFailedOrder = async (req,res) => {
+    const userId = req.session.loggedIn;
+    try {
+        const { razorpay_order_id, razorpay_payment_id, paymentStatus, errorMessage , addressId, totalAmount, discount, offerDiscount, deliveryCharge} = req.body;
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
 
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Cart is empty' });
+        }
 
+        const activeOffers = await Offers.find({ status: 'active' });
+
+        // Filter only items with stock >= 1
+        const orderItems = cart.items
+            .filter(item => item.productId && item.productId.stock >= 1 && item.productId.status == true)
+            .map(item => {
+                const product = item.productId;
+
+                const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
+                const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
+                const categoryOffer = activeOffers.find(offer => offer.apply_by === 'Category' && offer.value === product.category);
+
+                const applicableOffers = [productOffer, subcategoryOffer, categoryOffer].filter(Boolean);
+                const bestOffer = applicableOffers.reduce((max, offer) => offer.discount > max.discount ? offer : max, { discount: 0 });
+
+                const offerPrice = bestOffer.discount > 0 
+                    ? product.price - (product.price * bestOffer.discount / 100)
+                    : product.price;
+
+                const offerAmount = (product.price - offerPrice) * item.quantity;
+
+                return {
+                    productId: product._id,
+                    productName: product.product_name,
+                    productImage: product.product_images[0], 
+                    quantity: item.quantity,
+                    unitPrice: product.price,
+                    offerPrice: offerPrice,                    
+                    subtotal: product.price * item.quantity,
+                    offerAmount: offerAmount
+                };
+            });
+
+        const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+        const newOrder = new Order({
+            userId,
+            shippingAddress: addressId,
+            totalAmount,
+            Coupon_discount: discount,
+            Offer_discount: offerDiscount,
+            deliveryCharge:deliveryCharge,
+            paymentMethod: 'online payment',
+            items: orderItems,
+            subtotal,
+            quantity: totalQuantity,
+            paymentStatus: 'Unpaid',
+            status: 'Payment pending',
+            orderDate: new Date()
+        });
+        
+    
+        const savedOrder = await newOrder.save();
+        await Cart.updateOne({ userId }, { $set: { items: [] } });
+        res.status(200).json({ success: true, orderId: savedOrder._id });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const placeOrder = async (req, res) => {
     try {
-        const { addressId, totalAmount, discount, paymentMethod, offerDiscount } = req.body;
+        const { addressId, totalAmount, discount, paymentMethod, offerDiscount ,deliveryCharge } = req.body;
         const userId = req.session.loggedIn;
 
         const cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -727,7 +896,7 @@ const placeOrder = async (req, res) => {
                     ? product.price - (product.price * bestOffer.discount / 100)
                     : product.price;
 
-                const subtotal = product.price * offerPrice;
+                const subtotal = product.price;
 
                 return {
                     productId: product._id,
@@ -741,7 +910,7 @@ const placeOrder = async (req, res) => {
             });
 
         const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-        const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+        const subtotal = orderItems.reduce((sum, item) => sum + (item.subtotal*item.quantity), 0);
 
         const newOrder = new Order({
             userId,
@@ -751,13 +920,14 @@ const placeOrder = async (req, res) => {
             totalAmount,
             Coupon_discount: discount,
             Offer_discount: offerDiscount,
+            deliveryCharge:deliveryCharge,
             subtotal,
             quantity: totalQuantity,
-            paymentStatus: paymentMethod === 'Cash On Delivery' || paymentMethod === 'Wallet' ? 'Unpaid' : 'Paid',
+            paymentStatus: paymentMethod === 'Cash On Delivery' ? 'Unpaid' : 'Paid',
             status: 'Placed',
             orderDate: new Date()
         });
-
+        // Wallet payment logic first
         if (paymentMethod === 'Wallet') {
             const userWallet = await Wallet.findOne({ userId });
 
@@ -768,18 +938,27 @@ const placeOrder = async (req, res) => {
                 });
             }
 
+            // Deduct the amount from the wallet
             userWallet.Balance -= totalAmount;
             userWallet.Transaction = userWallet.Transaction || [];
             userWallet.Transaction.push({
                 amount: totalAmount,
                 date: new Date(),
                 type: 'Debit',
-                orderId: savedOrder.orderId,
                 reason: 'Order Payment'
             });
             await userWallet.save();
         }
+
+        // Now save the order after wallet deduction is successful
         const savedOrder = await newOrder.save();
+
+        if (paymentMethod === 'Wallet') {
+            const userWallet = await Wallet.findOne({ userId });
+            userWallet.Transaction[userWallet.Transaction.length - 1].orderId = savedOrder._id;
+            await userWallet.save();
+        }
+
 
         await Cart.updateOne({ userId }, { $set: { items: [] } });
 
@@ -789,6 +968,296 @@ const placeOrder = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to place the order. Please try again later.' });
     }
 };
+
+const invoice = async (req, res) => {
+    try {
+        const userId = req.session.loggedIn;
+        const { orderId } = req.query;
+
+        const order = await Order.findById(orderId)
+            .populate({
+                path: 'userId',
+                populate: { path: 'addresses' }
+            })
+            .exec();
+
+        const addressId = order?.shippingAddress;
+        const address = order?.userId?.addresses?.find(addr => addr._id.equals(addressId));
+
+        if (!order || !address) {
+            return res.status(404).send("Order or Address not found.");
+        }
+
+        console.log(address);
+        console.log(order);
+        
+        
+        const invoice = {
+            shipping: {
+                name: `${order.userId.name}`,
+                address: address?.street || "Address not found",
+                city: address?.city || "City not found",
+                state: address?.state || "State not found",
+                country: address?.country || "Country not found",
+                postal_code: address?.zip || "Postal code not found"
+            },
+            items: order.items.map(item => ({
+                item: item.productName,
+                description: item.productName,
+                quantity: item.quantity,
+                amount: item.unitPrice
+            })),
+            subtotal: order.subtotal,
+            paid: order.totalAmount || 0,
+            offerAmount:order.Offer_discount,
+            discountAmount:order.Coupon_discount,
+            deliveryCharge:order.deliveryCharge,
+            invoice_nr: order.orderId || 1234
+        };
+
+        const filename = `invoice_${orderId}.pdf`;
+        const filepath = path.join(__dirname, filename);
+
+        // Generate the PDF and wait for completion before downloading
+        createInvoice(invoice, filepath, (err) => {
+            if (err) {
+                console.error("Error generating PDF:", err);
+                return res.status(500).send("Error generating invoice PDF");
+            }
+
+            res.download(filepath, filename, (downloadErr) => {
+                if (downloadErr) {
+                    console.error("Error downloading file:", downloadErr);
+                    res.status(500).send("Error downloading invoice");
+                }
+
+                // Optionally delete the file after download
+                fs.unlink(filepath, (unlinkErr) => {
+                    if (unlinkErr) console.error("Error deleting file:", unlinkErr);
+                });
+            });
+        });
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        res.status(500).send("Error generating invoice");
+    }
+};
+
+
+
+
+
+
+
+function createInvoice(invoice, path, callback) {
+    let doc = new PDFDocument({ size: "A4", margin: 50 });
+
+    generateHeader(doc);
+    generateCustomerInformation(doc, invoice);
+    generateInvoiceTable(doc, invoice);
+    generateFooter(doc);
+
+    doc.end();
+    doc.pipe(fs.createWriteStream(path))
+        .on("finish", callback)  // Trigger callback after writing is done
+        .on("error", (err) => callback(err));  // Handle any write errors
+}
+
+    function generateHeader(doc) {
+    doc
+        .image("logo.png", 50, 45, { width: 50 })
+        .fillColor("#444444")
+        .fontSize(20)
+        .fontSize(10)
+        .text("Bankai.com", 200, 50, { align: "right" })
+        .text("123 Main Street", 200, 65, { align: "right" })
+        .text("New York, NY, 10025", 200, 80, { align: "right" })
+        .moveDown();
+    }
+
+    function generateCustomerInformation(doc, invoice) {
+    doc
+        .fillColor("#444444")
+        .fontSize(20)
+        .text("Invoice", 50, 160);
+
+    generateHr(doc, 185);
+
+    const customerInformationTop = 200;
+
+    doc
+        .fontSize(10)
+        .text("Invoice Number:", 50, customerInformationTop)
+        .font("Helvetica-Bold")
+        .text(invoice.invoice_nr, 150, customerInformationTop)
+        .font("Helvetica")
+        .text("Invoice Date:", 50, customerInformationTop + 15)
+        .text(formatDate(new Date()), 150, customerInformationTop + 15)
+        .text("Total Price:", 50, customerInformationTop + 30)
+        .text(
+        formatCurrency(invoice.paid),
+        150,
+        customerInformationTop + 30
+        )
+
+        .font("Helvetica-Bold")
+        .text(invoice.shipping.name, 300, customerInformationTop)
+        .font("Helvetica")
+        .text(invoice.shipping.address, 300, customerInformationTop + 15)
+        .text(
+        invoice.shipping.city +
+            ", " +
+            invoice.shipping.state +
+            ", " +
+            invoice.shipping.country,
+        300,
+        customerInformationTop + 30
+        )
+        .moveDown();
+
+    generateHr(doc, 252);
+    }
+
+    function generateInvoiceTable(doc, invoice) {
+    let i;
+    const invoiceTableTop = 330;
+
+    doc.font("Helvetica-Bold");
+    generateTableRow(
+        doc,
+        invoiceTableTop,
+        "Item",
+        "Unit Cost",
+        "Quantity",
+        "Line Total"
+    );
+    generateHr(doc, invoiceTableTop + 20);
+    doc.font("Helvetica");
+
+    for (i = 0; i < invoice.items.length; i++) {
+        const item = invoice.items[i];
+        const position = invoiceTableTop + (i + 1) * 30;
+        generateTableRow(
+        doc,
+        position,
+        item.item,
+        item.description,
+        formatCurrency(item.amount / item.quantity),
+        item.quantity,
+        formatCurrency(item.amount)
+        );
+
+        generateHr(doc, position + 20);
+    }
+
+    const subtotalPosition = invoiceTableTop + (i + 1) * 30;
+    generateTableRow(
+        doc,
+        subtotalPosition,
+        "",
+        "",
+        "Subtotal",
+        "",
+        formatCurrency(invoice.subtotal)
+    );
+
+    const paidToDatePosition = subtotalPosition + 20;
+    generateTableRow(
+        doc,
+        paidToDatePosition,
+        "",
+        "",
+        "Offer Amount",
+        "",
+        formatCurrency(invoice.offerAmount)
+    );
+
+    const discountpositon = paidToDatePosition + 20;
+    generateTableRow(
+        doc,
+        discountpositon,
+        "",
+        "",
+        "Discount Amount",
+        "",
+        formatCurrency(invoice.discountAmount)
+    );
+
+    const deliveryChargepositon = discountpositon + 20;
+    generateTableRow(
+        doc,
+        deliveryChargepositon,
+        "",
+        "",
+        "Delivery Charge",
+        "",
+        formatCurrency(invoice.deliveryCharge)
+    );
+
+    const duePosition = deliveryChargepositon + 25;
+    doc.font("Helvetica-Bold");
+    generateTableRow(
+        doc,
+        duePosition,
+        "",
+        "",
+        "Total Price",
+        "",
+        formatCurrency(invoice.paid)
+    );
+    doc.font("Helvetica");
+    }
+
+    function generateFooter(doc) {
+    doc
+        .fontSize(10)
+        .text(
+        "Payment is due within 15 days. Thank you for your business.",
+        50,
+        780,
+        { align: "center", width: 500 }
+        );
+    }
+
+    function generateTableRow(
+    doc,
+    y,
+    item,
+    description,
+    unitCost,
+    quantity,
+    lineTotal
+    ) {
+    doc
+        .fontSize(10)
+        .text(item, 50, y)
+        .text(unitCost, 280, y, { width: 90, align: "right" })
+        .text(quantity, 370, y, { width: 90, align: "right" })
+        .text(lineTotal, 0, y, { align: "right" });
+    }
+
+    function generateHr(doc, y) {
+    doc
+        .strokeColor("#aaaaaa")
+        .lineWidth(1)
+        .moveTo(50, y)
+        .lineTo(550, y)
+        .stroke();
+    }
+
+    function formatCurrency(cents) {
+    return "Rs " + (cents ).toFixed(2);
+    }
+
+    function formatDate(date) {
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    return year + "/" + month + "/" + day;
+    }
+
+
 
 module.exports = { 
     addToCart,
@@ -808,5 +1277,9 @@ module.exports = {
     getWallet,
     verifyPayment,
     createRazorpayOrder,
-    orderReturn
+    orderReturn,
+    saveFailedOrder,
+    retryPayment,
+    // downloadInvoice,
+    invoice
 }

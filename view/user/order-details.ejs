@@ -44,18 +44,17 @@
             justify-content: center;
         }
         .cancel-btn {
-            border: 2px solid yellow;
+            border: 2px solid red;
             padding: 8px 20px;
             border-radius: 25px;
-            color: yellow;
+            color: red;
             text-decoration: none;
             transition: all 0.3s;
             margin-left: 10px;
         }
 
         .cancel-btn:hover {
-            background-color: yellow;
-            color: black; /* Slightly darker red on hover */
+            color: white; /* Slightly darker red on hover */
             box-shadow: 0 12px 20px rgba(255, 26, 26, 0.4); /* Deeper shadow on hover */
             transform: translateY(-3px); /* Lift effect on hover */
         }
@@ -329,10 +328,20 @@
                         <strong>Order At:</strong> <%= new Date(Orders.orderDate).toLocaleDateString('en-GB') %><br>
                         <strong>Estimate Delivery:</strong> <span class="delivery-date"> <%= new Date(new Date(Orders.orderDate).setDate(new Date(Orders.orderDate).getDate() + 5)).toLocaleDateString('en-GB') %>
                         </span><br>
-                        <strong>Invoice:</strong> <br><br>
-                        <a href="#" class="download-btn mt-2">
-                            <i class="bi bi-download"></i> Download Invoice
-                        </a>
+                        <% if(Orders.status == 'delivered'){ %>
+                            <strong>Invoice:</strong> <br><br>
+                            <a href="#" class="download-btn mt-2" id="InvoiceDownload">
+                                <i class="bi bi-download"></i> Download Invoice
+                            </a>
+                        <% } %>
+                        <span style="display: none;" id="orderID"><%= Orders._id %></span>
+
+                        <% if (Orders.status == 'Payment pending') { %>
+                            <a href="#" id="retyPayment" class="cancel-btn mt-2" style="margin-left: 40%;">
+                                <i class="bi bi-download"></i> Retry Payment
+                            </a>
+                        <% } %>
+                        
                         
                         
                     </div>
@@ -388,11 +397,11 @@
                             </div>
                             <div class="price-detail-row">
                                 <span>Shipping:</span>
-                                <span style="color: #00ff88">Free</span>
+                                <span style="color: #e7f376">+₹<%= Orders.deliveryCharge %></span>
                             </div>
                             <div class="price-detail-row">
                                 <strong>Total:</strong>
-                                <strong class="price-highlight">₹<%=Orders.totalAmount %></strong>
+                                <strong id="totalAmount" class="price-highlight">₹<%=Orders.totalAmount %></strong>
                             </div>
                         </div>
     
@@ -417,6 +426,112 @@
 
 
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+
+    </script>
+
+<script >
+
+
+        let element=document.querySelector("#InvoiceDownload")
+            if(element){
+                document.getElementById('InvoiceDownload').addEventListener('click', async function (event) {
+                event.preventDefault();
+                
+                const orderId = document.getElementById('orderID').textContent.replace('$', '').trim();
+                console.log('Entered to download invoice');
+                
+                window.location.href = `/user/downloadInvoice?orderId=${orderId}`;
+            });
+        }
+
+        document.getElementById('retyPayment').addEventListener('click',async function(event) {
+            event.preventDefault();
+            const totalAmount = parseFloat(document.getElementById('totalAmount').textContent.replace('₹', '').trim()) || 0;
+            console.log(totalAmount);
+            
+            initiateOnlinePayment(totalAmount);
+        })
+
+        async function initiateOnlinePayment(totalAmount) {
+			try {
+				const response = await fetch('/user/create-razorpay-order', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ totalAmount, currency: 'INR' })
+				});
+
+				const order = await response.json();
+				if (response.ok) {
+                    console.log('entered to open razor root');
+                    
+					openRazorpay(order);
+				} else {
+					alert('Error creating Razorpay order.');
+				}
+			} catch (error) {
+				console.error('Error initiating online payment:', error);
+			}
+		}
+        function openRazorpay(order) {
+            console.log('now gona create raxor pay');
+            
+            const options = {
+                key: 'rzp_test_3EYdWsxcryrgrR', 
+                amount: order.amount,
+                currency: order.currency,
+                order_id: order.id,
+                handler: verifyPayment,
+                prefill: { name: 'Rafan', email: 'rafan123@gmail.com', contact: '8281652046' },
+                theme: { color: '#0000' }
+            };
+            const rzp = new Razorpay(options);
+            console.log('raxzorpay mayh workes');
+            
+            rzp.open();
+            console.log(options);
+            
+        }
+        async function verifyPayment(response) {
+			const orderId =document.getElementById('orderID').textContent.replace('$', '').trim();
+            console.log('fdafsadfas'+orderId);
+            
+            try {
+                const verifyResponse = await fetch('/user/retryPayment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                        orderId
+                    })
+                });
+
+                const result = await verifyResponse.json();
+                if (verifyResponse.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed Successfully!',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'Error',
+                        title: 'Payment Failed',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });				}
+            } catch (error) {
+                console.error('Error verifying payment:', error);
+            }
+        }
+    
+    </script>
 
 
 
