@@ -297,10 +297,26 @@
             <!-- Sale & Revenue End -->
 
 
+           
+            
 
             <!-- Chart Start -->
             <div class="container-fluid pt-4 px-4">
+                
                 <div class="row g-4">
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <h6 class="mb-4">Top 10 Selling Products</h6>
+                            <canvas id="top-products-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="col-sm-12 col-xl-6 mt-4">
+                        <div class="bg-secondary rounded h-100 p-4">
+                            <h6 class="mb-4">Top 10 Selling Subcategories</h6>
+                            <canvas id="top-subcategories-chart"></canvas>
+                        </div>
+                    </div>
                     <div class="col-sm-12 col-xl-8">
                         <div class="bg-secondary rounded h-100 p-4">
                             <h6 class="mb-4">Single Line Chart</h6>
@@ -634,64 +650,145 @@
         document.getElementById('endDate').addEventListener('change', checkDateOrder);
 
     </script>
+
     <script>
-        (function($){
+        (function($) {
             // Chart Global Color
             Chart.defaults.color = "#6C7293";
             Chart.defaults.borderColor = "#000000";
             
+            // Assuming `chartData` and `pieChartData` are passed from the backend
+            const revenueData = <%- JSON.stringify(chartData.revenueData) %>;
+            const salesData = <%- JSON.stringify(chartData.salesData) %>;
+            const discountData = <%- JSON.stringify(chartData.discountData) %>;
+            
+            // Reverse the data so that the latest date appears last in the chart
+            const reversedRevenueData = revenueData;
+            const reversedSalesData = salesData;
+            const reversedDiscountData = discountData;
             
             
-            // Single Line Chart
+            
+            // Data for Top 10 Selling Products
+                const topProductsLabels = <%- JSON.stringify(topProducts.map(product => product.productName)) %>;
+                const topProductsData = <%- JSON.stringify(topProducts.map(product => product.quantitySold)) %>;
+        
+                // Data for Top 10 Selling Subcategories
+                const topSubcategoriesLabels = <%- JSON.stringify(topSubcategories.map(subcategory => subcategory.subcategory)) %>;
+                const topSubcategoriesData = <%- JSON.stringify(topSubcategories.map(subcategory => subcategory.totalSales)) %>;
+        
+                // Bar chart for Top 10 Selling Products
+                const ctxProducts = document.getElementById("top-products-chart").getContext("2d");
+                new Chart(ctxProducts, {
+                    type: "bar",
+                    data: {
+                        labels: topProductsLabels,
+                        datasets: [{
+                            label: "Quantity Sold",
+                            data: topProductsData,
+                            backgroundColor: "rgba(54, 162, 235, 0.7)",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: "Products" } },
+                            y: { title: { display: true, text: "Quantity Sold" }, beginAtZero: true }
+                        }
+                    }
+                });
+        
+                // Bar chart for Top 10 Selling Subcategories
+                const ctxSubcategories = document.getElementById("top-subcategories-chart").getContext("2d");
+                new Chart(ctxSubcategories, {
+                    type: "bar",
+                    data: {
+                        labels: topSubcategoriesLabels,
+                        datasets: [{
+                            label: "Total Sales",
+                            data: topSubcategoriesData,
+                            backgroundColor: "rgba(255, 99, 132, 0.7)",
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: "Subcategories" } },
+                            y: { title: { display: true, text: "Total Sales" }, beginAtZero: true }
+                        }
+                    }
+                });
+
+
+                
+            // Single Line Chart (Daily Revenue, Sales, Discount)
             var ctx3 = $("#line-chart").get(0).getContext("2d");
             var myChart3 = new Chart(ctx3, {
                 type: "line",
                 data: {
-                    labels: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
-                    datasets: [{
-                        label: "revenue",
-                        fill: false,
-                        backgroundColor: "rgba(235, 22, 22, .7)",
-                        data: [1000, 2000, 2000,7000, 3000, 4000, 5000, 4000, 2000, 5000, 7000]
-                    },
-                    {
-                        label: "Salse",
-                        fill: false,
-                        backgroundColor: "rgba(235, 22, 22, .7)",
-                        data: [7, 8, 8, 9, 9, 9, 10, 11, 14, 14, 15]
-                    }
-                ]
+                    labels: reversedRevenueData.map(item => item.period), // Labels will be the dates (reversed)
+                    datasets: [
+                        {
+                            label: "Revenue",
+                            fill: false,
+                            borderColor: "rgba(235, 22, 22, .7)",
+                            backgroundColor: "rgba(235, 22, 22, .7)",
+                            data: reversedRevenueData.map(item => item.value)
+                        },
+                        {
+                            label: "Sales",
+                            fill: false,
+                            borderColor: "rgba(22, 235, 22, .7)",
+                            backgroundColor: "rgba(22, 235, 22, .7)",
+                            data: reversedSalesData.map(item => item.value)
+                        },
+                        {
+                            label: "Discount",
+                            fill: false,
+                            borderColor: "rgba(22, 22, 235, .7)",
+                            backgroundColor: "rgba(22, 22, 235, .7)",
+                            data: reversedDiscountData.map(item => item.value)
+                        }
+                    ]
                 },
                 options: {
                     responsive: true
                 }
             });
-            
-            //pie chart
+    
+            // Pie chart (using `pieChartData` passed from the backend)
             var ctx5 = $("#pie-chart").get(0).getContext("2d");
             var myChart5 = new Chart(ctx5, {
                 type: "pie",
                 data: {
-                    labels: ["Italy", "France", "Spain", "USA", "Argentina"],
+                    labels: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Payment pending'], 
                     datasets: [{
                         backgroundColor: [
-                            "rgba(225, 22, 22, .7)",
-                            "rgba(245, 22, 22, .6)",
-                            "rgba(235, 22, 22, .5)",
-                            "rgba(255, 22, 22, .4)",
-                            "rgba(265, 22, 22, .3)"
+                            "rgba(255, 99, 132, 0.7)",   
+                            "rgba(54, 162, 235, 0.7)",   
+                            "rgba(255, 206, 86, 0.7)",   
+                            "rgba(75, 192, 192, 0.7)",   
+                            "rgba(153, 102, 255, 0.7)",  
+                            "rgba(255, 159, 64, 0.7)",   
+                            "rgba(201, 203, 207, 0.7)"   
                         ],
-                        data: [55, 49, 44, 24, 15]
+                        data: <%- JSON.stringify(pieChartData) %> 
                     }]
                 },
                 options: {
                     responsive: true
                 }
             });
-
         })(jQuery);
-
     </script>
+    
+
 </body>
 
 </html>

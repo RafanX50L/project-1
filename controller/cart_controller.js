@@ -927,7 +927,6 @@ const placeOrder = async (req, res) => {
             status: 'Placed',
             orderDate: new Date()
         });
-        // Wallet payment logic first
         if (paymentMethod === 'Wallet') {
             const userWallet = await Wallet.findOne({ userId });
 
@@ -950,7 +949,6 @@ const placeOrder = async (req, res) => {
             await userWallet.save();
         }
 
-        // Now save the order after wallet deduction is successful
         const savedOrder = await newOrder.save();
 
         if (paymentMethod === 'Wallet') {
@@ -1018,7 +1016,6 @@ const invoice = async (req, res) => {
         const filename = `invoice_${orderId}.pdf`;
         const filepath = path.join(__dirname, filename);
 
-        // Generate the PDF and wait for completion before downloading
         createInvoice(invoice, filepath, (err) => {
             if (err) {
                 console.error("Error generating PDF:", err);
@@ -1031,7 +1028,6 @@ const invoice = async (req, res) => {
                     res.status(500).send("Error downloading invoice");
                 }
 
-                // Optionally delete the file after download
                 fs.unlink(filepath, (unlinkErr) => {
                     if (unlinkErr) console.error("Error deleting file:", unlinkErr);
                 });
@@ -1059,8 +1055,8 @@ function createInvoice(invoice, path, callback) {
 
     doc.end();
     doc.pipe(fs.createWriteStream(path))
-        .on("finish", callback)  // Trigger callback after writing is done
-        .on("error", (err) => callback(err));  // Handle any write errors
+        .on("finish", callback)  
+        .on("error", (err) => callback(err));  
 }
 
     function generateHeader(doc) {
@@ -1280,6 +1276,5 @@ module.exports = {
     orderReturn,
     saveFailedOrder,
     retryPayment,
-    // downloadInvoice,
     invoice
 }

@@ -227,14 +227,14 @@ const toggleOffersStatus = async (req, res) => {
 
 const editOffer = async (req, res) => {
     try {
-        const { editOfferId, ediOfferCode, editDiscount, apply, value, editStartDate, editEndDate } = req.body;
+        const { editOfferId, editOfferCode, editDiscount, apply, value, editStartDate, editEndDate } = req.body;
 
         if (new Date(editEndDate) <= new Date(editStartDate)) {
             return res.status(400).json({ message: 'End date cannot be before start date' });
         }
 
         const existingOffer = await Offers.findOne({
-            offerCode: ediOfferCode,
+            offerCode: editOfferCode,
             _id: { $ne: editOfferId } 
         });
 
@@ -245,7 +245,7 @@ const editOffer = async (req, res) => {
         const updatedOffer = await Offers.findByIdAndUpdate(
             editOfferId,
             {
-                offerCode: ediOfferCode,
+                offerCode: editOfferCode,
                 discount: editDiscount,
                 apply_by: apply,
                 value: value,

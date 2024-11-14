@@ -1,77 +1,72 @@
-async function initiateOnlinePayment(orderData) {
+const dashboard = async (req, res) => {
     try {
-        const response = await fetch('/user/create-razorpay-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...orderData, currency: 'INR' })
-        });
+        const { reportRange, startDate, endDate } = req.query;
+        let page = parseInt(req.query.page) || 1;
 
-        const order = await response.json();
-        if (response.ok) {
-            openRazorpay(order);
-        } else {
-            alert('Error creating Razorpay order.');
+        page = Math.max(page, 1);
+
+        let filterCriteria = {};
+
+        if (reportRange === '7days') {
+            const dateLimit = new Date();
+            dateLimit.setDate(dateLimit.getDate() - 7);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (reportRange === 'today') {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0); 
+            const endOfToday = new Date();
+            endOfToday.setHours(23, 59, 59, 999); 
+            filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
+        } else if (reportRange === '1month') {
+            const dateLimit = new Date();
+            dateLimit.setMonth(dateLimit.getMonth() - 1);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (reportRange === '3months') {
+            const dateLimit = new Date();
+            dateLimit.setMonth(dateLimit.getMonth() - 3);
+            filterCriteria.createdAt = { $gte: dateLimit };
+        } else if (startDate && endDate) {
+            filterCriteria.createdAt = { 
+                $gte: new Date(startDate), 
+                $lte: new Date(endDate) 
+            };
         }
-    } catch (error) {
-        console.error('Error initiating online payment:', error);
-    }
-}
 
-function openRazorpay(order) {
-    const options = {
-        key: 'rzp_test_3EYdWsxcryrgrR', 
-        amount: order.amount,
-        currency: order.currency,
-        order_id: order.id,
-        handler: verifyPayment,
-        prefill: { name: 'Rafan', email: 'rafan123@gmail.com', contact: '8281652046' },
-        theme: { color: '#0000' }
-    };
-    const rzp = new Razorpay(options);
-    rzp.open();
-}
+        const recordsPerPage = 5;
+        const skip = (page - 1) * recordsPerPage;
 
-async function verifyPayment(response) {
-    try {
-        const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
-        const totalAmount = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
-        const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
-        const offerDiscount = parseFloat(document.getElementById("offerDiscount").textContent.replace('$', '').trim()) || 0;
-        const deliveryCharge = parseFloat(document.getElementById("deliveryCharge").textContent.replace('$', '').trim()) || 0;
+        const orders = await Orders.find(filterCriteria)
+            .populate('userId', 'name')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(recordsPerPage);
 
-        const verifyResponse = await fetch('/user/verify-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                addressId,
-                totalAmount,
-                discount,
-                offerDiscount,
-                deliveryCharge
-            })
+        const totalOrders = await Orders.countDocuments(filterCriteria);
+        const totalPages = Math.ceil(totalOrders / recordsPerPage);
+
+        if (page > totalPages && totalPages > 0) {
+            return res.redirect(`?page=${totalPages}&reportRange=${reportRange}&startDate=${startDate}&endDate=${endDate}`);
+        }
+
+        let totalRevenue = 0;
+        let totalSales = 0;
+        let totalDiscount = 0;
+
+        orders.forEach((order) => {
+            if (order.status === 'delivered') {
+                totalRevenue += order.totalAmount;
+                totalDiscount += (order.Coupon_discount + order.Offer_discount);
+                totalSales++;
+            }
         });
 
-        const result = await verifyResponse.json();
-        if (verifyResponse.ok) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Placed Successfully!',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = /user/order-success/${result.orderId};
-            });
-        } else {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Placed without money!',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = /user/orderhistory;
-            });				}
+        res.render('admin/index.ejs', {
+            totalDiscount, totalRevenue, totalSales, orders, 
+            currentPage: page, totalPages, reportRange, startDate, endDate
+        });
+
     } catch (error) {
-        console.error('Error verifying payment:', error);
+        console.log(error);
+        res.status(500).send('Server error');
     }
-}
+};

@@ -467,7 +467,7 @@ h3 {
                                 <input type="hidden" id="editOfferId" name="editOfferId">
                                 <div class="mb-3">
                                     <label for="editCouponCode" class="form-label">Offer Code</label>
-                                    <input type="text" class="form-control" id="editOfferCode" name="ediOfferCode" required>
+                                    <input type="text" class="form-control" id="editOfferCode" name="editOfferCode" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="editMaxAmount" class="form-label">Discount</label>
@@ -641,7 +641,21 @@ h3 {
         const discount = form.find('input[name="discount"], input[name="editDiscount"]').val();
         const validFrom = form.find('input[name="validFrom"], input[name="editStartDate"]').val();
         const validUntil = form.find('input[name="validUntil"], input[name="editEndDate"]').val();
-        const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val();
+
+        const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val().trim(); // Ensure any extra spaces are removed
+
+        // Check if the offerCode contains only numbers using a regular expression
+        if (/^\d+$/.test(offerCode)) {
+            // If it contains only numbers, it's invalid
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Offer Code',
+                text: 'Offer code contains only numbers, which is not valid.',
+                confirmButtonText: 'OK'
+            });
+            return false;  // Prevent form submission
+        }
+
 
         if (discount < 1 || discount > 80) {
             Swal.fire({

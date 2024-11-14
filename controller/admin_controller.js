@@ -57,7 +57,6 @@ const dashboard = async (req, res) => {
     try {
         const { reportRange, startDate, endDate } = req.query;
         let page = parseInt(req.query.page) || 1;
-
         page = Math.max(page, 1);
 
         let filterCriteria = {};
@@ -72,14 +71,6 @@ const dashboard = async (req, res) => {
             const endOfToday = new Date();
             endOfToday.setHours(23, 59, 59, 999); 
             filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
-        } else if (reportRange === '1month') {
-            const dateLimit = new Date();
-            dateLimit.setMonth(dateLimit.getMonth() - 1);
-            filterCriteria.createdAt = { $gte: dateLimit };
-        } else if (reportRange === '3months') {
-            const dateLimit = new Date();
-            dateLimit.setMonth(dateLimit.getMonth() - 3);
-            filterCriteria.createdAt = { $gte: dateLimit };
         } else if (startDate && endDate) {
             filterCriteria.createdAt = { 
                 $gte: new Date(startDate), 
@@ -103,21 +94,138 @@ const dashboard = async (req, res) => {
             return res.redirect(`?page=${totalPages}&reportRange=${reportRange}&startDate=${startDate}&endDate=${endDate}`);
         }
 
-        let totalRevenue = 0;
-        let totalSales = 0;
-        let totalDiscount = 0;
+        const allOrdersInDateRange = await Orders.find(filterCriteria);
 
-        orders.forEach((order) => {
+        let dailyRevenue = {};
+        let dailySales = {};
+        let dailyDiscount = {};
+        let statusCounts = {
+            Placed: 0,
+            Processing: 0,
+            Shipped: 0,
+            Delivered: 0,
+            Cancelled: 0,
+            Returned: 0,
+            "Payment pending": 0
+        };
+
+        allOrdersInDateRange.forEach((order) => {
+            const date = new Date(order.createdAt).toISOString().split('T')[0]; 
+            
             if (order.status === 'delivered') {
-                totalRevenue += order.totalAmount;
-                totalDiscount += (order.Coupon_discount + order.Offer_discount);
-                totalSales++;
+                if (!dailyRevenue[date]) dailyRevenue[date] = 0;
+                if (!dailySales[date]) dailySales[date] = 0;
+                if (!dailyDiscount[date]) dailyDiscount[date] = 0;
+
+                dailyRevenue[date] += order.totalAmount;
+                dailySales[date]++;
+                dailyDiscount[date] += (order.Coupon_discount + order.Offer_discount);
+            }
+
+            const normalizedStatus = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+
+            if (statusCounts[normalizedStatus] !== undefined) {
+                statusCounts[normalizedStatus]++;
+            } else {
+                console.log(`Unknown status: ${order.status}`);
             }
         });
 
+        const chartData = {
+            revenueData: Object.entries(dailyRevenue).map(([date, value]) => ({ period: date, value })),
+            salesData: Object.entries(dailySales).map(([date, value]) => ({ period: date, value })),
+            discountData: Object.entries(dailyDiscount).map(([date, value]) => ({ period: date, value })),
+        };
+
+        const pieChartData = Object.values(statusCounts);
+
+        
+        const topProductsData = await Orders.aggregate([
+            { $unwind: "$items" },
+            { $match: { status: "delivered" } },
+            { 
+                $group: { 
+                    _id: "$items.productId", 
+                    totalQuantity: { $sum: "$items.quantity" }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $project: {
+                    productId: "$_id",
+                    productName: "$productDetails.product_name", 
+                    subcategory: "$productDetails.sub_category", 
+                    totalQuantity: 1
+                }
+            }
+        ]);
+        
+        const subcategoryData = await Orders.aggregate([
+            { $unwind: "$items" },
+            { $match: { status: "delivered" } },
+            {
+                $group: {
+                    _id: "$items.productId",
+                    totalQuantity: { $sum: "$items.quantity" }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $group: {
+                    _id: "$productDetails.sub_category", 
+                    totalSales: { $sum: "$totalQuantity" }
+                }
+            },
+            { $sort: { totalSales: -1 } },
+            { $limit: 10 }
+        ]);
+        
+        const topProducts = topProductsData.map(item => ({
+            productId: item.productId,
+            productName: item.productName || "", 
+            quantitySold: item.totalQuantity
+        }));
+        
+        const topSubcategories = subcategoryData.map(item => ({
+            subcategory: item._id || "", 
+            totalSales: item.totalSales
+        }));
+
         res.render('admin/index.ejs', {
-            totalDiscount, totalRevenue, totalSales, orders, 
-            currentPage: page, totalPages, reportRange, startDate, endDate
+            totalRevenue: Object.values(dailyRevenue).reduce((acc, curr) => acc + curr, 0),
+            totalSales: Object.values(dailySales).reduce((acc, curr) => acc + curr, 0),
+            totalDiscount: Object.values(dailyDiscount).reduce((acc, curr) => acc + curr, 0),
+            orders,               
+            chartData,            
+            pieChartData,         
+            totalOrders,          
+            totalPages,           
+            currentPage: page,
+            topProducts,
+            topSubcategories,
+            reportRange,
+            startDate,
+            endDate
         });
 
     } catch (error) {
@@ -125,6 +233,7 @@ const dashboard = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 
 
 
