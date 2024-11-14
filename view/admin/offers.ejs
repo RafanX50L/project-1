@@ -642,18 +642,16 @@ h3 {
         const validFrom = form.find('input[name="validFrom"], input[name="editStartDate"]').val();
         const validUntil = form.find('input[name="validUntil"], input[name="editEndDate"]').val();
 
-        const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val().trim(); // Ensure any extra spaces are removed
+        const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val().trim(); 
 
-        // Check if the offerCode contains only numbers using a regular expression
         if (/^\d+$/.test(offerCode)) {
-            // If it contains only numbers, it's invalid
             Swal.fire({
                 icon: 'error',
                 title: 'Invalid Offer Code',
                 text: 'Offer code contains only numbers, which is not valid.',
                 confirmButtonText: 'OK'
             });
-            return false;  // Prevent form submission
+            return false;  
         }
 
 
