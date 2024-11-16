@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Product</title>
+	<title>Category</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	
@@ -33,6 +33,7 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <!--===============================================================================================-->
 </head>
 <body class="animsition">
@@ -576,9 +577,15 @@
 								<!-- Dynamic image source -->
 								<img style="height: 40vh; width: 40vh; align-items: center;" src="/products/<%= product.product_images[0] %>" alt="IMG-PRODUCT">
 			
-								<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
-									Add To Cart
-								</a>
+								<% if (product.stock<=0 || product.status==false) { %>
+									<a class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
+										Currently unavailable
+									</a>
+								<% } else { %>
+									<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
+										Add To Cart
+									</a>
+								<% } %>
 							</div>
 			
 							<div class="block2-txt flex-w flex-t p-t-14">
@@ -606,6 +613,12 @@
 											</span>
 										<% } %>
 									</div>
+									<% if (product.stock<=0 || product.status==false) { %>
+									<% } else { %>
+										<button class="add-to-wish-btn" data-product-id=<%= product._id %>>
+											<i class="fas fa-heart" style="font-size: 15px; color: #f44336;"></i> 
+										</button>									  
+									<% } %>
 								</div>
 							</div>
 						</a>
@@ -1064,6 +1077,17 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							text: 'Product added to cart!',
 							confirmButtonText: 'OK'
 						});
+					}else if(data.success==false){
+						Swal.fire({
+							icon: 'info',
+							title: 'Product currently Unavailable',
+							text: data.message,
+							confirmButtonText: 'OK'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload();
+							}
+						});
 					}else if (data.message) {
 						Swal.fire({
 							icon: 'info',
@@ -1091,6 +1115,79 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				});
 			});
 		});
+	
+		
+		document.querySelectorAll('.add-to-wish-btn').forEach(function(button) {
+			button.addEventListener('click', function(e) {
+				e.preventDefault();
+
+				// Retrieve the productId correctly
+				const productId = this.getAttribute('data-product-id');
+				console.log('jkkdjfgd'+productId);
+				
+				// Ensure the productId is valid (i.e., it is a non-empty string)
+				if (!productId || productId.trim() === '') {
+					console.error("Invalid product ID:", productId);
+					return;
+				}
+
+				fetch('/user/wish/add', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						productId: productId
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						Swal.fire({
+							icon: 'success',
+							title: 'Success',
+							text: 'Product added to Wishlist!',
+							confirmButtonText: 'OK'
+						});
+					}else if(data.message=='Product not found'){
+						Swal.fire({
+							icon: 'info',
+							title: 'Product currently Unavailable',
+							text: data.message,
+							confirmButtonText: 'OK'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload();
+							}
+						});
+					}else if (data.message) {
+						Swal.fire({
+							icon: 'info',
+							title: data.title,
+							text: data.message,
+							confirmButtonText: 'OK'
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'Error adding product to Wishlist. Please try again!',
+							confirmButtonText: 'OK'
+						});
+					}
+				})
+				.catch(error => {
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Something went wrong!',
+						confirmButtonText: 'OK'
+					});
+					console.error('Error:', error);
+				});
+			});
+		});
+
 	</script>
 
 </body>

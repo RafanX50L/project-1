@@ -160,8 +160,8 @@
         }
         
         .product-card {
-            display: grid;
-            grid-template-columns: 120px 1fr 1fr;
+            display: flex; /* Changed from grid to flex */
+            align-items: start;
             gap: 24px;
             padding: 24px;
             background: #1f2937;
@@ -170,6 +170,18 @@
             margin-bottom: 24px;
             border: 1px solid #374151;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            max-width: fit-content; /* This will make the card only as wide as its content */
+        }
+
+        .product-image {
+            width: 120px; /* Maintain image size */
+            height: auto;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 0 1 auto; /* This prevents the info section from expanding unnecessarily */
+            min-width: 200px; /* Add a minimum width to ensure content doesn't get too squeezed */
         }
         
         .product-card:hover {
@@ -304,6 +316,7 @@
         
         /* Add a subtle glow effect on card hover */
         .product-card:hover .product-image {
+            
             box-shadow: 0 0 15px rgba(96, 165, 250, 0.15);
         }
         
@@ -702,58 +715,52 @@
                                                             <h5 class="" style="color: rgb(10, 247, 10); margin-top: 3%; margin-bottom: 5%;">Total price: ₹<%= order.totalAmount %></h5>
                                                             
                                                         <!-- Loop through items for each order -->
-                                                        <% order.items.forEach(item => { %>
-                                                            <div class="product-card">
-                                                                <img src="/products/<%= item.productImage %>" alt="<%= item.productName %>" class="product-image">
-                                                                
-                                                                <div class="product-info">
-                                                                    <div>
-                                                                        <div class="info-label">Product</div>
-                                                                        <div class="product-title"><%= item.productName %></div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <div class="info-label">Quantity</div>
-                                                                        <div class="info-value"><%= item.quantity %></div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <div class="info-label">Price</div>
-                                                                        <div class="price" style="text-decoration: line-through;">₹<%= item.unitPrice.toFixed(2) %></div>
-                                                                        <div class="price-value">₹<%= item.offerPrice.toFixed(2) %></div>
-                                                                    </div>
-                                                                    <!-- <% if (order.status === 'pending') { %>
-                                                                        <div class="cancelled-badge">Cancelled</div>
-                                                                    <% } %> -->
-                                                                    <div class="price-value" style="margin-top: 10%;">
-                                                                        Total: <%= (item.offerPrice)*item.quantity %>
-                                                                    </div>
-                                                                </div>
-                                                                
-                                                                <!-- Delivery Information Section -->
-                                                                <div class="delivery-info">
-                                                                    <div>
-                                                                        <div class="info-label">Delivery Address</div>
-                                                                        <div class="address-container">
-                                                                            <% 
-                                                                                const deliveryAddress = order.userId.addresses ? 
-                                                                                    order.userId.addresses.find(address => address._id.equals(order.shippingAddress)) : null;
-                                                                            %>
-                                                                            <div class="info-value"><%= order.userId.name %></div>
-                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.houseNumber : 'Address not found' %></div>
-                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.street : 'Address not found' %></div>
-                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.city : 'Address not found' %> , <%= deliveryAddress ? deliveryAddress.state : 'Address not found' %> <%= deliveryAddress ? deliveryAddress.zip : 'Address not found' %></div>
-                                                                            <div class="info-value"><%= deliveryAddress ? deliveryAddress.country : 'Address not found' %></div>
+                                                         <div class="row">
+                                                            <% order.items.forEach(item => { %>
+                                                                <div class="product-card col-6" >
+                                                                    <img src="/products/<%= item.productImage %>" alt="<%= item.productName %>" class="product-image">
+                                                                    
+                                                                    <div class="product-info">
+                                                                        <div>
+                                                                            <div class="info-label">Product</div>
+                                                                            <div class="product-title"><%= item.productName %></div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div class="info-label">Quantity</div>
+                                                                            <div class="info-value"><%= item.quantity %></div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div class="info-label">Price</div>
+                                                                            <div class="price" style="text-decoration: line-through;">₹<%= item.unitPrice.toFixed(2) %></div>
+                                                                            <div class="price-value">₹<%= item.offerPrice.toFixed(2) %></div>
+                                                                        </div>
+                                                                        <div class="price-value" style="margin-top: 10%;">
+                                                                            Total: <%= (item.offerPrice)*item.quantity %>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="divider"></div>
-                                                                    <div>
-                                                                        <div class="info-label">Phone number</div>
-                                                                        <a href="tel:<%= deliveryAddress ? deliveryAddress.phone : '' %>" class="phone-number">
-                                                                            <%= deliveryAddress ? deliveryAddress.phone : 'Phone number not available' %>
-                                                                        </a>
+                                                                </div>
+                                                            <% }) %>
+                                                         </div>
+                                                            <!-- Delivery Information Section -->
+                                                            <div class="delivery-info">
+                                                                <div>
+                                                                    <div class="info-label">Delivery Address</div>
+                                                                    <div class="address-container">
+                                                                        <div class="info-value"><%= order.shippingAddress.name %></div>
+                                                                        <div class="info-value"><%= order.shippingAddress.houseNumber %></div>
+                                                                        <div class="info-value"><%= order.shippingAddress.street %>  </div>
+                                                                        <div class="info-value"><%= order.shippingAddress.city %> , <%= order.shippingAddress.state %> ,<%= order.shippingAddress.zip %></div>
+                                                                        <div class="info-value"><%= order.shippingAddress.country %></div>
                                                                     </div>
                                                                 </div>
+                                                                <div class="divider"></div>
+                                                                <div>
+                                                                    <div class="info-label">Phone number</div>
+                                                                    <a href="tel:<%= order %>" class="phone-number">
+                                                                        <%= order.shippingAddress.phone %>
+                                                                    </a>
+                                                                </div>
                                                             </div>
-                                                        <% }) %>
                                                     </div>
                                                 </td>
                                             </tr>

@@ -595,7 +595,7 @@
 					<h2><p>Your wishlist is empty.</p><h2>
 				<% } else { %>
 					<% wishlist.items.forEach(item => { %>
-						<div class="product-card">
+						<a href="/user/productd?id=<%= item.productId._id %>" class="product-card">
 							<img src="/products/<%= item.productId.product_images[0] %>" alt="<%= item.productId.product_name %>" class="product-image">
 							<div class="product-info">
 								<div>
@@ -615,7 +615,7 @@
 									</button>
 								</div>
 							</div>
-						</div>
+						</a>
 					<% }) %>
 				<% } %>
 			</div>
@@ -1058,6 +1058,17 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							confirmButtonText: 'OK'
 						});
 						window.location.reload()
+					}else if(data.success==false){
+						Swal.fire({
+						icon: 'info',
+						title: 'Product currently Unavailable',
+						text: data.message,
+						confirmButtonText: 'OK'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload();
+							}
+						});
 					}else if (data.message) {
 						Swal.fire({
 							icon: 'info',

@@ -334,10 +334,11 @@
 																<i class="fs-16 zmdi zmdi-minus"></i>
 															</button>
 														</div>
-														<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product"
-															value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>">
+														<!--jhgfdyulgfugyftdftuldxghdxlstydl7t-->
+														<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" 
+															value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>" >
 														<div class="cl8 hov-btn3 trans-04 flex-c-m">
-															<button class="btn increment"
+															<button class="btn increment" 
 																onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>')">
 																<i class="fs-16 zmdi zmdi-plus"></i>
 															</button>
@@ -631,16 +632,17 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				scrollingThreshold: 1000,
 				wheelPropagation: false,
 			});
-
+			
 			$(window).on('resize', function(){
 				ps.update();
 			})
 		});
-	</script>
+		</script>
 <!--===============================================================================================-->
-	<script src="/js/main.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script>
+<script src="/js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+	
 		function removeProductFromCart(buttonElement) {
 			const productId = buttonElement.getAttribute('data-product-id');
 
@@ -677,7 +679,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				}
 			});
 		}
-
+		
 		async function incrementValue(event, productId, stock) {
 			event.preventDefault(); 
 			const input = document.querySelector(`input[data-product-id="${productId}"]`);

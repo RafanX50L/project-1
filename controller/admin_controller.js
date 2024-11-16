@@ -142,7 +142,7 @@ const dashboard = async (req, res) => {
         
         const topProductsData = await Orders.aggregate([
             { $unwind: "$items" },
-            { $match: { status: "delivered" } },
+            { $match: { status: "delivered" , ...filterCriteria } },
             { 
                 $group: { 
                     _id: "$items.productId", 
@@ -172,7 +172,7 @@ const dashboard = async (req, res) => {
         
         const subcategoryData = await Orders.aggregate([
             { $unwind: "$items" },
-            { $match: { status: "delivered" } },
+            { $match: { status: "delivered" , ...filterCriteria } },
             {
                 $group: {
                     _id: "$items.productId",
@@ -1010,7 +1010,7 @@ const orderapprove = async (req, res) => {
             }
             console.log('Products restocked');
         }
-        if (order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment') {
+        if (order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment' || order.paymentMethod == 'Cash On Delivery') {
             let userWallet = await Wallet.findOne({ userId: userId });
             if (!userWallet) {
                 userWallet = new Wallet({

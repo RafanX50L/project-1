@@ -32,6 +32,39 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   }
 });
+const AddressSchema = new mongoose.Schema({
+  name: { type: String,
+    required: true 
+  },
+  houseNumber: { 
+    type: String, 
+    required: true 
+  },
+  street: { 
+    type: String, 
+    required: true 
+  },
+  city: { 
+    type: String, 
+    required: true 
+  },
+  state: { 
+    type: String, 
+    required: true 
+  },
+  zip: { 
+    type: String, 
+    required: true 
+  },
+  country: { 
+    type: String, 
+    required: true 
+  },
+  phone: { 
+    type: String, 
+    required: true 
+  },
+}, { _id: false }); 
 
 const orderSchema = new mongoose.Schema({
   orderId: {
@@ -45,9 +78,8 @@ const orderSchema = new mongoose.Schema({
   },
   items: [orderItemSchema], 
   shippingAddress: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Address', 
-    required: true,
+    type: AddressSchema,
+    required: true,  // Make it required, meaning the user must have one shipping address
   },
   paymentMethod: {
     type: String,

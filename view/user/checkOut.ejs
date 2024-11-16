@@ -371,154 +371,143 @@
 
 	<section>
 		<div class="container my-5">
-			<h2 class="text-center mb-4">Checkout</h2>
-			<form id="checkoutForm">
-				<div class="row">
-					<!-- Left Side: Your Cart and Order Summary -->
-					<div class="col-md-6">
-						<!-- Your Cart Section -->
-						<div class="card mb-4 justcommon">
-							<div class="card-header">
-								<h4>Your Cart</h4>
-							</div>
-							<div class="card-body">
-								<div class="cart-items" style="max-height: 240px; overflow-y: auto;">
-									<% cartItems.forEach(item => { %>
-									  <div class="d-flex align-items-center justify-content-between mb-3">
-										<div class="d-flex align-items-center">
-										  <img style="width: 10%; border-radius: 5px; border: 1px solid #444;"
-											   src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
-										  <div>
-											<h5 class="mb-0"><%= item.productId.product_name %> (x<%= item.quantity %>)</h5>
-										  </div>
-										</div>
-										<div style="margin-right: 30px;">
-										  <% if (item.offerPrice < item.productId.price) { %>
-											<span class="mb-0" style="text-decoration: line-through; color: #888;">
-												₹<%= item.productId.price %>
-											</span>
-											<span class="mb-0" >
-												₹<%= item.offerPrice.toFixed(2) %>
-											</span>
-										  <% } else { %>
-											<span class="mb-0">$<%= item.productId.price %></span>
-										  <% } %>
-										</div>
-									  </div>
-									<% }); %>
-								  </div>
-								  
-							</div>
-						</div>
-	
-						<!-- Order Summary Section -->
-						<div class="card mb-4 justcommon">
-							<div class="card-header">
-								<h4>Order Summary</h4>
-							</div>
-							<div class="card-body">
-								<ul class="list-group list-group-flush justcommon">
-									<li class="list-group-item d-flex justify-content-between justcommon">
-										<span>Subtotal:</span>
-										<span>₹<span id="subtotal"><%= subtotal %></span></span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between justcommon">
-										<span>Offer Discount:</span>
-										<span>-₹<span id="offerDiscount"><%= offerDiscount %></span></span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between justcommon">
-										<span>Coupon Discount:</span>
-										<span>-₹<span id="discountAmount"><%= couponDiscount %></span></span>
-									</li>	
-									<li class="list-group-item d-flex justify-content-between justcommon">
-										<span>Delivery Cahrge:</span>
-										<span>+₹<span id="deliveryCharge"><%= deliveryCharge  %></span></span>
-									</li>									
-									<li class="list-group-item d-flex justify-content-between justcommon">
-										<strong>Total:</strong>
-										<strong style="color: red;">₹<span id="totalPriceDisplay"><%= totalPrice %></span></strong>
-									</li>
-								</ul>
-							</div>
-						</div>
-						
-						<!-- Coupon Section -->
-						<div class="coupon-section">
-							<h5>Apply Coupon</h5><br>
-							<input type="text" id="originalTotal" value="<%= totalPrice %>" style="display: none;">
-							<div class="d-flex align-items-center">
-								<input type="text" id="couponCode" placeholder="Enter coupon code">
-								<button type="button" id="applyCoupon" style="display: inline-block;">Apply</button>
-								<button type="button" id="removeCoupon" style="height: 4vh; margin-left: 1vh; background-color: red; display: none;">Remove</button>
-							</div>
-							<div class="discount-info" id="discountInfo"></div>
-						</div>
+		  <h2 class="text-center mb-4">Checkout</h2>
+		  <form id="checkoutForm">
+			<div class="row">
+			  <!-- Address and Payment Method -->
+			  <div class="col-md-6">
+				<!-- Saved Addresses Section -->
+				<div class="card mb-4 justcommon">
+				  <div class="card-header">
+					<h4>Select Saved Address</h4>
+				  </div>
+				  <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+					<% addresses.forEach(address => { %>
+					<div class="address-container mb-3 p-3 border rounded position-relative" data-id="<%= address._id %>">
+					  <input type="radio" name="selectedAddress" class="position-absolute" style="top: 10px; left: 10px;" value="<%= address._id %>">
+					  <div class="address-details" style="margin-left: 30px;">
+						<p class="mb-1"><%= address.name %></p>
+						<p class="mb-1"><%= address.houseNumber %>, <%= address.street %></p>
+						<p class="mb-1"><%= address.city %>, <%= address.state %> <%= address.zip %></p>
+						<p class="mb-1"><%= address.country %></p>
+						<p class="mb-0">Phone: <%= address.phone %></p>
+					  </div>
 					</div>
-	
-					<!-- Right Side: Select Address and Payment Method -->
-					<div class="col-md-6">
-						<!-- Saved Addresses Section -->
-						<div class="card mb-4 justcommon">
-							<div class="card-header">
-								<h4>Select Saved Addresses</h4>
-							</div>
-							<div class="card-body" style="max-height: 200px; overflow-y: auto;">
-								<% addresses.forEach(address => { %>
-									<div class="address-container mb-3 p-3 border rounded position-relative"
-										 data-id="<%= address._id %>">
-										<input type="radio" name="selectedAddress" class="position-absolute"
-											   style="top: 10px; left: 10px;" value="<%= address._id %>">
-										<div class="address-details" style="margin-left: 30px;">
-											<p><%= address.name %></p>
-											<p><%= address.houseNumber %></p>
-											<p><%= address.street %></p>
-											<p><%= address.city %>, <%= address.state %> <%= address.zip %></p>
-											<p><%= address.country %></p>
-											<p>Phone: <%= address.phone %></p>
-										</div>
-									</div>
-								<% }); %>
-							</div>
-							<div class="card-footer">
-								<a href="/user/address" onclick="event.stopPropagation();">
-									<button type="button" class="btn btn-primary mt-3" style="border-radius: 5px; width: 150px;">
-										Add New Address
-									</button>
-								</a>
-							</div>
-						</div>
-	
-						<!-- Payment Method Section -->
-						<div class="card mb-4 justcommon">
-							<div class="card-header">
-								<h4>Payment Method</h4>
-							</div>
-							<div class="card-body">
-								<div class="form-check" style="margin-left: 20px;">
-									<input class="form-check-input" type="radio" name="paymentMethod" id="online payment">
-									<label class="form-check-label" for="online payment">Online Payment</label>
-								</div>
-								<div class="form-check" style="margin-left: 20px;">
-									<input class="form-check-input" type="radio" name="paymentMethod" id="Cash On Delivery">
-									<label class="form-check-label" for="Cash On Delivery">Cash On Delivery</label>
-								</div>
-								<div class="form-check" style="margin-left: 20px;">
-									<input class="form-check-input" type="radio" name="paymentMethod" id="Wallet">
-									<label class="form-check-label" for="Wallet">Wallet</label>
-								</div>
-							</div>
-						</div>
-						<div class="text-center">
-							<button id="place-order" type="submit" data-cartItems='<%= cartItems %>' data-totalPrice='<%= totalPrice %>'
-									class="btn btn-primary btn-lg">Place Order
-							</button>
-						</div>
+					<% }); %>
+				  </div>
+				  <div class="card-footer">
+					<a href="/user/address" onclick="event.stopPropagation();">
+					  <button type="button" class="btn btn-primary mt-3" style="border-radius: 5px; width: 150px;">
+						Add New Address
+					  </button>
+					</a>
+				  </div>
+				</div>
+	  
+				<!-- Payment Method Section -->
+				<div class="card mb-4 justcommon">
+				  <div class="card-header">
+					<h4>Payment Method</h4>
+				</div>
+				<div class="card-body">
+					<div class="form-check" style="margin-left: 20px;">
+						<input class="form-check-input" type="radio" name="paymentMethod" id="online payment">
+						<label class="form-check-label" for="online payment">Online Payment</label>
+					</div>
+					<div class="form-check" style="margin-left: 20px;">
+						<input class="form-check-input" type="radio" name="paymentMethod" id="Cash On Delivery">
+						<label class="form-check-label" for="Cash On Delivery">Cash On Delivery</label>
+					</div>
+					<div class="form-check" style="margin-left: 20px;">
+						<input class="form-check-input" type="radio" name="paymentMethod" id="Wallet">
+						<label class="form-check-label" for="Wallet">Wallet</label>
 					</div>
 				</div>
-				
-			</form>
+			</div>
+			<!-- Coupon Section -->
+			<div class="coupon-section">
+			  <h5>Apply Coupon</h5><br>
+			  <input type="text" id="originalTotal" value="<%= totalPrice %>" style="display: none;">
+			  <div class="d-flex align-items-center">
+				<input type="text" id="couponCode" placeholder="Enter coupon code">
+				<button type="button" id="applyCoupon" style="display: inline-block;">Apply</button>
+				<button type="button" id="removeCoupon" style="height: 4vh; margin-left: 1vh; background-color: red; display: none;">Remove</button>
+			  </div>
+			  <div class="discount-info" id="discountInfo"></div>
+			</div>
+			  </div>
+	  
+			  <!-- Order Summary -->
+			  <div class="col-md-6">
+				<!-- Your Cart Section -->
+				<div class="card mb-4 justcommon">
+				  <div class="card-header">
+					<h4>Your Cart</h4>
+				  </div>
+				  <div class="card-body">
+					<div class="cart-items" style="max-height: 240px; overflow-y: auto;">
+					  <% cartItems.forEach(item => { %>
+					  <div class="d-flex align-items-center justify-content-between mb-3">
+						<div class="d-flex align-items-center">
+						  <img style="width: 10%; border-radius: 5px; border: 1px solid #444;" src="/products/<%= item.productId.product_images[0] %>" alt="IMG">
+						  <div class="ml-3">
+							<h5 class="mb-0"><%= item.productId.product_name %></h5>
+							<p class="mb-0">Qty: <%= item.quantity %></p>
+						  </div>
+						</div>
+						<div style="margin-right: 30px;">
+						  <% if (item.offerPrice < item.productId.price) { %>
+						  <p class="mb-1" style="text-decoration: line-through; color: #888;">₹<%= item.productId.price %></p>
+						  <p class="mb-0" style="font-weight: bold; color: #4CAF50;">₹<%= item.offerPrice.toFixed(2) %></p>
+						  <% } else { %>
+						  <p class="mb-0" style="font-weight: bold;">₹<%= item.productId.price %></p>
+						  <% } %>
+						</div>
+					  </div>
+					  <% }); %>
+					</div>
+				  </div>
+				</div>
+	  
+				<!-- Order Summary Section -->
+				<div class="card mb-4 justcommon">
+				  <div class="card-header">
+					<h4>Order Summary</h4>
+				  </div>
+				  <div class="card-body">
+					<ul class="list-group list-group-flush justcommon">
+					  <li class="list-group-item d-flex justify-content-between justcommon">
+						<span>Subtotal:</span>
+						<span>₹<span id="subtotal"><%= subtotal %></span></span>
+					  </li>
+					  <li class="list-group-item d-flex justify-content-between justcommon">
+						<span>Offer Discount:</span>
+						<span style="color: #4CAF50;">-₹<span id="offerDiscount"><%= offerDiscount %></span></span>
+					  </li>
+					  <li class="list-group-item d-flex justify-content-between justcommon">
+						<span>Coupon Discount:</span>
+						<span style="color: #4CAF50;">-₹<span id="discountAmount"><%= couponDiscount %></span></span>
+					  </li>
+					  <li class="list-group-item d-flex justify-content-between justcommon">
+						<span>Delivery Charge:</span>
+						<span>+₹<span id="deliveryCharge"><%= deliveryCharge %></span></span>
+					  </li>
+					  <li class="list-group-item d-flex justify-content-between justcommon">
+						<strong>Total:</strong>
+						<strong style="color: #4CAF50;">₹<span id="totalPriceDisplay"><%= totalPrice %></span></strong>
+					  </li>
+					</ul>
+				  </div>
+				</div>
+	  
+			  </div>
+			</div>
+			<div class="text-center mt-4">
+			  <button id="place-order" type="submit" data-cartItems='<%= cartItems %>' data-totalPrice='<%= totalPrice %>' class="btn btn-primary btn-lg">Place Order</button>
+			</div>
+		  </form>
 		</div>
-	</section>
+	  </section>
 	
 		
 	
@@ -721,6 +710,29 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script>
 		document.getElementById('checkoutForm').addEventListener('submit', async function (event) {
 			event.preventDefault();
+
+			const validationResponse = await fetch('/user/validate-cart', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			}).then(res => res.json());
+
+			if (validationResponse.message && validationResponse.issues) {
+				console.log('entering to sweet alert');
+				
+			Swal.fire({
+				icon: 'error',
+				title: 'Product Unavailable',
+				text: validationResponse.message,
+				confirmButtonText: 'OK'
+			}).then(() => {
+				window.location.reload(); // Reload the page when the user clicks OK
+			});
+
+			// Continue the script execution after showing the alert
+			console.error('Issues:', validationResponse.issues);
+			return; // Optional: Exit the function if you want to avoid placing the order
+		}
+
 
 			const totalPrice = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
 			const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;

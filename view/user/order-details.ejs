@@ -314,8 +314,8 @@
         <div class="order-container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="#">My orders</a></li>
+                    <li class="breadcrumb-item"><a href="/user/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/user/orderhistory">My orders</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Order details</li>
                 </ol>
             </nav>
@@ -372,14 +372,14 @@
                     <div class="info-grid">
                         <div class="info-card">
                             <h5 class="card-title">Delivery Address</h5>
-                            <strong><%=address.name %></strong><br>
-                            <strong><%=address.houseNumber %></strong><br>
-                            <strong><%=address.street %></strong><br>
-                            <strong><%=address.city %> , <%=address.state %> <%=address.zip %></strong><br>
-                            <strong><%=address.country %></strong><br>
-                            <strong>Phone: <%=address.phone %></strong><br>
-                            
+                            <strong><%= Orders.shippingAddress.name %></strong><br>
+                            <strong><%= Orders.shippingAddress.houseNumber %></strong><br>
+                            <strong><%= Orders.shippingAddress.street %></strong><br>
+                            <strong><%= Orders.shippingAddress.city %> , <%= Orders.shippingAddress.state %> <%= Orders.shippingAddress.zip %></strong><br>
+                            <strong><%= Orders.shippingAddress.country %></strong><br>
+                            <strong>Phone: <%= Orders.shippingAddress.phone %></strong><br>
                         </div>
+                        
     
                         <div class="info-card">
                             <h5 class="card-title">Price details</h5>

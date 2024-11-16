@@ -65,9 +65,15 @@ const getCartDetails = async (req, res) => {
 
         let cartTotalPrice = 0;
         let cartDiscount = 0;
+        let quantityAdjusted = false;
 
         cart.items.forEach(item => {
             const product = item.productId; 
+
+            if (item.quantity > product.stock) {
+                item.quantity = product.stock;
+                quantityAdjusted = true;
+            }
 
             const productOffer = activeOffers.find(offer => offer.apply_by === 'Product' && offer.value === product.product_name);
             const subcategoryOffer = activeOffers.find(offer => offer.apply_by === 'Subcategory' && offer.value === product.sub_category);
@@ -92,6 +98,9 @@ const getCartDetails = async (req, res) => {
             cartTotalPrice += item.discountedPrice * item.quantity;
         });
 
+        if (quantityAdjusted) {
+            await cart.save();
+        }
         res.render('user/shoping-cart.ejs', {
             cartItems: cart.items,
             totalPrice: cartTotalPrice,
@@ -177,7 +186,7 @@ const addToCart = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        const product = await Product.findById(productId);
+        const product = await Product.findOne({ _id: productId, status: true, stock: { $gt: 0 } });
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
@@ -289,7 +298,7 @@ const addToWishList = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        const product = await Product.findById(productId);
+        const product = await Product.findOne({ _id:  productId, status: true, stock: { $gt: 0 } });
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
@@ -445,6 +454,41 @@ const checkOutget = async (req, res) => {
     }
 };
 
+const validateCart = async (req,res) => {
+    console.log('entered to validate cart');
+    
+    try {
+        const userId = req.session.loggedIn; 
+        const cart = await Cart.findOne({ userId }).populate('items.productId'); 
+
+        const outOfStockOrUnlisted = cart.items.filter(item => {
+            const product = item.productId;
+            return !product.status==true || product.stock < item.quantity;
+        });
+
+        if (outOfStockOrUnlisted.length > 0) {
+            console.log('found unlisted products ');
+            
+            cart.items = cart.items.filter(item => {
+                const product = item.productId;
+                return product.status && product.stock >= item.quantity; // Keep only valid items
+            });
+    
+            // Save the updated cart
+            await cart.save();
+
+            return res.status(400).json({
+                message: 'Some products are out of stock or no longer available.',
+                issues: outOfStockOrUnlisted
+            });
+        }
+
+        res.json({ message: 'All products are available.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error validating cart.', error });
+    }
+}
+
 const orderSucsess = async(req,res)=>{
     const id = req.params.id;
     res.render('user/order-scuces.ejs',{id})
@@ -453,7 +497,7 @@ const orderSucsess = async(req,res)=>{
 const orderDetails = async (req,res) => {
     const userId = req.session.loggedIn;
     const order = await Order.find({userId:userId});
-    console.log(order);
+
     
     const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
         
@@ -466,17 +510,15 @@ const specificOrderDetails = async (req,res) => {
 
     const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
     const orders = await Order.findOne({_id:oId});
-    const aId = orders.shippingAddress;
-    const result = await User.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(userId) } },
-        { $unwind: '$addresses' },
-        { $match: { 'addresses._id': new mongoose.Types.ObjectId(aId) } },
-    ]); 
-    const userData = result[0]; 
-    const address = userData.addresses; 
-    console.log(orders);
+    console.log(orders.userId);
+    if(userId==orders.userId){
+        res.render('user/order-details.ejs',{c:category , Items:orders.items , Orders:orders  })
+    }else{
+        req.session.security=true;
+        res.redirect('/user/alert');
+    }
+   
     
-    res.render('user/order-details.ejs',{c:category , Items:orders.items , Orders:orders , address })
 }
 
 const orderCancel = async (req,res) => {
@@ -589,11 +631,25 @@ const getWallet = async (req,res) => {
 
 const createOrder = async ({ userId, addressId, totalAmount, discount, offerDiscount, paymentMethod, items, subtotal, quantity , deliveryCharge }) => {
     console.log('entered to create order');
-    console.log(typeof(offerDiscount));
+    const user = await User.findOne(
+        { 
+          _id: userId,
+          "addresses._id": addressId  
+        },
+        { 
+          "addresses.$": 1  
+        }
+    );
+
+    if (!user) {
+        throw new Error('User or address not found');
+    }
+
+    const shippingAddress = user.addresses[0];
 
     const newOrder = new Order({
         userId,
-        shippingAddress: addressId,
+        shippingAddress,
         paymentMethod,
         totalAmount,
         Coupon_discount: discount,
@@ -608,8 +664,14 @@ const createOrder = async ({ userId, addressId, totalAmount, discount, offerDisc
     });
 
     const savedOrder = await newOrder.save();
+    for (const item of items) {
+        await Product.updateOne(
+            { _id: item.productId },
+            { $inc: { stock: -item.quantity } }
+        );
+    }
     await Cart.updateOne({ userId }, { $set: { items: [] } });
-    return savedOrder;
+    return savedOrder; 
 };
 
 
@@ -672,7 +734,12 @@ const verifyPayment = async (req, res) => {
 
     const isValid = verifyRazorpaySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature);
     if (isValid) {
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        const cart = await Cart.findOne({ userId })
+        .populate({
+            path: 'items.productId',
+            match: { stock: { $gte: 1 } ,status:true}
+        })
+        .exec();
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
@@ -729,7 +796,12 @@ const verifyPayment = async (req, res) => {
         
         res.json({ success: true, orderId: savedOrder._id });
     } else {
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        const cart = await Cart.findOne({ userId })
+        .populate({
+            path: 'items.productId',
+            match: { stock: { $gte: 1 } ,status:true}
+        })
+        .exec();
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
@@ -771,9 +843,25 @@ const verifyPayment = async (req, res) => {
         const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
 
+        const user = await User.findOne(
+            { 
+              _id: userId,
+              "addresses._id": addressId  
+            },
+            { 
+              "addresses.$": 1  
+            }
+        );
+    
+        if (!user) {
+            throw new Error('User or address not found');
+        }
+    
+        const shippingAddress = user.addresses[0];
+
         const newOrder = new Order({
             userId,
-            shippingAddress: addressId,
+            shippingAddress,
             totalAmount,
             Coupon_discount: discount,
             Offer_discount: offerDiscount,
@@ -789,6 +877,13 @@ const verifyPayment = async (req, res) => {
         
     
         const savedOrder = await newOrder.save();
+
+        for (const item of orderItems) {
+            await Product.updateOne(
+                { _id: item.productId },
+                { $inc: { stock: -item.quantity } }
+            );
+        }
         await Cart.updateOne({ userId }, { $set: { items: [] } });
         res.status(400).json({ success: true,orderId: savedOrder._id });
     }
@@ -871,7 +966,13 @@ const placeOrder = async (req, res) => {
         const { addressId, totalAmount, discount, paymentMethod, offerDiscount ,deliveryCharge } = req.body;
         const userId = req.session.loggedIn;
 
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
+        const cart = await Cart.findOne({ userId })
+        .populate({
+            path: 'items.productId',
+            match: { stock: { $gte: 1 } ,status:true}
+        })
+        .exec();
+
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ success: false, message: 'Cart is empty' });
@@ -912,10 +1013,26 @@ const placeOrder = async (req, res) => {
         const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + (item.subtotal*item.quantity), 0);
 
+        const user = await User.findOne(
+            { 
+              _id: userId,
+              "addresses._id": addressId  
+            },
+            { 
+              "addresses.$": 1  
+            }
+        );
+    
+        if (!user) {
+            throw new Error('User or address not found');
+        }
+    
+        const shippingAddress = user.addresses[0];
+
         const newOrder = new Order({
             userId,
             items: orderItems,
-            shippingAddress: addressId,
+            shippingAddress,
             paymentMethod,
             totalAmount,
             Coupon_discount: discount,
@@ -957,6 +1074,12 @@ const placeOrder = async (req, res) => {
             await userWallet.save();
         }
 
+        for (const item of orderItems) {
+            await Product.updateOne(
+                { _id: item.productId },
+                { $inc: { stock: -item.quantity } }
+            );
+        }
 
         await Cart.updateOne({ userId }, { $set: { items: [] } });
 
@@ -1276,5 +1399,6 @@ module.exports = {
     orderReturn,
     saveFailedOrder,
     retryPayment,
-    invoice
+    invoice,
+    validateCart
 }

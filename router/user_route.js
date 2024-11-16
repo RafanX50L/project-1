@@ -118,6 +118,9 @@ user_route.get('/item/:category', user_Controller.Movie);
 
 // User side product details route
 user_route.get('/productd', user_Controller.productdetail);
+user_route .get('/productnotfound',(req,res)=>{
+    res.render('user/productUnvailable.ejs');
+})
 
 // User address page
 user_route.get('/account', user_Controller.accountOverview);
@@ -146,7 +149,7 @@ user_route.post('/wish/remove',cart_Controller.postWishlist)
 
 // User checkout routes
 user_route.get('/checkout', cart_Controller.checkOutget);
-
+user_route.post('/validate-cart',cart_Controller.validateCart)
 user_route.get('/order-success/:id', cart_Controller.orderSucsess);
 
 // User order history
@@ -170,5 +173,8 @@ user_route.post('/retryPayment',cart_Controller.retryPayment)
 
 //user ordere details
 user_route.get('/downloadInvoice',cart_Controller.invoice)
+
+//user route for alert trying to do somethig not allowed
+user_route.get('/alert',user_Controller.security)
 
 module.exports = user_route;

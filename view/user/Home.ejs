@@ -636,9 +636,16 @@
 								<!-- Dynamic image source -->
 								<img style="height: 40vh; width: 40vh; align-items: center;" src="/products/<%= product.product_images[0] %>" alt="IMG-PRODUCT">
 			
-								<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
-									Add To Cart
-								</a>
+								<% if (product.stock<=0 || product.status==false) { %>
+									<a  class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
+										Currently unavailable
+									</a>
+								<% } else { %>
+									<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 add-to-cart-btn" data-product-id="<%= product._id %>">
+										Add To Cart
+									</a>
+								<% } %>
+									
 							</div>
 			
 							<div class="block2-txt flex-w flex-t p-t-14">
@@ -666,9 +673,12 @@
 											</span>
 										<% } %>
 									</div>
-									<button class="add-to-wish-btn" data-product-id=<%= product._id %>>
-										<i class="fas fa-heart" style="font-size: 15px; color: #f44336;"></i> 
-									</button>									  
+									<% if (product.stock<=0 || product.status==false) { %>
+									<% } else { %>
+										<button class="add-to-wish-btn" data-product-id=<%= product._id %>>
+											<i class="fas fa-heart" style="font-size: 15px; color: #f44336;"></i> 
+										</button>									  
+									<% } %>
 								</div>
 							</div>
 						</a>
@@ -1114,13 +1124,24 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							text: 'Product added to cart!',
 							confirmButtonText: 'OK'
 						});
+					}else if(data.success==false){
+						Swal.fire({
+							icon: 'info',
+							title: 'Product currently Unavailable',
+							text: data.message,
+							confirmButtonText: 'OK'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload();
+							}
+						});
 					}else if (data.message) {
 						Swal.fire({
 							icon: 'info',
 							title: 'Already in Cart',
 							text: data.message,
 							confirmButtonText: 'OK'
-						});
+						})
 					} else {
 						Swal.fire({
 							icon: 'error',
@@ -1174,7 +1195,18 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							text: 'Product added to Wishlist!',
 							confirmButtonText: 'OK'
 						});
-					} else if (data.message) {
+					}else if(data.message=='Product not found'){
+						Swal.fire({
+							icon: 'info',
+							title: 'Product currently Unavailable',
+							text: data.message,
+							confirmButtonText: 'OK'
+						}).then((result) => {
+							if (result.isConfirmed) {
+								window.location.reload();
+							}
+						});
+					}else if (data.message) {
 						Swal.fire({
 							icon: 'info',
 							title: data.title,

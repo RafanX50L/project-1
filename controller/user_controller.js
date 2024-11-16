@@ -318,7 +318,7 @@ const allProducts = async (req, res) => {
 
         const categories = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
 
-        let products = await Products.find(filter);
+        let products = await Products.find();
 
         products = await applyOffersToProducts(products);
 
@@ -457,11 +457,12 @@ const productdetail = async (req, res) => {
         try {
             const product = await Products.findOne({ _id: id, status: true, stock: { $gt: 0 } });
             if (!product) {
-                return res.status(404).send('Product not found');
+                return res.redirect('/user/productnotfound')
             }
 
             const category = product.category;
             const relatedProducts = await Products.find({
+                status:true,
                 category: category,
                 _id: { $ne: id },
                 stock: { $gt: 0 }
@@ -806,6 +807,28 @@ const updatePassword = async (req, res) => {
     }
 };
 
+const security = async (req, res) => {
+    const userId = req.session.loggedIn;
+    const conform = req.session.security;
+    try {
+        if(conform){
+            const updatedUser = await User.findByIdAndUpdate(userId, { isblocked: true }, { new: true });
+
+            if (updatedUser) {
+                res.render('user/security.ejs')
+            } else {
+                res.status(404).json({ message: 'User not found.' });
+            }
+        }else{
+            res.redirect('/user/home');
+        }
+    } catch (error) {
+        console.error('Error blocking user:', error);
+        res.status(500).json({ message: 'An error occurred while blocking the user.', error });
+    }
+};
+
+
 
 
 module.exports = {
@@ -832,5 +855,6 @@ module.exports = {
     forgotPassword,
     postForgotPassword,
     getResetPassword,
-    resetPassword
+    resetPassword,
+    security
 };

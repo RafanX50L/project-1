@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <title>Security Alert - Suspicious Activity Detected</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0a192f;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(13, 25, 48, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            margin: 1rem;
+        }
+
+        .alert-icon {
+            font-size: 4rem;
+            color: #ff4757;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            color: #ff4757;
+            margin-bottom: 1.5rem;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: #a4b0be;
+        }
+
+        .details {
+            background: rgba(255, 71, 87, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff4757;
+            margin: 1rem 0;
+        }
+
+        button {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #ff4757;
+            padding: 0.8rem 2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: #ff4757;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="content">
+        <div class="alert-icon">⚠️</div>
+        <h1>Security Alert</h1>
+        <p>Our systems have detected suspicious automated activity from your account. Multiple unauthorized attempts to access data have been blocked.</p>
+        
+        <div class="details">
+            <p>🚫 <strong>Violation Type:</strong> Automated Data Harvesting</p>
+            <p>⚡ <strong>Request Rate:</strong> Exceeded normal threshold</p>
+            <p>🔒 <strong>Status:</strong> Account temporarily restricted</p>
+        </div>
+
+        <p>For security reasons, your access has been temporarily suspended.</p>
+        <div class="timer">
+            Cooldown: <span id="countdown">300</span>s
+        </div>
+        
+        <button onclick="location.reload()">Verify Identity</button>
+    </div>
+
+    <script>
+        // Initialize particles.js
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80 },
+                color: { value: '#ff4757' },
+                shape: { type: 'circle' },
+                opacity: {
+                    value: 0.5,
+                    random: true
+                },
+                size: {
+                    value: 3,
+                    random: true
+                },
+                move: {
+                    enable: true,
+                    speed: 2
+                }
+            }
+        });
+
+        // Countdown timer
+        let timeLeft = 300;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownEl.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                countdownEl.parentElement.textContent = 'Verification Available';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
