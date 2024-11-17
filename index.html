@@ -3,120 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Reset</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        /* Background image and centering */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: url('/wallpaperflare-cropped.jpg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: Arial, sans-serif;
-        }
-    
-        /* Center container styling */
-        .container {
-            border: 2px solid white;
-            backdrop-filter: blur(1px);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-    
-        /* Heading styling */
-        h2 {
-            margin-top: 0;
-            color: #ffffff;
-        }
-    
-        /* Input and button styling */
-        input[type="password"], button {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 2px solid #fff; /* White border to make the input box visible */
-            background: transparent;
-            color: #fff; /* Text color inside input */
-            font-size: 16px;
-        }
-    
-        /* Placeholder styling */
-        input[type="password"]::placeholder {
-            color: white; /* White placeholder text */
-            opacity: 0.7; /* Optional: Makes the placeholder a bit transparent */
-        }
-    
-        button {
-            background-color: black;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-    
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Document</title>
 </head>
 <body>
-    <!-- Password Reset Form -->
-    <div class="container">
-        <h2>Change Password</h2>
-        <form id="resetPasswordForm">
-            <input type="password" id="newPassword" placeholder="Enter New Password" required />
-            <input type="password" id="confirmPassword" placeholder="Confirm New Password" required />
-            <button type="submit">Reset Password</button>
-        </form>
+    <div class="col-md-6">
+        <label for="productBrand" class="form-label">Brand</label>
+        <select class="form-select form-control" name="productBrand" id="productBrand" required>
+          <option disabled></option>
+          <option value="<%= product.brand_id._id %>" selected>
+            <%= product.brand_id.brand_name %>
+          </option>
+          <% if(typeof brand !='undefined' && brand.length>0 ){ %>
+
+            <% brand.forEach((brand,index)=>{ %>
+              <% if(brand.brand_name !=product.brand_id.brand_name ){ %>
+                <option value="<%= brand._id %>">
+                  <%= brand.brand_name %>
+                </option>
+                <% } %>
+
+
+                  <% }) %>
+                    <% }else{ %>
+                      <option disabled>No available brands</option>
+                      <% } %>
+
+        </select>
+      </div>
     </div>
 
-    <script>
-        document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+    <% product.variants.forEach((element)=>{ %>
 
-            const newPassword = document.getElementById('newPassword').value.trim();
-            const confirmPassword = document.getElementById('confirmPassword').value.trim();
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
+      <div class="varient" id="varient">
+        <div class="row mb-3 mt-5 variant-row">
+          <div class="col-md-3">
+            <select class="form-select form-control form-edge" name="productSize[]" id="productSize"
+              required>
+              <option disabled>Size</option>
+              <option <%= element.size==='XS' ? 'selected' : '' %>>XS</option>
+              <option <%= element.size==='S' ? 'selected' : '' %>>S</option>
+              <option <%= element.size==='M' ? 'selected' : '' %>>M</option>
+              <option <%= element.size==='L' ? 'selected' : '' %>>L</option>
+              <option <%= element.size==='XL' ? 'selected' : '' %>>XL</option>
+              <option <%= element.size==='XXL' ? 'selected' : '' %>>XXL</option>
+              <option <%= element.size==='3XL' ? 'selected' : '' %>>3XL</option>
+            </select>
+          </div>
+          <div class="col-md-3">
 
-            if (newPassword !== confirmPassword) {
-                Swal.fire('Error!', 'Passwords do not match.', 'error');
-                return;
-            }
+            <select class="form-select form-control form-edge" name="productColor[]" id="productColor"
+              required>
+              <option selected disabled>Color</option>
+              <option <%= element.color==='RED' ? 'selected' : '' %>>RED</option>
+              <option <%= element.color==='BLUE' ? 'selected' : '' %>>BLUE</option>
+              <option <%= element.color==='YELLOW' ? 'selected' : '' %>>YELLOW</option>
+              <option <%= element.color==='BLACK' ? 'selected' : '' %>>BLACK</option>
+              <option <%= element.color==='WHITE' ? 'selected' : '' %>>WHITE</option>
+              <option <%= element.color==='PINK' ? 'selected' : '' %>>PINK</option>
+              <option <%= element.color==='GREEN' ? 'selected' : '' %>>GREEN</option>
+              <option <%= element.color==='PURPLE' ? 'selected' : '' %>>PURPLE</option>
+              <option <%= element.color==='ORANGE' ? 'selected' : '' %>>ORANGE</option>
+              <option <%= element.color==='NAVY' ? 'selected' : '' %>>NAVY</option>
+              <option <%= element.color==='MAROON' ? 'selected' : '' %>>MAROON</option>
+            </select>
+          </div>
+          <div class="col-md-3">
 
-            // Send the token and new password to the backend to reset the password
-            fetch('/user/resetPassword', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token: token,
-                    newPassword: newPassword
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire('Success!', 'Your password has been reset successfully.', 'success');
-                    window.location.href = '/user/login';
-                } else {
-                    Swal.fire('Error!', data.message || 'Something went wrong.', 'error');
-                }
-            })
-            .catch(error => {
-                Swal.fire('Error!', 'There was an error resetting your password. Please try again later.', 'error');
-            });
-        });
-    </script>
+            <input type="number"  class="form-control form-edge" name="productPrice[]" id="productPrice"
+              placeholder="Price" value="<%= element.price %>" >
+          </div>
+          <div class="col-md-3">
+
+            <input type="number"  class="form-control form-edge" name="productStock[]" id="productStock"
+              placeholder="Stock" value="<%= element.stock %>" >
+          </div>
+        </div>
+
+
+
+
+
+        <div class="mb-3 mt-5">
+          <label for="productImage" class="form-label">Upload Image</label>
+          <div class="row mt-3">
+            <div class="col-md-6">
+
+              <img src="/<%= element.images[0] %>" alt="Image Preview" id="preview1"
+                class="image-preview">
+              <input class="form-control image-form" type="file" name="productImage1-1" id="varient1-image1"
+                onchange="previewImage(this, `preview1`)">
+              <button type="button" class="btn btn-outline-danger mt-2"
+                onclick="openCroppingModal('preview1','varient1-image1')">Crop Image</button>
+
+            </div>
+            <div class="col-md-6">
+              <img src="/<%= element.images[1] %>" alt="Image Preview" id="preview2"
+                class="image-preview">
+              <input class="form-control image-form" type="file" name="productImage1-2" id="varient1-image2"
+                onchange="previewImage(this, 'preview2')">
+              <button type="button" class="btn btn-outline-danger mt-2"
+                onclick="openCroppingModal('preview2','varient1-image2')">Crop Image</button>
+            </div>
+          </div>
+          <div class="row mt-5">
+            <div class="col-md-6">
+              <img src="/<%= element.images[2] %>" alt="Image Preview" id="preview3"
+                class="image-preview">
+              <input class="form-control image-form" type="file" name="productImage1-3" id="varient1-image3"
+                onchange="previewImage(this, 'preview3')">
+              <button type="button" class="btn btn-outline-danger mt-2"
+                onclick="openCroppingModal('preview3','varient1-image3')">Crop Image</button>
+            </div>
+            <div class="col-md-6">
+              <img src="/<%= element.images[3] %>" alt="Image Preview" id="preview4"
+                class="image-preview">
+              <input class=" form-control image-form" type="file" name="productImage1-4"
+                id="varient1-image4" onchange="previewImage(this, 'preview4')">
+              <button type="button" class="btn btn-outline-danger mt-2"
+                onclick="openCroppingModal('preview4','varient1-image4')">Crop Image</button>
+            </div>
+          </div>
+
+          <% }) %>
+
+            <div class="newVarient">
+              <input type="hidden" name="variant_count" id="variant_count" value="1">
+              <button class="btn btn-outline-dark mt-4" id="addVariantButton">New varient </button>
+            </div>
+        </div>
+      </div>
+
+
+
+      <div class="mb-3 mt-5 ">
+        <label for="productDescription" class="form-label"> Description</label>
+        <textarea class="form-control" name="productDescription" id="productDescription" rows="4"
+          required><%= product.product_description%></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-outline-dark mt-4">Save changes</button>
+      <a href="/admin/products" type="submit" class="btn btn-outline-danger mt-4">Back</a>
+  </form>
+  </div>
+</div>
+</div>
+
+
+
+
+</div>
+</div>
+
+
+<!-- Modal for Cropping -->
+
+<div class="modal fade" id="cropperModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog ">
+<div class="modal-content">
+<div class="modal-header">
+  <h5 class="modal-title">Crop Image</h5>
+  
+</div>
+<div class="modal-body modal-body-custom">
+  <img id="image-to-crop" class="img-fluid">
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  <button type="button" class="btn btn-primary" id="crop-btn" onclick="cropAndSave()">Crop</button>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+let variantIndex = document.querySelectorAll('.variant-row').length; // Start with the first variant index
+let cropper;
+let currentPreviewId = '';
+let currentFileInputId = '';
+let currentImageId;
+
+
+function previewImage(input, previewId) {
+const preview = document.getElementById(previewId); // Get the image element where the preview will be shown
+const file = input.files[0]; // Get the first file selected by the user
+const reader = new FileReader(); // Create a new FileReader object
+
+reader.onload = function (e) {
+preview.src = e.target.result; // Set the src of the image element to the data URL of the selected file
+};
+
+reader.readAsDataURL(file); // Read the file as a data URL
+}
+
+
+
+function openCroppingModal(previewId, fileInputId) {
+
+currentPreviewId = previewId;
+currentFileInputId = fileInputId;
+
+const modalElement = document.getElementById('cropperModal');
+const modal = new bootstrap.Modal(modalElement);
+const imageToCrop = document.getElementById('image-to-crop');
+const preview = document.getElementById(previewId);
+
+// Set the source of the image to crop
+imageToCrop.src = preview.src;
+
+// Destroy any existing cropper instance
+if (cropper) {
+cropper.destroy();
+cropper = null;
+}
+
+// Initialize a new Cropper instance
+cropper = new Cropper(imageToCrop, {
+aspectRatio: 1,
+});
+
+// Show the modal
+modal.show();
+}
+
+function cropAndSave() {
+if (!cropper) return;
+
+const croppedCanvas = cropper.getCroppedCanvas();
+const preview = document.getElementById(currentPreviewId);
+
+// Update the preview image
+preview.src = croppedCanvas.toDataURL('image/jpeg');
+
+// Convert the cropped image to Blob and update the file input
+croppedCanvas.toBlob(function (blob) {
+const fileInput = document.getElementById(currentFileInputId);
+const dataTransfer = new DataTransfer();
+dataTransfer.items.add(new File([blob],`cropped-${currentPreviewId}.jpg`, { type: 'image/jpeg' }));
+fileInput.files = dataTransfer.files;
+});
+
+// Hide the modal after cropping
+const modalElement = document.getElementById('cropperModal');
+const modal = bootstrap.Modal.getInstance(modalElement);
+if (modal) {
+modal.hide();
+} else {
+// If getInstance is not working, use the direct hide method on the instance
+new bootstrap.Modal(modalElement).hide();
+}
+
+// Destroy the cropper instance
+if (cropper) {
+cropper.destroy();
+cropper = null;
+}
+}
+
+
+
+
+
+document.getElementById('addVariantButton').addEventListener('click', function (e) {
+e.preventDefault(); // Prevent form submission
+
+const variantSection = document.getElementById('varient');
+const newVariantRow = document.createElement('div'); // Create new variant row
+variantIndex++; // Increment the variant index
+document.getElementById('variant_count').value = variantIndex; // Update the hidden variant count field
+
+// Define the new variant row HTML
+newVariantRow.classList.add('row', 'variant-row', 'mb-3', 'mt-3');
+newVariantRow.innerHTML = `
+<div class="col-md-3">
+    <select class="form-select form-control form-edge" name="productSize[]" id="productSize" required>
+        <option selected disabled>Size</option>
+       
+                              <option>S</option>
+                              <option>M</option>
+                              <option>L</option>
+                              <option>XL</option>
+                              <option>XXL</option>
+                              <option>3XL</option>
+    </select>
+</div>
+<div class="col-md-3">
+   <select class="form-select form-control form-edge" name="productColor[]" id="productColor" required>
+                              <option selected disabled>Color</option>
+                              <option>RED</option>
+                              <option>BLUE</option>
+                              <option>YELLOW</option>
+                              <option>BLACK</option>
+                              <option>WHITE</option>
+                              <option>PINK</option>
+                              <option>Green</option>
+                              <option>PURPLE</option>
+                              <option>ORANGE</option>
+                              <option>NAVY</option>
+                              <option>MAROON</option>
+                          </select>
+</div>
+<div class="col-md-3">
+   <input type="number" class="form-control form-edge" min='0' name="productPrice" id="productPrice" placeholder="Price" required>
+</div>
+<div class="col-md-3">
+   <input type="number" class="form-control form-edge" min='0' name="productStock" id="productStock" placeholder="Stock" required>
+</div>
+
+<div class="mb-3 mt-5 ">
+       <label for="productImage" class="form-label">Upload Image</label>
+                        <div class="row mt-3">
+                          <div class="col-md-6">
+                            
+                              <img src="/images/cloud-upload-icon-sign-symbol-logo-vector.jpg" alt="Image Preview" id="preview1-${variantIndex}" class="image-preview">
+                              <input class="form-control image-form" type="file" name="productImage${variantIndex}-1" id="productImage1-${variantIndex}" onchange="previewImage(this, 'preview1-${variantIndex}')" required>
+                              <button type="button" class="btn btn-outline-danger mt-2" onclick="openCroppingModal('preview1-${variantIndex}','productImage1-${variantIndex}')">Crop Image</button>
+                            
+                          </div>
+                          <div class="col-md-6">
+                            <img src="/images/cloud-upload-icon-sign-symbol-logo-vector.jpg" alt="Image Preview" id="preview2-${variantIndex}" class="image-preview">
+                            <input class="form-control image-form" type="file" name="productImage2-${variantIndex}" id="productImage2-${variantIndex}" onchange="previewImage(this, 'preview2-${variantIndex}')" required>
+                            <button type="button" class="btn btn-outline-danger mt-2" onclick="openCroppingModal('preview2-${variantIndex}','productImage2-${variantIndex}')">Crop Image</button>
+                            </div>
+                        </div>
+                        <div class="row mt-5">
+                          <div class="col-md-6">
+                            <img src="/images/cloud-upload-icon-sign-symbol-logo-vector.jpg" alt="Image Preview" id="preview3-${variantIndex}" class="image-preview">
+                            <input class="form-control image-form" type="file" name="productImage${variantIndex}-3" id="productImage3-${variantIndex}" onchange="previewImage(this, 'preview3-${variantIndex}')" required>
+                            <button type="button" class="btn btn-outline-danger mt-2" onclick="openCroppingModal('preview3-${variantIndex}','productImage3-${variantIndex}')">Crop Image</button>
+                            </div>
+                          <div class="col-md-6">
+                            <img src="/images/cloud-upload-icon-sign-symbol-logo-vector.jpg" alt="Image Preview" id="preview4-${variantIndex}" class="image-preview">
+                            <input class="form-control image-form" type="file" name="productImage${variantIndex}-4" id="productImage4-${variantIndex}" onchange="previewImage(this, 'preview4-${variantIndex}')" required>
+                            <button type="button" class="btn btn-outline-danger mt-2" onclick="openCroppingModal('preview4-${variantIndex}','productImage4-${variantIndex}')">Crop Image</button>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-end mt-2">
+    <button type="button" class="btn btn-outline-danger remove-variant">remove</button>
+</div>
+`;
+
+// Add event listener to remove the variant row
+newVariantRow.querySelector('.remove-variant').addEventListener('click', function () {
+newVariantRow.remove();
+variantIndex--; // Decrement the variant index
+document.getElementById('variant_count').value = variantIndex; // Update the hidden variant count field
+});
+
+variantSection.appendChild(newVariantRow); // Append the new variant row
+});
+
+
+</script>
 </body>
 </html>

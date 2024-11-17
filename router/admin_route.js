@@ -2,28 +2,47 @@ const express = require('express');
 const admin_route = express.Router();
 const admin_controller = require('../controller/admin_controller');
 const coponDeal_contrller = require('../controller/Deal&Coupons_controller')
+const editProductImages  = require('../controller/editproductsimages');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const user_route = require('./user_route');
+
 
 // Define the upload directory path
-const uploadPath = path.join(__dirname,'..', 'public', 'products');
+const uploadPath = path.join(__dirname, '..', 'public', 'products');
+
+// Multer storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }
-        cb(null, uploadPath); 
+        cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
         const timestamp = Date.now();
         cb(null, `${timestamp}${path.extname(file.originalname)}`);
     }
 });
-const upload = multer({ 
+
+// File validation and size limits
+const upload = multer({
     storage: storage,
-    limits: { fileSize: 3 * 1024 * 1024 } 
-}).array('product_images', 3);
+    limits: { fileSize: 3 * 1024 * 1024 }, // 3 MB limit
+    // fileFilter: (req, file, cb) => {
+    //     const allowedTypes = /jpeg|jpg|png/;
+    //     const mimeType = allowedTypes.test(file.mimetype);
+    //     const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    //     if (mimeType && extName) {
+    //         cb(null, true);
+    //     } else {
+    //         cb(new Error('Only JPEG, JPG, and PNG files are allowed!'));
+    //     }
+    // }
+});
+
+
 
 
 
@@ -71,16 +90,24 @@ admin_route.post('/products/edit/:id',test2,admin_controller.postproducts_editde
 //admin side products add codes
 admin_route.get('/products/add',admin_controller.getaddproduct);
 admin_route.post('/products/add', (req, res) => {
-    upload(req, res, (err) => {
+    upload.array('product_images', 3)(req, res, (err) => {
         if (err instanceof multer.MulterError) {
-            return res.status(400).json({ message: 'File upload error', error: err.message });
+            console.error('Multer error during upload:', err.message);
+            return res.status(400).json({ success: false, message: 'File upload error', error: err.message });
         } else if (err) {
-            return res.status(500).json({ message: 'Error uploading images', error: err });
+            console.error('Unexpected error during upload:', err);
+            return res.status(500).json({ success: false, message: 'Error uploading images', error: err.message });
         }
 
-        admin_controller.addProduct(req, res);
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: 'No images uploaded' });
+        }
+
+        console.log('Uploaded files:', req.files); // Debugging info
+        admin_controller.addProduct(req, res); // Proceed to add product logic
     });
 });
+
 
 
 //admin side products action of unlist and list codes
@@ -143,6 +170,48 @@ admin_route.post('/offers/edit',coponDeal_contrller.editOffer)
 // admin return rotues
 admin_route.post('/return/approve/:id',test2,admin_controller.orderapprove)
 admin_route.post('/return/reject/:id',test2,admin_controller.orderReject)
+
+//admin side user product images edit routes
+admin_route.post('/products1/add-image/:productId', (req, res) => {
+    upload.single('product_image')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            console.error('Multer error during upload:', err.message);
+            return res.status(400).json({ success: false, message: 'File upload error', error: err.message });
+        } else if (err) {
+            console.error('Unexpected error during upload:', err);
+            return res.status(500).json({ success: false, message: 'Error uploading image', error: err.message });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No image uploaded' });
+        }
+
+        console.log('Uploaded file:', req.file); // Debugging info
+        editProductImages.addProductImages(req, res); // Call the logic to handle the image addition
+    });
+});
+
+admin_route.post('/products/:productId/update-image', (req, res) => {
+    upload.single('product_image')(req, res, (err) => {
+        if (err instanceof multer.MulterError) {
+            console.error('Multer error during upload:', err.message);
+            return res.status(400).json({ success: false, message: 'File upload error', error: err.message });
+        } else if (err) {
+            console.error('Unexpected error during upload:', err);
+            return res.status(500).json({ success: false, message: 'Error uploading image', error: err.message });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No image uploaded' });
+        }
+
+        console.log('Uploaded file:', req.file); 
+        editProductImages.editProductImages(req, res); 
+    });
+});
+admin_route.post('/products/:productId/delete-image',editProductImages.deleteProductImage);
+
+
 
 
 module.exports = admin_route;

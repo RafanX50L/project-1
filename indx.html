@@ -1,113 +1,370 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <!-- Include Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        .preview-container {
+            max-width: 100%;
+            position: relative;
         }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f3f4f6;
-        }
-
-        .container {
-            text-align: center;
-            padding: 2rem;
-            max-width: 28rem;
-        }
-
-        .icon-wrapper {
-            background-color: #fee2e2;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-        }
-
-        .icon-wrapper i {
-            color: #ef4444;
-        }
-
-        h1 {
-            color: #111827;
-            font-size: 1.875rem;
-            font-weight: 700;
+        .img-container {
+            max-height: 400px;
             margin-bottom: 1rem;
         }
-
-        p {
-            color: #4b5563;
-            line-height: 1.5;
-            margin-bottom: 2rem;
+        .cropper-container {
+            max-height: 400px !important;
         }
-
-        .home-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: #2563eb;
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 0;
+        }
+        .preview {
+            max-width: 100%;
+            max-height: 400px;
+        }
+        .aspect-ratio-button.active {
+            background-color: #0d6efd;
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .home-button:hover {
-            background-color: #1d4ed8;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .container {
-            animation: fadeIn 0.5s ease-out;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="icon-wrapper">
-            <i data-feather="package-x" size="32"></i>
-        </div>
-        
-        <h1>Product Unavailable</h1>
-        <p>We're sorry, but the product you're looking for is currently not available. Please check back later or explore our other products.</p>
-        
-        <a href="/" class="home-button">
-            <i data-feather="home" size="18"></i>
-            Back to Home
-        </a>
-    </div>
 
-    <script>
-        // Initialize Feather Icons
-        feather.replace();
-    </script>
+<!-- Edit Image Modal -->
+<div class="modal fade" id="editImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-secondary">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="editImage" src="" class="preview">
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="free">Free</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="1">1:1</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="4/3">4:3</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="16/9">16:9</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-secondary" id="rotateLeft">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="rotateRight">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="flipHorizontal">
+                                <i class="fas fa-arrows-alt-h"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="flipVertical">
+                                <i class="fas fa-arrows-alt-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCroppedImage">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add New Image Modal -->
+<div class="modal fade" id="addImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-secondary">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="file" class="form-control mb-3" id="newImageInput" accept="image/*">
+                <div class="img-container">
+                    <img id="newImage" src="" class="preview">
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="free">Free</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="1">1:1</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="4/3">4:3</button>
+                            <button type="button" class="btn btn-primary aspect-ratio-button" data-ratio="16/9">16:9</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-secondary" id="newRotateLeft">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="newRotateRight">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="newFlipHorizontal">
+                                <i class="fas fa-arrows-alt-h"></i>
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="newFlipVertical">
+                                <i class="fas fa-arrows-alt-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveNewImage">Save Image</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Cropper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+<script>
+let editCropper;
+let newCropper;
+let currentImageIndex;
+const productId = document.getElementById('editProductId').value;
+
+// Initialize edit image cropper
+document.querySelectorAll('.edit-image').forEach(button => {
+    button.addEventListener('click', function() {
+        const imageIndex = this.dataset.index;
+        const imagePath = this.dataset.image;
+        currentImageIndex = imageIndex;
+        
+        const editImage = document.getElementById('editImage');
+        editImage.src = `/products/${imagePath}`;
+        
+        if (editCropper) {
+            editCropper.destroy();
+        }
+        
+        editCropper = new Cropper(editImage, {
+            viewMode: 2,
+            dragMode: 'move',
+            autoCropArea: 1,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+        });
+    });
+});
+
+// Initialize new image cropper
+document.getElementById('newImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const newImage = document.getElementById('newImage');
+            newImage.src = e.target.result;
+            
+            if (newCropper) {
+                newCropper.destroy();
+            }
+            
+            newCropper = new Cropper(newImage, {
+                viewMode: 2,
+                dragMode: 'move',
+                autoCropArea: 1,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Aspect ratio buttons
+document.querySelectorAll('.aspect-ratio-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const ratio = this.dataset.ratio;
+        const cropper = this.closest('#editImageModal') ? editCropper : newCropper;
+        
+        if (ratio === 'free') {
+            cropper.setAspectRatio(NaN);
+        } else {
+            cropper.setAspectRatio(eval(ratio));
+        }
+        
+        // Update active state
+        this.closest('.btn-group').querySelectorAll('.aspect-ratio-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        this.classList.add('active');
+    });
+});
+
+// Edit image controls
+document.getElementById('rotateLeft').addEventListener('click', () => editCropper.rotate(-90));
+document.getElementById('rotateRight').addEventListener('click', () => editCropper.rotate(90));
+document.getElementById('flipHorizontal').addEventListener('click', () => editCropper.scaleX(-editCropper.getData().scaleX || -1));
+document.getElementById('flipVertical').addEventListener('click', () => editCropper.scaleY(-editCropper.getData().scaleY || -1));
+
+// New image controls
+document.getElementById('newRotateLeft').addEventListener('click', () => newCropper.rotate(-90));
+document.getElementById('newRotateRight').addEventListener('click', () => newCropper.rotate(90));
+document.getElementById('newFlipHorizontal').addEventListener('click', () => newCropper.scaleX(-newCropper.getData().scaleX || -1));
+document.getElementById('newFlipVertical').addEventListener('click', () => newCropper.scaleY(-newCropper.getData().scaleY || -1));
+
+// Save edited image
+document.getElementById('saveCroppedImage').addEventListener('click', function() {
+    Swal.fire({
+        title: 'Save Changes?',
+        text: 'Do you want to save the edited image?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, save it!',
+        cancelButtonText: 'No, cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const canvas = editCropper.getCroppedCanvas();
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('image', blob);
+                formData.append('index', currentImageIndex);
+                
+                fetch(`/admin/products/${productId}/update-image`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Success', 'Image updated successfully', 'success')
+                        .then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', 'Failed to update image', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while updating the image', 'error');
+                });
+            });
+            
+            $('#editImageModal').modal('hide');
+        }
+    });
+});
+
+// Save new image
+document.getElementById('saveNewImage').addEventListener('click', function() {
+    if (!newCropper) {
+        Swal.fire('Error', 'Please select an image first', 'error');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Add New Image?',
+        text: 'Do you want to add this image to the product?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, add it!',
+        cancelButtonText: 'No, cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const canvas = newCropper.getCroppedCanvas();
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('image', blob);
+                
+                fetch(`/admin/products/${productId}/add-image`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Success', 'Image added successfully', 'success')
+                        .then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', 'Failed to add image', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while adding the image', 'error');
+                });
+            });
+            
+            $('#addImageModal').modal('hide');
+        }
+    });
+});
+
+// Delete image
+document.querySelectorAll('.delete-image').forEach(button => {
+    button.addEventListener('click', function() {
+        const imageIndex = this.dataset.index;
+        const imagePath = this.dataset.image;
+        
+        Swal.fire({
+            title: 'Delete Image?',
+            text: 'Are you sure you want to delete this image?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel',
+            confirmButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/products/${productId}/delete-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        index: imageIndex,
+                        image: imagePath
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Deleted!', 'Image has been deleted.', 'success')
+                        .then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', 'Failed to delete image', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while deleting the image', 'error');
+                });
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

@@ -379,11 +379,11 @@
 	<div class="container mt-5">
         <div class="row">
             <!-- Thumbnails -->
-            <div class="col-md-2 thumbnail-images">
-                <img src="/products/<%= product.product_images[0] %>" class="img-fluid thumb" alt="Thumbnail 1" onclick="changeImage('/products/<%= product.product_images[0] %>')">
-                <img src="/products/<%= product.product_images[1] %>" class="img-fluid thumb" alt="Thumbnail 1" onclick="changeImage('/products/<%= product.product_images[1] %>')">
-                <img src="/products/<%= product.product_images[2] %>" class="img-fluid thumb" alt="Thumbnail 1" onclick="changeImage('/products/<%= product.product_images[2] %>')">
-            </div>
+			<div class="col-md-2 thumbnail-images">
+					<% product.product_images.forEach((image, index) => { %>
+					<img src="/products/<%= image %>" class="img-fluid thumb" alt="Thumbnail 1" onclick="changeImage('/products/<%= image %>')">
+					<% }); %>       
+				</div>
 
             <!-- Main Product Image -->
 			<div class="col-md-5">
