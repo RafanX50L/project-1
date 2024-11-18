@@ -1102,25 +1102,22 @@ const invoice = async (req, res) => {
             })
             .exec();
 
-        const addressId = order?.shippingAddress;
-        const address = order?.userId?.addresses?.find(addr => addr._id.equals(addressId));
 
-        if (!order || !address) {
+        if (!order) {
             return res.status(404).send("Order or Address not found.");
         }
 
-        console.log(address);
         console.log(order);
         
         
         const invoice = {
             shipping: {
-                name: `${order.userId.name}`,
-                address: address?.street || "Address not found",
-                city: address?.city || "City not found",
-                state: address?.state || "State not found",
-                country: address?.country || "Country not found",
-                postal_code: address?.zip || "Postal code not found"
+                name: order.shippingAddress.name,
+                address: order.shippingAddress.houseNumber,
+                city: order.shippingAddress.city,
+                state: order.shippingAddress.state,
+                country:order.shippingAddress.country,
+                postal_code: order.shippingAddress.zip
             },
             items: order.items.map(item => ({
                 item: item.productName,
@@ -1297,7 +1294,7 @@ function createInvoice(invoice, path, callback) {
         discountpositon,
         "",
         "",
-        "Discount Amount",
+        "Coupon Discount",
         "",
         formatCurrency(invoice.discountAmount)
     );

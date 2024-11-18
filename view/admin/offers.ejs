@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <title>Admin Deals Page</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -641,8 +641,19 @@ h3 {
         const discount = form.find('input[name="discount"], input[name="editDiscount"]').val();
         const validFrom = form.find('input[name="validFrom"], input[name="editStartDate"]').val();
         const validUntil = form.find('input[name="validUntil"], input[name="editEndDate"]').val();
-
         const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val().trim(); 
+
+        const todayDate = new Date();
+        todayDate.setHours(0, 0, 0, 0);
+
+        if (validFrom < todayDate) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Date',
+                text: 'Start Date should be today or a future date.',
+            });
+            return false;
+        }
 
         if (/^\d+$/.test(offerCode)) {
             Swal.fire({

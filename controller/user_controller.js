@@ -25,15 +25,18 @@ const loginpost = async (req, res) => {
     try {
         console.log('welcome');
         const { email, password } = req.body;
-        const finddata = await User.findOne({ email: email, password: password, isblocked: false });
-
-        if (finddata) {
-            req.session.loggedIn = finddata._id;
-            res.redirect('/user/home');
-        } else {
-
-            res.status(401).render('user/login', { message: "password or email is incorrect" })
-
+        const finddata = await User.findOne({ email: email, password: password});
+        if(finddata.isblocked==true){
+            res.redirect('/user/blocked')
+        }else{
+            if (finddata) {
+                req.session.loggedIn = finddata._id;
+                res.redirect('/user/home');
+            } else {
+    
+                res.status(401).render('user/login', { message: "password or email is incorrect" })
+    
+            }
         }
     } catch (error) {
         console.error(error);
@@ -162,6 +165,14 @@ const sendOTPEmail = (userEmail, otp) => {
         }
     });
 };
+
+const blocked = async (req,res) => {
+    try {
+        res.render('user/Blocked.ejs')
+    } catch (error) {
+        console.log(errror);
+    }
+}
 
 
 
@@ -856,5 +867,6 @@ module.exports = {
     postForgotPassword,
     getResetPassword,
     resetPassword,
-    security
+    security,
+    blocked
 };

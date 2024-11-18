@@ -56,7 +56,6 @@ const editCoupon = async (req, res) => {
         if (new Date(editEndDate) <= new Date(editStartDate)) {
             return res.status(400).json({ message: 'End date cannot be before start date' });
         }
-
         const existingCoupon = await Coupon.findOne({ 
             coupon_code: editCouponCode, 
             _id: { $ne: editCouponId } 
@@ -73,11 +72,11 @@ const editCoupon = async (req, res) => {
                 max_amount: editMaxAmount,
                 discount_percentage: editDiscountPercentage,
                 start_date: editStartDate,
+                is_expired:false,
                 end_date: editEndDate
             },
             { new: true } 
         );
-
         if (updatedCoupon) {
             return res.redirect('/admin/coupons'); 
         } else {
@@ -250,7 +249,8 @@ const editOffer = async (req, res) => {
                 apply_by: apply,
                 value: value,
                 start_date: editStartDate,
-                end_date: editEndDate
+                end_date: editEndDate,
+                is_expired:false
             },
             { new: true } 
         );

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <title>Admin Coupons</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -549,7 +549,18 @@ h3 {
                 const maxAmount = $(`#${formId} #maxAmount, #${formId} #editMaxAmount`).val();
                 const startDate = new Date($(`#${formId} #startDate, #${formId} #editStartDate`).val());
                 const endDate = new Date($(`#${formId} #endDate, #${formId} #editEndDate`).val());
-        
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+
+                if (startDate < todayDate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Date',
+                        text: 'Start Date should be today or a future date.',
+                    });
+                    return false;
+                }
+                
                 if (discountPercentage < 1 || discountPercentage > 80) {
                     Swal.fire({
                         icon: 'warning',

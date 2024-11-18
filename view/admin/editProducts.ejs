@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <title>Admin Edit products</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -586,6 +586,12 @@
                 return;
             }
             
+            const canvas = newCropper.getCroppedCanvas();
+            if (!canvas) {
+                Swal.fire('Error', 'Invalid image selected. Please choose a valid image.', 'error');
+                return;
+            }
+
             Swal.fire({
                 title: 'Add New Image?',
                 text: 'Do you want to add this image to the product?',

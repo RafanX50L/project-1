@@ -274,8 +274,9 @@ const pdfDownload = async (req, res) => {
                 $lte: new Date(endDate)
             };
         }
+        filterCriteria.status='delivered';
 
-        const orders = await Orders.find(filterCriteria).populate('userId', 'name').sort({ createdAt: 1 });
+        const orders = await Orders.find(filterCriteria).populate('userId', 'name').sort({ createdAt: -1 });
 
         const totalRevenue = orders.reduce((total, order) => total + order.totalAmount, 0);
         const totalSales = orders.length;
@@ -328,7 +329,7 @@ const pdfDownload = async (req, res) => {
             align: 'center'
             });
 
-        doc.fontSize(12).fillColor('#707070')
+        doc.fontSize(10).fillColor('#707070')
             .font('Helvetica')
             .text(metric.label, cardX, cardY + 60, {
             width: cardWidth,
@@ -345,10 +346,10 @@ const pdfDownload = async (req, res) => {
             .text('Order Details', 20, doc.y); 
         doc.moveDown(1.5);
 
-        const xPositions = [20, 100, 210, 320 ,380, 450, 510];
+        const xPositions = [20, 80, 170, 270 ,320,370, 460, 515];
 
-        const headers = ['Order ID', 'Customer', 'Products','Offer' ,'Coupon', 'Amount', 'Date'];
-        doc.fontSize(12).fillColor('#1976D2').font('Helvetica-Bold');
+        const headers = ['Order ID', 'Customer', 'Products','Offer' ,'Coupon', 'Delivery Charge','Amount', 'Date'];
+        doc.fontSize(10).fillColor('#1976D2').font('Helvetica-Bold');
 
         let headerY = doc.y;
 
@@ -378,6 +379,7 @@ const pdfDownload = async (req, res) => {
 
         const couponApplied = order.Coupon_discount ? `Rs ${order.Coupon_discount}` : 'No Coupon';
         const offerApplied = order.Offer_discount ? `Rs ${order.Offer_discount}` : 'No Offer';
+        const deliveryCharge = `      RS ${order.deliveryCharge}`;
         const totalAmount = `Rs ${order.totalAmount.toLocaleString()}`;
         const orderDate = new Date(order.createdAt).toLocaleDateString();
 
@@ -387,6 +389,7 @@ const pdfDownload = async (req, res) => {
             '', 
             offerApplied,
             couponApplied,
+            deliveryCharge,
             totalAmount,
             orderDate
         ];
@@ -445,6 +448,7 @@ const excelDownload = async (req, res) => {
                 $lte: new Date(endDate)
             };
         }
+        filterCriteria.status='delivered';
 
         const orders = await Orders.find(filterCriteria)
             .populate('userId', 'name')
@@ -483,7 +487,10 @@ const excelDownload = async (req, res) => {
             if (!discount) return 'No Offer ';
             return `-${discount}Rs`;
         };
-
+        const formatDeliver = (discount) => {
+            if (!discount) return 'No Offer ';
+            return `-${discount}Rs`;
+        };
         const workbook = new excel.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
 
@@ -495,7 +502,7 @@ const excelDownload = async (req, res) => {
         };
 
         
-        worksheet.mergeCells('A1:G1'); 
+        worksheet.mergeCells('A1:H1'); 
         worksheet.getCell('A1').value = 'COMPLETED SALES REPORT';
         worksheet.getCell('A1').font = {
             size: 16,
@@ -513,7 +520,7 @@ const excelDownload = async (req, res) => {
         worksheet.getCell('A2').value = `Generated on ${formatDate(new Date())}`;
         worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
 
-        worksheet.mergeCells('A4:C4');
+        worksheet.mergeCells('A4:B4');
         worksheet.getCell('A4').value = 'Summary Statistics';
         worksheet.getCell('A4').font = { bold: true };
         worksheet.getCell('A4').fill = {
@@ -543,12 +550,17 @@ const excelDownload = async (req, res) => {
             });
         });
 
-        worksheet.mergeCells('A8:G8'); 
+        worksheet.mergeCells('A8:H8'); 
         worksheet.getCell('A8').value = 'Order Details';
         worksheet.getCell('A8').font = {
             size: 14,
             bold: true,
             color: { argb: 'FFFFFF' }
+        };
+        worksheet.getCell('A8').fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '4472C4' }
         };
         worksheet.getCell('A8').fill = {
             type: 'pattern',
@@ -568,6 +580,7 @@ const excelDownload = async (req, res) => {
             'Products',
             'Offers',
             'Coupon',
+            'Delivery Charge',
             'Amount',
             'Date'
         ];
@@ -599,6 +612,7 @@ const excelDownload = async (req, res) => {
                 formatProducts(order.items),
                 formatOffer(order.Offer_discount),
                 formatCoupon(order.Coupon_discount),
+                formatDeliver(order.deliveryCharge),
                 formatCurrency(order.totalAmount),
                 formatDate(order.createdAt)
             ];
@@ -627,6 +641,7 @@ const excelDownload = async (req, res) => {
             { width: 30 },  
             { width: 45 },  
             { width: 15 },  
+            { width: 15 }, 
             { width: 15 },  
             { width: 15 },  
             { width: 20 }   

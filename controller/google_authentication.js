@@ -35,7 +35,7 @@ const successGoogleLogin = async (req, res) => {
             req.session.loggedIn = user._id;
             res.redirect('/user/home');
         } else {
-            res.redirect('/user/failure');
+            res.redirect('/user/blocked');
         }
     } catch (error) {
         console.error('Error during Google login:', error);
@@ -46,7 +46,7 @@ const successGoogleLogin = async (req, res) => {
 
 
 const failureGoogleLogin = (req , res) => { 
-	res.send("Error"); 
+	res.render('user/googleLoginerro.ejs') 
 }
 
 module.exports = {

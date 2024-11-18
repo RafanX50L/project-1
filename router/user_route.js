@@ -14,7 +14,7 @@ user_route.use(passport.initialize());
 user_route.use(passport.session());
 
 user_route.use(async (req, res, next) => {
-    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation',  '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
+    const publicPaths = ['/login', '/forgotPassword', '/resetPassword','/blocked', '/signup', '/resend-otp', '/otp-validation',  '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
 
     if (req.session.loggedIn && publicPaths.includes(req.path)) {
         return res.redirect('/user/home');
@@ -24,7 +24,7 @@ user_route.use(async (req, res, next) => {
 });
 
 user_route.use(async (req, res, next) => {
-    const publicPaths = ['/login', '/forgotPassword', '/resetPassword', '/signup', '/resend-otp', '/otp-validation', '/logout', '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
+    const publicPaths = ['/login', '/forgotPassword','/blocked', '/resetPassword', '/signup', '/resend-otp', '/otp-validation', '/logout', '/auth/google', '/auth/google/callback', '/success', '/', '/failure'];
 
     if (publicPaths.includes(req.path)) {
         return next();
@@ -88,6 +88,7 @@ user_route.get('/success', google_contrller.successGoogleLogin);
 
 // Failure 
 user_route.get('/failure', google_contrller.failureGoogleLogin);
+user_route.get('/blocked', user_Controller.blocked);
 
 user_route.get('/home', user_Controller.validation);
 user_route.get('/login', user_Controller.loginget);

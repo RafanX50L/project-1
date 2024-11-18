@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DarkPan - Bootstrap 5 Admin Template</title>
+    <title>Admin Add Products</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -424,7 +424,7 @@
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if (!allowedExtensions.includes(file.type)) {
-                        Swal.fire("Error", "Only JPEG, PNG, and GIF formats are allowed.", "error");
+                        Swal.fire("Error", "Only JPEG and PNG formats are allowed.", "error");
                         event.preventDefault();
                         return false;
                     }
