@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const Offers = require('../model/offer'); 
 const Wallet = require('../model/wallet'); 
 const Cart = require('../model/cartModel');
+const wishlist = require('../model/whishlist');
 require('dotenv').config(); 
 const jwt = require('jsonwebtoken');
 
@@ -109,6 +110,7 @@ const verifyOTP = async (req, res) => {
 
         await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true } });
 
+        await wishlist.create({ userId: user_Data._id, items: [] });
         await Cart.create({ userId: user_Data._id, items: [] });
         await Wallet.create({ userId: user_Data._id, Balance: 0, transactions: [] });
 

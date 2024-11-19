@@ -169,10 +169,38 @@
                     <input type="text" id="email" placeholder="Enter your email" name="email">
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" style="position: relative; width: 100%; max-width: 400px;">
                     <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter a strong password" name="password">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        placeholder="Enter a strong password" 
+                        name="password" 
+                        style="width: 100%; padding-right: 40px;" 
+                    >
+                    <button 
+                        type="button" 
+                        id="togglePassword" 
+                        style="
+                            position: absolute; 
+                            right: 10px; 
+                            top: 50%; 
+                            transform: translateY(-50%); 
+                            background: none; 
+                            border: none; 
+                            cursor: pointer; 
+                            padding: 0;"
+                    >
+                    <img 
+                    src="https://cdn-icons-png.flaticon.com/512/159/159604.png" 
+                    alt="Show Password" 
+                    id="toggleIcon" 
+                    style="width: 20px; height: 20px; filter: invert(100%) brightness(100%); margin-top: 100%;" 
+                >
+                
+                    </button>
                 </div>
+                
                 
                 <div class="checkbox-group">
                     <input type="checkbox" id="terms">
@@ -204,17 +232,33 @@
     </div>
 
     <script>
+        const passwordInput = document.getElementById('password');
+        const togglePasswordButton = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        togglePasswordButton.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            if (type === 'password') {
+                toggleIcon.src = 'https://cdn-icons-png.flaticon.com/512/159/159604.png'; 
+            } else {
+                toggleIcon.src = 'https://cdn-icons-png.flaticon.com/512/709/709612.png'; 
+            }
+
+        });
         function validateForm() {
             console.log('Validating form');
             const username = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('terms').checked;
             const errorElement = document.getElementById('error');
+            console.log(password);
             
             errorElement.textContent = '';
 
             const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{}[\]:;"'<>,.?/~`|\\])[A-Za-z\d!@#$%^&*()\-_=+{}[\]:;"'<>,.?/~`|\\]{8,}$/;
 
             if (username === '') {
                 errorElement.textContent = 'Email cannot be empty!';

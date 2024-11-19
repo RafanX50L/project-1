@@ -2,6 +2,7 @@ const { use } = require('passport');
 const User = require('../model/userModel');
 const Wallet = require('../model/wallet'); 
 const Cart = require('../model/cartModel');
+const wishlist = require('../model/whishlist');
 const loadAuth = (req, res) => {
     res.render('auth');
 }
@@ -26,6 +27,7 @@ const successGoogleLogin = async (req, res) => {
             await user.save();
             await User.updateOne({ email: emails[0].value }, { $set: { verify: true } });
             await Cart.create({ userId: user._id, items: [] });
+            await wishlist.create({ userId: user._id, items: [] });
             await Wallet.create({ userId: user._id, Balance: 0, transactions: [] });;
 
             req.session.loggedIn = user._id;
