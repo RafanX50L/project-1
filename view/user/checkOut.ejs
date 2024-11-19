@@ -820,13 +820,15 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		}
 
 		async function saveOrderWithFailure(response) {
+			console.log('entered to handle payment failure');
+			
 			const addressId = document.querySelector('input[name="selectedAddress"]:checked')?.value;
 			const totalAmount = parseFloat(document.getElementById('totalPriceDisplay').textContent.replace('$', '').trim()) || 0;
 			const discount = parseFloat(document.getElementById('discountAmount').textContent.replace('$', '').trim()) || 0;
 			const offerDiscount = parseFloat(document.getElementById("offerDiscount").textContent.replace('$', '').trim()) || 0;
 			const deliveryCharge = parseFloat(document.getElementById("deliveryCharge").textContent.replace('$', '').trim()) || 0;		
 
-			console.log(discount);
+			console.log('address Id' + addressId);
 			
 			const orderData = {
 				razorpay_order_id: response.error.metadata.order_id,

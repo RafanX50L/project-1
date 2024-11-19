@@ -796,6 +796,8 @@ const verifyPayment = async (req, res) => {
         
         res.json({ success: true, orderId: savedOrder._id });
     } else {
+        console.log('entered to erroe of order');
+        
         const cart = await Cart.findOne({ userId })
         .populate({
             path: 'items.productId',
@@ -890,6 +892,8 @@ const verifyPayment = async (req, res) => {
 };
 
 const saveFailedOrder = async (req,res) => {
+    console.log('entere to backend to save failed order');
+    
     const userId = req.session.loggedIn;
     try {
         const { razorpay_order_id, razorpay_payment_id, paymentStatus, errorMessage , addressId, totalAmount, discount, offerDiscount, deliveryCharge} = req.body;
@@ -931,13 +935,24 @@ const saveFailedOrder = async (req,res) => {
                     offerAmount: offerAmount
                 };
             });
+            const user = await User.findOne(
+                { 
+                  _id: userId,
+                  "addresses._id": addressId  
+                },
+                { 
+                  "addresses.$": 1  
+                }
+            );
+
+            const shippingAddress = user.addresses[0];
 
         const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
 
         const newOrder = new Order({
             userId,
-            shippingAddress: addressId,
+            shippingAddress: shippingAddress,
             totalAmount,
             Coupon_discount: discount,
             Offer_discount: offerDiscount,

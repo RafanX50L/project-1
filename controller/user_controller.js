@@ -331,7 +331,7 @@ const allProducts = async (req, res) => {
 
         const categories = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
 
-        let products = await Products.find();
+        let products = await Products.find(filter);
 
         products = await applyOffersToProducts(products);
 
