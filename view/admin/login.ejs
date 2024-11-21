@@ -123,6 +123,8 @@
             const password = document.getElementById('password').value;
             let valid = true;
     
+            
+    
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
             if (!emailPattern.test(email)) {
                 document.getElementById('emailError').textContent = 'Please enter a valid email address.';

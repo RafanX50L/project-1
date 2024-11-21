@@ -38,22 +38,17 @@ const getlogin = async (req,res) =>  {
 }
 
 const postlogin = async(req,res)=>{
-    console.log('entered to post login');
     
     const { email, password} = req.body;
-    const findData = await Admin.findOne({email:email,password:password})
-    console.log("entered to finding"+findData);
     
+    const findData = await Admin.findOne({email:email,password:password})
+     
     try {
         if(findData){
             req.session.AloggedIN=true;
-            console.log('success');
-            
             res.redirect('/admin/dashboard')
         }
         else{
-            console.log('having issues with password or email');
-            
             res.status(401).render('admin/login',{message:"password or email is incorrect"})
         }
     } catch (error) {
