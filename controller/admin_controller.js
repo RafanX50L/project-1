@@ -489,7 +489,7 @@ const excelDownload = async (req, res) => {
         };
         const formatDeliver = (discount) => {
             if (!discount) return 'No Offer ';
-            return `-${discount}Rs`;
+            return `+ ${discount}Rs`;
         };
         const workbook = new excel.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
