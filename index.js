@@ -9,7 +9,7 @@ const passport = require('passport');
 require('./public/js/passport')
 
 
-mongoose.connect('mongodb://localhost:27017/week7')
+mongoose.connect('mongodb+srv://rafanmu33:n65kkteG7kYHRF3G@cluster0.2wrcu.mongodb.net/E-commerce?retryWrites=true&w=majority&appName=Cluster0')
     .then(() => console.log("MongoDB connected successfully"))
     .catch((error) => console.error('MongoDB connection error:', error));
 

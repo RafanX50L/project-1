@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const user_signupSchema = new mongoose.Schema({
+const admin_signupSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true
@@ -12,4 +12,4 @@ const user_signupSchema = new mongoose.Schema({
 
 },{timestamps:true})
 
-module.exports = mongoose.model('admin',user_signupSchema);
+module.exports = mongoose.model('admin',admin_signupSchema);

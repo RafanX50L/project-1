@@ -40,9 +40,13 @@ const getlogin = async (req,res) =>  {
 const postlogin = async(req,res)=>{
     const { email, password} = req.body;
     const findData = await Admin.findOne({email:email,password:password})
+    console.log("entered to finding"+findData);
+    
     try {
         if(findData){
             req.session.AloggedIN=true;
+            console.log('success');
+            
             res.redirect('/admin/dashboard')
         }
         else{
