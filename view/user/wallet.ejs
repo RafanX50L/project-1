@@ -456,7 +456,7 @@ h2 {
 											</tr>
 										</thead>
 										<tbody>
-											<% wallet.Transaction.forEach((wallet,index)=> { %>
+											<% wallet.Transaction.slice().reverse().forEach((wallet,index)=> { %>
 												<tr>
 													<td><%= index+1 %></td>
 													<td><%= new Date(wallet.date).toLocaleDateString('en-GB') %></td>
