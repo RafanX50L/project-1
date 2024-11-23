@@ -503,6 +503,68 @@ button[type="submit"]:hover {
     }
 }
 	</style>
+	<style>
+		/* Z-index Layering System */
+	:root {
+		--sweetalert-z-index: 1200; /* Higher than 1100 to ensure it's above */
+	}
+	
+	/* SweetAlert Override Styles */
+	.swal2-container {
+		z-index: var(--sweetalert-z-index) !important;
+	}
+	
+	/* Dark theme styling for SweetAlert */
+	.swal2-popup {
+		background-color: var(--dark-bg-modal, #242424) !important;
+		color: var(--dark-text-primary, #ffffff) !important;
+		border: 1px solid var(--dark-border-color, #333333) !important;
+	}
+	
+	.swal2-title {
+		color: var(--dark-text-primary, #ffffff) !important;
+	}
+	
+	.swal2-html-container {
+		color: var(--dark-text-secondary, #a0a0a0) !important;
+	}
+	
+	.swal2-icon {
+		border-color: var(--dark-border-color, #333333) !important;
+	}
+	
+	/* Style for warning icon */
+	.swal2-warning {
+		border-color: #f8bb86 !important;
+		color: #f8bb86 !important;
+	}
+	
+	/* Style for success icon */
+	.swal2-success {
+		border-color: #a5dc86 !important;
+		color: #a5dc86 !important;
+	}
+	
+	/* Button styles */
+	.swal2-confirm {
+		background-color: #3085d6 !important;
+	}
+	
+	.swal2-cancel {
+		background-color: #d33 !important;
+	}
+	
+	/* Animation to ensure smooth display */
+	.swal2-show {
+		animation: swal2-show 0.3s !important;
+	}
+	
+	/* Backdrop styling */
+	.swal2-backdrop-show {
+		background: rgba(0, 0, 0, 0.75) !important;
+		backdrop-filter: blur(5px) !important;
+	}
+	</style>
 
 
 </head>
