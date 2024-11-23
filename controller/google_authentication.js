@@ -13,9 +13,9 @@ const successGoogleLogin = async (req, res) => {
     }
 
     const { displayName, emails, id } = req.user; 
-
+    const email = emails[0].value;
     try {
-        let user = await User.findOne({ email: emails });
+        let user = await User.findOne({ email: email });
         if (!user) {
             
             user = new User({
