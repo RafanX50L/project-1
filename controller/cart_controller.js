@@ -555,7 +555,7 @@ const orderCancel = async (req,res) => {
             );
         }
 
-        if(order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment'){
+        if(order.paymentMethod === 'Wallet' || order.paymentMethod === 'online payment' && order.paymentStatus === 'Paid'){
             let userWallet = await Wallet.findOne({ userId:userId });
 
             if (!userWallet) {
