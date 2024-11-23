@@ -7,45 +7,52 @@ const loadAuth = (req, res) => {
     res.render('auth');
 }
 
-const successGoogleLogin = async (req, res) => { 
+const successGoogleLogin = async (req, res) => {
     if (!req.user) {
         return res.redirect('/user/failure'); 
     }
 
-    const { displayName, emails, id } = req.user; 
-    const email = emails[0].value;
+    const { displayName, emails, id } = req.user;
+
     try {
-        let user = await User.findOne({ email: email });
+        const email = emails[0].value;
+
+        let user = await User.findOne({ email });
+
         if (!user) {
-            
             user = new User({
                 name: displayName,
-                email: emails[0].value,
-                gid: id 
+                email,
+                gid: id,
+                verify: true, 
             });
-    
-            await user.save();
-            await User.updateOne({ email: emails[0].value }, { $set: { verify: true } });
-            await Cart.create({ userId: user._id, items: [] });
-            await wishlist.create({ userId: user._id, items: [] });
-            await Wallet.create({ userId: user._id, Balance: 0, transactions: [] });;
 
-            req.session.loggedIn = user._id;
-            res.redirect('/user/home');
-        } else if (user.isblocked === false) {  
-            console.log('hello');
-            const updatedUser = await User.findOneAndUpdate({email:emails},{gid:id},{new:true})
-            req.session.loggedIn = user._id;
-            res.redirect('/user/home');
-        } else {
-            res.redirect('/user/blocked');
+            await user.save();
+
+            await Promise.all([
+                Cart.create({ userId: user._id, items: [] }),
+                wishlist.create({ userId: user._id, items: [] }),
+                Wallet.create({ userId: user._id, Balance: 0, transactions: [] }),
+            ]);
+
+            req.session.userId = user._id; 
+            return res.redirect('/user/home');
         }
+
+        if (user.isblocked === true) {
+            return res.redirect('/user/blocked');
+        }
+
+        await User.updateOne({ email }, { $set: { gid: id } });
+
+        req.session.userId = user._id; 
+        return res.redirect('/user/home');
     } catch (error) {
-        console.error('Error during Google login:', error);
-        res.redirect('/user/failure');
+        console.error('Error during Google login:', error.message);
+        return res.redirect('/user/failure');
     }
-    
 };
+
 
 
 const failureGoogleLogin = (req , res) => { 
