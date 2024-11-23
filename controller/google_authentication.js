@@ -15,7 +15,7 @@ const successGoogleLogin = async (req, res) => {
     const { displayName, emails, id } = req.user; 
 
     try {
-        let user = await User.findOne({ gid: id });
+        let user = await User.findOne({ email: emails });
         if (!user) {
             
             user = new User({
@@ -34,6 +34,7 @@ const successGoogleLogin = async (req, res) => {
             res.redirect('/user/home');
         } else if (user.isblocked === false) {  
             console.log('hello');
+            const updatedUser = await User.findOneAndUpdate({email:emails},{gid:id},{new:true})
             req.session.loggedIn = user._id;
             res.redirect('/user/home');
         } else {

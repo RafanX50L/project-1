@@ -303,6 +303,9 @@
             console.log(result.message)
             if (result.message === "success") {
                 window.location.href = "/user/otp-validation"; 
+            }
+            else if(result.message='User already exists'){
+                document.getElementById('error').textContent = result.message ;
             } else {
                 document.getElementById('error').textContent = result.message || 'Error signing up';
             }

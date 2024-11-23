@@ -60,9 +60,18 @@ const signuppost = async (req, res) => {
         const { name, password, email } = req.body;
 
         const matchData = await User.findOne({ email });
-        if (matchData) {
+        if (matchData.gid ) {
 
-            return res.status(409).json({ error: 'User already exists' });
+            const otp = generateOTP();
+            const otpExpires = Date.now() + 60 * 1000;
+            sendOTPEmail(email,otp);
+            req.session.password = password;
+            req.session.email = email;
+            res.json({ message: "success" })
+            res.status(200)
+
+        }else if(matchData){
+            return res.status(409).json({ message: 'User already exists' });
         } else {
             const otp = generateOTP();
             const otpExpires = Date.now() + 60 * 1000;
@@ -107,14 +116,22 @@ const verifyOTP = async (req, res) => {
         if (user_Data.otp !== parseInt(otp)) {
             return res.status(400).json({ error: 'Invalid OTP, please try again.' });
         }
-
-        await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true } });
-
-        await wishlist.create({ userId: user_Data._id, items: [] });
-        await Cart.create({ userId: user_Data._id, items: [] });
-        await Wallet.create({ userId: user_Data._id, Balance: 0, transactions: [] });
-
-        res.status(200).json({ success: true, message: 'OTP verified successfully' });
+        if(user_Data.email){
+            const password = req.session.password;
+            await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true },$set:{password:password}});
+            delete req.session.password;
+            delete req.session.email;
+            res.status(200).json({ success: true, message: 'OTP verified successfully' });
+        }
+        else{
+            await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true } });
+    
+            await wishlist.create({ userId: user_Data._id, items: [] });
+            await Cart.create({ userId: user_Data._id, items: [] });
+            await Wallet.create({ userId: user_Data._id, Balance: 0, transactions: [] });
+            delete req.session.email;
+            res.status(200).json({ success: true, message: 'OTP verified successfully' });
+        }
     } catch (error) {
         await User.updateOne({ email: email }, { $unset: { otp: "" } });
         res.status(500).json({ error: 'Internal server error' });
