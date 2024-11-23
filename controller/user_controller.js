@@ -467,7 +467,7 @@ const Movie = async (req, res) => {
                 return product;
             });
 
-            res.render('user/Movies.ejs', {
+            res.render('user/movies.ejs', {
                 subcategories: uniqueSubcategories,
                 category: category,
                 c: category1,
