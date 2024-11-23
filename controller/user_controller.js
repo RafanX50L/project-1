@@ -27,10 +27,11 @@ const loginpost = async (req, res) => {
         console.log('welcome');
         const { email, password } = req.body;
         const finddata = await User.findOne({ email: email, password: password});
-        if(finddata.isblocked==true){
-            res.redirect('/user/blocked')
-        }else{
+        
             if (finddata) {
+                if(finddata.isblocked==true){
+                    res.redirect('/user/blocked')
+                }        
                 req.session.loggedIn = finddata._id;
                 res.redirect('/user/home');
             } else {
@@ -38,7 +39,6 @@ const loginpost = async (req, res) => {
                 res.status(401).render('user/login', { message: "password or email is incorrect" })
     
             }
-        }
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -119,7 +119,7 @@ const verifyOTP = async (req, res) => {
         if (user_Data.otp !== parseInt(otp)) {
             return res.status(400).json({ error: 'Invalid OTP, please try again.' });
         }
-        if(user_Data.isblocked===false){
+        if(user_Data.verify===true){
             const password = req.session.password;
             await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true , password:password}});
             delete req.session.password;
@@ -128,7 +128,8 @@ const verifyOTP = async (req, res) => {
         }
         else{
             await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true } });
-    
+            console.log(user_Data);
+            
             await wishlist.create({ userId: user_Data._id, items: [] });
             await Cart.create({ userId: user_Data._id, items: [] });
             await Wallet.create({ userId: user_Data._id, Balance: 0, transactions: [] });

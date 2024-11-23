@@ -618,9 +618,6 @@ const getWallet = async (req,res) => {
     try {
         const category = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
         const wallet = await Wallet.findOne({userId:userId});
-    
-        console.log(wallet.Balance);
-        
         res.render('user/wallet.ejs',{c:category , wallet:wallet})
     } catch (error) {
         console.log(error);

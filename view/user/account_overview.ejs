@@ -33,7 +33,7 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/css/main.css">
-	<style>
+	<!-- <style>
 	/* Base styles */
 .breadcrumb {
     font-size: 14px;
@@ -245,7 +245,266 @@ button[type="submit"]:hover {
         margin-right: 20px;
     }
 }
-</style>
+</style> -->
+
+	<style>
+		/* Dark Theme Variables */
+:root {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1e1e1e;
+    --dark-bg-modal: #242424;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #a0a0a0;
+    --dark-border-color: #333333;
+    --dark-accent-primary: #7289da;
+    --dark-accent-hover: #5c73c7;
+    --dark-input-bg: #2a2a2a;
+    --dark-success: #4caf50;
+    --dark-danger: #f44336;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Base styles */
+.breadcrumb {
+    font-size: 14px;
+    margin: 100px 0 30px 0;
+    padding: 12px 20px;
+    background-color: var(--dark-bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--dark-shadow);
+    color: var(--dark-text-primary);
+}
+
+h2 {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--dark-text-primary);
+}
+
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    gap: 40px;
+    padding: 20px;
+}
+
+.sidebar {
+    width: 250px;
+    margin-right: 20px;
+}
+
+.at {
+    color: var(--dark-text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.at:hover {
+    color: var(--dark-accent-primary);
+}
+
+.sidebar1 ul {
+    list-style-type: none;
+    padding: 0;
+    margin-right: 50px;
+    background-color: var(--dark-bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px var(--dark-shadow);
+}
+
+.sidebar1 li {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--dark-border-color);
+    color: var(--dark-text-primary);
+    transition: all 0.2s ease;
+}
+
+.sidebar1 li:hover {
+    background-color: var(--dark-bg-modal);
+    padding-left: 24px;
+}
+
+.main-content {
+    flex-grow: 1;
+}
+
+.info-box {
+    padding: 30px;
+    position: relative;
+    color: var(--dark-text-primary);
+    margin-left: 50px;
+    background-color: var(--dark-bg-secondary);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--dark-shadow);
+}
+
+.edit-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border: none;
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-text-primary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background-color: var(--dark-accent-hover);
+    transform: translateY(-1px);
+}
+
+.info-item {
+    margin-bottom: 30px;
+}
+
+.info-item span:first-child {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+    color: var(--dark-text-secondary);
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background-color: var(--dark-bg-modal);
+    margin: 20px auto;
+    padding: 25px;
+    border: 1px solid var(--dark-border-color);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px var(--dark-shadow);
+    color: var(--dark-text-primary);
+}
+
+.close {
+    color: var(--dark-text-secondary);
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: var(--dark-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    background-color: var(--dark-input-bg);
+    border: 1px solid var(--dark-border-color);
+    border-radius: 6px;
+    color: var(--dark-text-primary);
+    transition: all 0.2s ease;
+}
+
+input:focus {
+    border-color: var(--dark-accent-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.2);
+}
+
+button[type="submit"] {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-text-primary);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--dark-accent-hover);
+    transform: translateY(-1px);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .content {
+        flex-direction: column;
+        margin-left: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .info-box {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .breadcrumb {
+        font-size: 12px;
+        margin-top: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        margin-top: 20px;
+        padding: 10px;
+    }
+
+    .info-box {
+        padding: 15px;
+    }
+
+    .sidebar1 ul {
+        margin-right: 20px;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+}
+	</style>
+
+
 </head>
 <!--===============================================================================================-->
 </head>

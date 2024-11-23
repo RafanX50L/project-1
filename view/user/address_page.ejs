@@ -33,232 +33,454 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	
 	<style>
-		/* Base styles */
+		/* Dark Theme Variables */
+:root {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1e1e1e;
+    --dark-bg-modal: #242424;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #a0a0a0;
+    --dark-border-color: #333333;
+    --dark-accent-primary: #7289da;
+    --dark-accent-hover: #5c73c7;
+    --dark-input-bg: #2a2a2a;
+    --dark-success: #4caf50;
+    --dark-danger: #f44336;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Base Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1100; /* Increased z-index to appear above header */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
+}
+
+/* Modal Content Container */
+.modal-content {
+    background-color: var(--dark-bg-modal);
+    margin: 20px auto;
+    padding: 25px;
+    border: 1px solid var(--dark-border-color);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px var(--dark-shadow);
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+    color: var(--dark-text-primary);
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: var(--dark-text-secondary);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 5px;
+    line-height: 1;
+}
+
+.close:hover {
+    color: var(--dark-text-primary);
+}
+
+/* Modal Header */
+.modal-content h3 {
+    margin: 0 0 25px 0;
+    color: var(--dark-text-primary);
+    font-size: 1.5rem;
+    padding-right: 30px;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--dark-text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--dark-input-bg);
+    border: 1px solid var(--dark-border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--dark-text-primary);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: var(--dark-accent-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.2);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--dark-text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Submit Button */
+button[type="submit"] {
+    background-color: var(--dark-accent-primary);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--dark-accent-hover);
+    transform: translateY(-1px);
+}
+
+button[type="submit"]:active {
+    transform: translateY(1px);
+}
+
+/* Status Messages */
+.success-message {
+    color: var(--dark-success);
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid var(--dark-success);
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.error-message {
+    color: var(--dark-danger);
+    background-color: rgba(244, 67, 54, 0.1);
+    border: 1px solid var(--dark-danger);
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+/* Scrollbar Styling */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: var(--dark-bg-secondary);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: var(--dark-border-color);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-accent-primary);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+}
+
+@media screen and (max-height: 700px) {
+    .modal {
+        align-items: flex-start;
+    }
+    
+    .modal-content {
+        margin: 10px auto;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+    }
+}
+	</style>
+
+<style>
+	/* Z-index Layering System */
+:root {
+    --sweetalert-z-index: 1200; /* Higher than 1100 to ensure it's above */
+}
+
+/* SweetAlert Override Styles */
+.swal2-container {
+    z-index: var(--sweetalert-z-index) !important;
+}
+
+/* Dark theme styling for SweetAlert */
+.swal2-popup {
+    background-color: var(--dark-bg-modal, #242424) !important;
+    color: var(--dark-text-primary, #ffffff) !important;
+    border: 1px solid var(--dark-border-color, #333333) !important;
+}
+
+.swal2-title {
+    color: var(--dark-text-primary, #ffffff) !important;
+}
+
+.swal2-html-container {
+    color: var(--dark-text-secondary, #a0a0a0) !important;
+}
+
+.swal2-icon {
+    border-color: var(--dark-border-color, #333333) !important;
+}
+
+/* Style for warning icon */
+.swal2-warning {
+    border-color: #f8bb86 !important;
+    color: #f8bb86 !important;
+}
+
+/* Style for success icon */
+.swal2-success {
+    border-color: #a5dc86 !important;
+    color: #a5dc86 !important;
+}
+
+/* Button styles */
+.swal2-confirm {
+    background-color: #3085d6 !important;
+}
+
+.swal2-cancel {
+    background-color: #d33 !important;
+}
+
+/* Animation to ensure smooth display */
+.swal2-show {
+    animation: swal2-show 0.3s !important;
+}
+
+/* Backdrop styling */
+.swal2-backdrop-show {
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(5px) !important;
+}
+</style>
+
+	<style>
+		/* Base Theme Colors */
+:root {
+    --dark-bg: #121212;
+    --dark-surface: #1E1E1E;
+    --dark-surface-hover: #2D2D2D;
+    --accent-color: #BB86FC;
+    --accent-color-hover: #9965E5;
+    --danger-color: #CF6679;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B3B3B3;
+    --border-color: #333333;
+}
+
+/* Base styles */
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+}
+
 .breadcrumb {
     font-size: 14px;
-    margin-bottom: 20px;
-    margin-top: 100px;
-    background-color: black;
-    color: white;
+    margin: 100px 0 30px 0;
+    padding: 12px 20px;
+    background-color: var(--dark-surface);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-h2 {
-    margin-top: 10px;
-    text-align: center;
+.breadcrumb a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
+.breadcrumb a:hover {
+    color: var(--accent-color-hover);
+}
+
+h1, h2 {
+    color: var(--text-primary);
+    margin: 20px 0;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Content Layout */
 .content {
     display: flex;
-    flex-wrap: wrap; /* Allows content to wrap on smaller screens */
+    gap: 40px;
     margin-top: 40px;
+    padding: 20px;
 }
 
-.sidebar {
-    width: 200px;
-    margin-right: 20px;
-}
-
-.at {
-    color: inherit; 
-    text-decoration: none;
+/* Sidebar Styling */
+.sidebar1 {
+    min-width: 250px;
 }
 
 .sidebar1 ul {
     list-style-type: none;
     padding: 0;
-    margin-right: 50px;
+    background-color: var(--dark-surface);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar1 li {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    color: white;
+    border-bottom: 1px solid var(--border-color);
 }
 
+.sidebar1 li:last-child {
+    border-bottom: none;
+}
+
+.sidebar1 .at {
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 16px 20px;
+    display: block;
+    transition: all 0.2s ease;
+}
+
+.sidebar1 .at:hover {
+    background-color: var(--dark-surface-hover);
+    color: var(--accent-color);
+    padding-left: 24px;
+}
+
+/* Main Content Area */
 .main-content {
     flex-grow: 1;
 }
 
 .info-box {
-    padding: 20px;
-    position: relative;
-    color: white;
-    margin-left: 50px;
+    background-color: var(--dark-surface);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Modal styles */
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1; 
-    padding-top: 100px; 
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%; 
-    background-color: rgba(0,0,0,0.4); 
+.info-box h3 {
+    color: var(--text-primary);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover, .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
+/* Add Button Styling */
+.add-btn {
+    background-color: var(--accent-color);
+    color: var(--dark-bg);
+    padding: 12px 24px;
+    font-size: 16px;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin-bottom: 30px;
 }
 
-button[type="submit"]:hover {
-    background-color: #45a049;
+.add-btn:hover {
+    background-color: var(--accent-color-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(187, 134, 252, 0.3);
 }
 
-/* Responsive styles */
-@media (max-width: 1024px) {
-    .content {
-        flex-direction: column;
-        margin-left: 10px;
-    }
-
-    .sidebar {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
-    .info-box {
-        margin-left: 0;
-        padding: 10px;
-    }
-}
-
-@media (max-width: 768px) {
-    .modal-content {
-        width: 90%;
-    }
-
-    .sidebar {
-        width: 100%;
-    }
-
-    .breadcrumb {
-        font-size: 12px;
-        margin-top: 50px;
-    }
-
-    .info-box {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .breadcrumb {
-        font-size: 12px;
-        margin-top: 50px;
-    }
-
-    .content {
-        margin-top: 20px;
-    }
-
-    .info-box {
-        padding: 10px;
-    }
-
-    .modal-content {
-        width: 95%;
-    }
-
-    .sidebar1 ul {
-        margin-right: 20px;
-    }
-}
+/* Address Container Styling */
 .address-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin: 10px 0;
-  position: relative;
+    background-color: var(--dark-surface-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.address-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .address-details {
-  max-width: 80%;
+    flex-grow: 1;
+    line-height: 1.6;
 }
 
+.address-details p {
+    color: var(--text-secondary);
+    margin: 4px 0;
+}
+
+.address-details p:first-child {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+/* Icons Container */
 .icons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+    display: flex;
+    gap: 12px;
+    padding-left: 20px;
 }
 
 .icons span {
-  cursor: pointer;
-  margin-left: 10px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background-color: var(--dark-surface);
 }
- /* Add New Address Button Style */
- .add-btn {
-        background-color:wheat; /* Green background */
-        color: black; /* White text */
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px; /* Curved corners */
-        cursor: pointer;
-        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-        margin-top: 20px; /* Space above the button */
-    }
 
-    /* Hover Effect */
-    .add-btn:hover {
-        background-color: blue;
-		color: wheat; /* Darker green on hover */
-    }
+.icons .edit-icon:hover {
+    background-color: var(--accent-color);
+    transform: scale(1.1);
+}
 
-    /* Focus Effect */
-    .add-btn:focus {
-        outline: none; /* Remove default outline */
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Green glow effect */
-    }
+.icons .delete-icon:hover {
+    background-color: var(--danger-color);
+    transform: scale(1.1);
+}
+
 
 	</style>
+	
+
 </head>
 <!--===============================================================================================-->
 </head>
@@ -766,159 +988,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 		</span>
 	</div>
 
-	<!-- Modal1 -->
-	<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
-		<div class="overlay-modal1 js-hide-modal1"></div>
-
-		<div class="container">
-			<div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
-				<button class="how-pos3 hov3 trans-04 js-hide-modal1">
-					<img src="/images/icons/icon-close.png" alt="CLOSE">
-				</button>
-
-				<div class="row">
-					<div class="col-md-6 col-lg-7 p-b-30">
-						<div class="p-l-25 p-r-30 p-lr-0-lg">
-							<div class="wrap-slick3 flex-sb flex-w">
-								<div class="wrap-slick3-dots"></div>
-								<div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
-								<div class="slick3 gallery-lb">
-									<div class="item-slick3" data-thumb="images/product-detail-01.jpg">
-										<div class="wrap-pic-w pos-relative">
-											<img src="/images/product-detail-01.jpg" alt="IMG-PRODUCT">
-
-											<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-01.jpg">
-												<i class="fa fa-expand"></i>
-											</a>
-										</div>
-									</div>
-
-									<div class="item-slick3" data-thumb="images/product-detail-02.jpg">
-										<div class="wrap-pic-w pos-relative">
-											<img src="/images/product-detail-02.jpg" alt="IMG-PRODUCT">
-
-											<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-02.jpg">
-												<i class="fa fa-expand"></i>
-											</a>
-										</div>
-									</div>
-
-									<div class="item-slick3" data-thumb="images/product-detail-03.jpg">
-										<div class="wrap-pic-w pos-relative">
-											<img src="/images/product-detail-03.jpg" alt="IMG-PRODUCT">
-
-											<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-03.jpg">
-												<i class="fa fa-expand"></i>
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div class="col-md-6 col-lg-5 p-b-30">
-						<div class="p-r-50 p-t-5 p-lr-0-lg">
-							<h4 class="mtext-105 cl2 js-name-detail p-b-14">
-								Lightweight Jacket
-							</h4>
-
-							<span class="mtext-106 cl2">
-								$58.79
-							</span>
-
-							<p class="stext-102 cl3 p-t-23">
-								Nulla eget sem vitae eros pharetra viverra. Nam vitae luctus ligula. Mauris consequat ornare feugiat.
-							</p>
-							
-							<!--  -->
-							<div class="p-t-33">
-								<div class="flex-w flex-r-m p-b-10">
-									<div class="size-203 flex-c-m respon6">
-										Size
-									</div>
-
-									<div class="size-204 respon6-next">
-										<div class="rs1-select2 bor8 bg0">
-											<select class="js-select2" name="time">
-												<option>Choose an option</option>
-												<option>Size S</option>
-												<option>Size M</option>
-												<option>Size L</option>
-												<option>Size XL</option>
-											</select>
-											<div class="dropDownSelect2"></div>
-										</div>
-									</div>
-								</div>
-
-								<div class="flex-w flex-r-m p-b-10">
-									<div class="size-203 flex-c-m respon6">
-										Color
-									</div>
-
-									<div class="size-204 respon6-next">
-										<div class="rs1-select2 bor8 bg0">
-											<select class="js-select2" name="time">
-												<option>Choose an option</option>
-												<option>Red</option>
-												<option>Blue</option>
-												<option>White</option>
-												<option>Grey</option>
-											</select>
-											<div class="dropDownSelect2"></div>
-										</div>
-									</div>
-								</div>
-
-								<div class="flex-w flex-r-m p-b-10">
-									<div class="size-204 flex-w flex-m respon6-next">
-										<div class="wrap-num-product flex-w m-r-20 m-tb-10">
-											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-												<i class="fs-16 zmdi zmdi-minus"></i>
-											</div>
-
-											<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1">
-
-											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-												<i class="fs-16 zmdi zmdi-plus"></i>
-											</div>
-										</div>
-
-										<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-											Add to cart
-										</button>
-									</div>
-								</div>	
-							</div>
-
-							<!--  -->
-							<div class="flex-w flex-m p-l-100 p-t-40 respon7">
-								<div class="flex-m bor9 p-r-10 m-r-11">
-									<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-										<i class="zmdi zmdi-favorite"></i>
-									</a>
-								</div>
-
-								<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook">
-									<i class="fa fa-facebook"></i>
-								</a>
-
-								<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Twitter">
-									<i class="fa fa-twitter"></i>
-								</a>
-
-								<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Google Plus">
-									<i class="fa fa-google-plus"></i>
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	
 
 <!--===============================================================================================-->	
 	<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -1195,6 +1265,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 					}
 				});
 			}
+
 		};
 	
 		document.querySelectorAll(".delete-icon").forEach(function(deleteBtn) {
