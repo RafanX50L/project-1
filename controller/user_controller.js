@@ -60,11 +60,14 @@ const signuppost = async (req, res) => {
         const { name, password, email } = req.body;
 
         const matchData = await User.findOne({ email });
+        console.log(matchData);
+        
         if (matchData.gid ) {
 
             const otp = generateOTP();
             const otpExpires = Date.now() + 60 * 1000;
             sendOTPEmail(email,otp);
+            const updateuser = await User.findOneAndUpdate({email:email},{otp:otp},{new:true});
             req.session.password = password;
             req.session.email = email;
             res.json({ message: "success" })
