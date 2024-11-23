@@ -62,7 +62,7 @@ const signuppost = async (req, res) => {
         const matchData = await User.findOne({ email });
         console.log(matchData);
         
-        if (matchData.gid ) {
+        if (matchData?.gid ) {
 
             const otp = generateOTP();
             const otpExpires = Date.now() + 60 * 1000;
