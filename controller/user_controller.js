@@ -119,9 +119,9 @@ const verifyOTP = async (req, res) => {
         if (user_Data.otp !== parseInt(otp)) {
             return res.status(400).json({ error: 'Invalid OTP, please try again.' });
         }
-        if(user_Data.email){
+        if(user_Data.isblocked===false){
             const password = req.session.password;
-            await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true },$set:{password:password}});
+            await User.updateOne({ email: email }, { $unset: { otp: "" }, $set: { verify: true , password:password}});
             delete req.session.password;
             delete req.session.email;
             res.status(200).json({ success: true, message: 'OTP verified successfully' });

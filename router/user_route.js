@@ -50,7 +50,8 @@ user_route.use(async (req, res, next) => {
     }
 });
 
-// razor pay credentials
+//razor pay credentials
+
 const razorpay = new Razorpay({
     key_id:process.env.key_id,
     key_secret: process.env.key_secret,
