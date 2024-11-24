@@ -291,7 +291,8 @@ const pdfDownload = async (req, res) => {
         });
         doc.pipe(fs.createWriteStream('Sales_Report.pdf'));
 
-        const imagePath = '/images/images.png';
+        // const imagePath = '/images/images.png';
+        const imagePath = path.join(__dirname, '../public/images/images.png');
         doc.image(imagePath, 20, 20, { width: 50, height: 50 }); 
 
         doc.fillColor('#1976D2')
