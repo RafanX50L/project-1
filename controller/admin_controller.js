@@ -427,30 +427,7 @@ const excelDownload = async (req, res) => {
         const { startDate, endDate, reportRange } = req.query;
         let filterCriteria = {};
 
-        // if (reportRange) {
-        //     const today = new Date();
-        //     switch (reportRange) {
-        //         case 'today':
-        //             filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
-        //             break;
-        //         case '7days':
-        //             filterCriteria.createdAt = { $gte: new Date(today.setDate(today.getDate() - 7)) };
-        //             break;
-        //         case '1month':
-        //             filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 1)) };
-        //             break;
-        //         case '3months':
-        //             filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 3)) };
-        //             break;
-        //     }
-        // }
-
-        // if (startDate && endDate) {
-        //     filterCriteria.createdAt = {
-        //         $gte: new Date(startDate),
-        //         $lte: new Date(endDate)
-        //     };
-        // }
+        
         
         const formatDateRange = (start, end) => {
             if (!start || !end) return 'N/A'; // Fallback if dates are missing
@@ -460,7 +437,7 @@ const excelDownload = async (req, res) => {
             return `${formattedStart} - ${formattedEnd}`;
         };
 
-        let dateRangeLabel = 'N/A';
+        let dateRangeLabel = 'All Time';
         if (startDate && endDate) {
             dateRangeLabel = formatDateRange(startDate, endDate);
         } else if (reportRange) {
@@ -574,19 +551,11 @@ const excelDownload = async (req, res) => {
         worksheet.getCell('A4').alignment = { horizontal: 'left', vertical: 'middle' };
 
 
-        // const statsRows = [
-        //     ['Date Range:', dateRangeLabel], 
-        //     ['Total Orders:', stats.totalOrders],
-        //     ['Total Revenue:', formatCurrency(stats.totalRevenue)],
-        //     ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
-        // ];
+        
 
-        const dateRangeText = startDate && endDate 
-            ? `${formatDate(startDate)} to ${formatDate(endDate)}`
-            : 'All Time';
 
         const statsRows = [
-            ['Date Range:', dateRangeText], // Date Range at the top
+            ['Date Range:', dateRangeLabel], // Date Range at the top
             ['Total Orders:', stats.totalOrders],
             ['Total Revenue:', formatCurrency(stats.totalRevenue)],
             ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
@@ -594,6 +563,28 @@ const excelDownload = async (req, res) => {
 
         
 
+        // statsRows.forEach((row, index) => {
+        //     worksheet.getCell(`A${5 + index}`).value = row[0];
+        //     worksheet.getCell(`B${5 + index}`).value = row[1];
+        
+        //     // Custom style for the first row (Date Range)
+        //     if (index === 0) {
+        //         worksheet.getCell(`A${5 + index}`).font = { bold: true };
+        //         worksheet.getCell(`B${5 + index}`).font = { italic: true };
+        //     }
+        
+        //     ['A', 'B'].forEach((col) => {
+        //         const cell = worksheet.getCell(`${col}${5 + index}`);
+        //         cell.border = {
+        //             top: { style: 'thin' },
+        //             bottom: { style: 'thin' },
+        //             left: { style: 'thin' },
+        //             right: { style: 'thin' }
+        //         };
+        //         cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        //     });
+        // });
+        
         statsRows.forEach((row, index) => {
             worksheet.getCell(`A${5 + index}`).value = row[0];
             worksheet.getCell(`B${5 + index}`).value = row[1];
@@ -615,6 +606,11 @@ const excelDownload = async (req, res) => {
                 cell.alignment = { horizontal: 'left', vertical: 'middle' };
             });
         });
+        
+        // Ensure there's no empty data in 'Average Order Value'
+        if (stats.averageOrderValue === 0) {
+            worksheet.getCell(`A${5 + 3}`).value = 'Average Order Value: 0 Rs';
+        }
         
 
         
