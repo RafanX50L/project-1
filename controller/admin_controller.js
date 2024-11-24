@@ -427,30 +427,56 @@ const excelDownload = async (req, res) => {
         const { startDate, endDate, reportRange } = req.query;
         let filterCriteria = {};
 
-        if (reportRange) {
+        // if (reportRange) {
+        //     const today = new Date();
+        //     switch (reportRange) {
+        //         case 'today':
+        //             filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+        //             break;
+        //         case '7days':
+        //             filterCriteria.createdAt = { $gte: new Date(today.setDate(today.getDate() - 7)) };
+        //             break;
+        //         case '1month':
+        //             filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 1)) };
+        //             break;
+        //         case '3months':
+        //             filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 3)) };
+        //             break;
+        //     }
+        // }
+
+        // if (startDate && endDate) {
+        //     filterCriteria.createdAt = {
+        //         $gte: new Date(startDate),
+        //         $lte: new Date(endDate)
+        //     };
+        // }
+        
+        let dateRangeLabel = 'N/A';
+        if (startDate && endDate) {
+            dateRangeLabel = formatDateRange(startDate, endDate);
+        } else if (reportRange) {
             const today = new Date();
             switch (reportRange) {
                 case 'today':
-                    filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+                    dateRangeLabel = formatDateRange(today, today);
                     break;
                 case '7days':
-                    filterCriteria.createdAt = { $gte: new Date(today.setDate(today.getDate() - 7)) };
+                    const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
+                    dateRangeLabel = formatDateRange(sevenDaysAgo, new Date());
                     break;
                 case '1month':
-                    filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 1)) };
+                    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+                    dateRangeLabel = formatDateRange(oneMonthAgo, new Date());
                     break;
                 case '3months':
-                    filterCriteria.createdAt = { $gte: new Date(today.setMonth(today.getMonth() - 3)) };
+                    const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
+                    dateRangeLabel = formatDateRange(threeMonthsAgo, new Date());
                     break;
             }
         }
 
-        if (startDate && endDate) {
-            filterCriteria.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
-        }
+
         filterCriteria.status='delivered';
 
         const orders = await Orders.find(filterCriteria)
@@ -473,13 +499,15 @@ const excelDownload = async (req, res) => {
             return  `${name} `;
         };
 
-        // const formatProducts = (items) => {
-        //     return (items || []).map((item) => {
-        //         const name = item.productName.padEnd(10, ' ');
-        //         const price = item.unitPrice;
-        //         return `${name} (${price}Rs) × ${item.quantity.toString().padStart(3, ' ')}`;
-        //     }).join('\n');
-        // };
+        const formatDateRange = (start, end) => {
+            if (!start || !end) return 'N/A'; // Fallback if dates are missing
+            const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedStart = new Date(start).toLocaleDateString('en-US', formatOptions);
+            const formattedEnd = new Date(end).toLocaleDateString('en-US', formatOptions);
+            return `${formattedStart} - ${formattedEnd}`;
+        };
+        
+
 
         const formatProducts = (items) => {
             return (items || []).map((item) => {
@@ -487,7 +515,7 @@ const excelDownload = async (req, res) => {
                 const price = `${item.unitPrice || 0} Rs`;
                 const quantity = item.quantity || 0;
                 return `${name} (${price}) × ${quantity}`;
-            }).join('\n'); // Join product details with a newline
+            }).join('\n'); 
         };
         
 
@@ -543,11 +571,19 @@ const excelDownload = async (req, res) => {
         };
         worksheet.getCell('A4').alignment = { horizontal: 'left', vertical: 'middle' };
 
+        // const statsRows = [
+        //     ['Total Orders:', stats.totalOrders],
+        //     ['Total Revenue:', formatCurrency(stats.totalRevenue)],
+        //     ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
+        // ];
+
         const statsRows = [
+            ['Date Range:', dateRangeLabel], // Add this row for the date range
             ['Total Orders:', stats.totalOrders],
             ['Total Revenue:', formatCurrency(stats.totalRevenue)],
             ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
         ];
+        
 
         statsRows.forEach((row, index) => {
             worksheet.getCell(`A${5 + index}`).value = row[0];
@@ -617,37 +653,6 @@ const excelDownload = async (req, res) => {
             };
         });
 
-        // orders.forEach((order, index) => {
-        //     const row = worksheet.getRow(startRow + index + 1);
-        //     row.values = [
-        //         order.orderId || '',
-        //         formatCustomer(order.userId),
-        //         formatProducts(order.items),
-        //         formatOffer(order.Offer_discount),
-        //         formatCoupon(order.Coupon_discount),
-        //         formatDeliver(order.deliveryCharge),
-        //         formatCurrency(order.totalAmount),
-        //         formatDate(order.createdAt)
-        //     ];
-        //     row.height = 30; 
-        //     row.alignment = { vertical: 'middle', wrapText: true };
-            
-        //     row.eachCell((cell, colNumber) => {
-        //         cell.border = {
-        //             top: { style: 'thin' },
-        //             bottom: { style: 'thin' },
-        //             left: { style: 'thin' },
-        //             right: { style: 'thin' }
-        //         };
-        //         if (colNumber === 4 || colNumber === 5 || colNumber === 6) {
-        //             cell.alignment = { horizontal: 'right', vertical: 'middle', wrapText: true };
-        //         } else if (colNumber === 1 || colNumber === 7) {
-        //             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
-        //         } else {
-        //             cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
-        //         }
-        //     });
-        // });
         orders.forEach((order, index) => {
             const row = worksheet.getRow(startRow + index + 1);
             const productDetails = formatProducts(order.items);
@@ -655,7 +660,7 @@ const excelDownload = async (req, res) => {
             row.values = [
                 order.orderId || '',
                 formatCustomer(order.userId),
-                productDetails, // Use the formatted product string
+                productDetails, 
                 formatOffer(order.Offer_discount),
                 formatCoupon(order.Coupon_discount),
                 formatDeliver(order.deliveryCharge),
@@ -663,13 +668,11 @@ const excelDownload = async (req, res) => {
                 formatDate(order.createdAt)
             ];
         
-            // Calculate dynamic row height based on product details
             const productLineCount = productDetails.split('\n').length;
-            row.height = Math.max(30, productLineCount * 15); // Base height + additional for wrapped lines
+            row.height = Math.max(30, productLineCount * 15); 
         
             row.alignment = { vertical: 'middle', wrapText: true };
         
-            // Apply border and alignment for all cells
             row.eachCell((cell, colNumber) => {
                 cell.border = {
                     top: { style: 'thin' },
