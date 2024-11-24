@@ -291,7 +291,6 @@ const pdfDownload = async (req, res) => {
         });
         doc.pipe(fs.createWriteStream('Sales_Report.pdf'));
 
-        // const imagePath = '/images/images.png';
         const imagePath = path.join(__dirname, '../public/images/images.png');
         doc.image(imagePath, 20, 20, { width: 50, height: 50 }); 
 
@@ -474,13 +473,23 @@ const excelDownload = async (req, res) => {
             return  `${name} `;
         };
 
+        // const formatProducts = (items) => {
+        //     return (items || []).map((item) => {
+        //         const name = item.productName.padEnd(10, ' ');
+        //         const price = item.unitPrice;
+        //         return `${name} (${price}Rs) × ${item.quantity.toString().padStart(3, ' ')}`;
+        //     }).join('\n');
+        // };
+
         const formatProducts = (items) => {
             return (items || []).map((item) => {
-                const name = item.productName.padEnd(10, ' ');
-                const price = item.unitPrice;
-                return `${name} (${price}Rs) × ${item.quantity.toString().padStart(3, ' ')}`;
-            }).join('\n');
+                const name = item.productName || 'N/A';
+                const price = `${item.unitPrice || 0} Rs`;
+                const quantity = item.quantity || 0;
+                return `${name} (${price}) × ${quantity}`;
+            }).join('\n'); // Join product details with a newline
         };
+        
 
         const formatCoupon = (discount) => {
             if (!discount) return 'No Coupon ';
@@ -608,21 +617,59 @@ const excelDownload = async (req, res) => {
             };
         });
 
+        // orders.forEach((order, index) => {
+        //     const row = worksheet.getRow(startRow + index + 1);
+        //     row.values = [
+        //         order.orderId || '',
+        //         formatCustomer(order.userId),
+        //         formatProducts(order.items),
+        //         formatOffer(order.Offer_discount),
+        //         formatCoupon(order.Coupon_discount),
+        //         formatDeliver(order.deliveryCharge),
+        //         formatCurrency(order.totalAmount),
+        //         formatDate(order.createdAt)
+        //     ];
+        //     row.height = 30; 
+        //     row.alignment = { vertical: 'middle', wrapText: true };
+            
+        //     row.eachCell((cell, colNumber) => {
+        //         cell.border = {
+        //             top: { style: 'thin' },
+        //             bottom: { style: 'thin' },
+        //             left: { style: 'thin' },
+        //             right: { style: 'thin' }
+        //         };
+        //         if (colNumber === 4 || colNumber === 5 || colNumber === 6) {
+        //             cell.alignment = { horizontal: 'right', vertical: 'middle', wrapText: true };
+        //         } else if (colNumber === 1 || colNumber === 7) {
+        //             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        //         } else {
+        //             cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+        //         }
+        //     });
+        // });
         orders.forEach((order, index) => {
             const row = worksheet.getRow(startRow + index + 1);
+            const productDetails = formatProducts(order.items);
+        
             row.values = [
                 order.orderId || '',
                 formatCustomer(order.userId),
-                formatProducts(order.items),
+                productDetails, // Use the formatted product string
                 formatOffer(order.Offer_discount),
                 formatCoupon(order.Coupon_discount),
                 formatDeliver(order.deliveryCharge),
                 formatCurrency(order.totalAmount),
                 formatDate(order.createdAt)
             ];
-            row.height = 30; 
+        
+            // Calculate dynamic row height based on product details
+            const productLineCount = productDetails.split('\n').length;
+            row.height = Math.max(30, productLineCount * 15); // Base height + additional for wrapped lines
+        
             row.alignment = { vertical: 'middle', wrapText: true };
-            
+        
+            // Apply border and alignment for all cells
             row.eachCell((cell, colNumber) => {
                 cell.border = {
                     top: { style: 'thin' },
@@ -639,7 +686,7 @@ const excelDownload = async (req, res) => {
                 }
             });
         });
-
+        
         worksheet.columns = [
             { width: 20 },  
             { width: 30 },  
