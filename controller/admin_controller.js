@@ -444,15 +444,22 @@ const excelDownload = async (req, res) => {
             const today = new Date();
             switch (reportRange) {
                 case 'today':
+                    filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
                     dateRangeLabel = 'Today';
                     break;
                 case '7days':
+                    const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
+                    filterCriteria.createdAt = { $gte: sevenDaysAgo };
                     dateRangeLabel = 'Last 7 Days';
                     break;
                 case '1month':
+                    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+                    filterCriteria.createdAt = { $gte: oneMonthAgo };
                     dateRangeLabel = 'Last 1 Month';
                     break;
                 case '3months':
+                    const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
+                    filterCriteria.createdAt = { $gte: threeMonthsAgo };
                     dateRangeLabel = 'Last 3 Month';
                     break;
             }
