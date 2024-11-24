@@ -602,10 +602,10 @@ const excelDownload = async (req, res) => {
                 };
                 cell.alignment = { horizontal: 'left', vertical: 'middle' };
             });
+            if(index==3){
+                console.log(row);
+            }
         });
-        if(index==3){
-            console.log(row);
-        }
         
         // Ensure there's no empty data in 'Average Order Value'
         if (stats.averageOrderValue === 0) {
