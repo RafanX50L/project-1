@@ -573,25 +573,38 @@ const excelDownload = async (req, res) => {
         };
         worksheet.getCell('A4').alignment = { horizontal: 'left', vertical: 'middle' };
 
+
         // const statsRows = [
+        //     ['Date Range:', dateRangeLabel], 
         //     ['Total Orders:', stats.totalOrders],
         //     ['Total Revenue:', formatCurrency(stats.totalRevenue)],
         //     ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
         // ];
 
+        const dateRangeText = startDate && endDate 
+            ? `${formatDate(startDate)} to ${formatDate(endDate)}`
+            : 'All Time';
+
         const statsRows = [
-            ['Date Range:', dateRangeLabel], // Add this row for the date range
+            ['Date Range:', dateRangeText], // Date Range at the top
             ['Total Orders:', stats.totalOrders],
             ['Total Revenue:', formatCurrency(stats.totalRevenue)],
             ['Average Order Value:', formatCurrency(stats.averageOrderValue)]
         ];
+
         
 
         statsRows.forEach((row, index) => {
             worksheet.getCell(`A${5 + index}`).value = row[0];
             worksheet.getCell(`B${5 + index}`).value = row[1];
-            worksheet.getCell(`A${5 + index}`).value = row[2];
-            ['A', 'B'].forEach(col => {
+        
+            // Custom style for the first row (Date Range)
+            if (index === 0) {
+                worksheet.getCell(`A${5 + index}`).font = { bold: true };
+                worksheet.getCell(`B${5 + index}`).font = { italic: true };
+            }
+        
+            ['A', 'B'].forEach((col) => {
                 const cell = worksheet.getCell(`${col}${5 + index}`);
                 cell.border = {
                     top: { style: 'thin' },
@@ -599,8 +612,10 @@ const excelDownload = async (req, res) => {
                     left: { style: 'thin' },
                     right: { style: 'thin' }
                 };
+                cell.alignment = { horizontal: 'left', vertical: 'middle' };
             });
         });
+        
 
         
 
