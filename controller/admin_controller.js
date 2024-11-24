@@ -444,19 +444,16 @@ const excelDownload = async (req, res) => {
             const today = new Date();
             switch (reportRange) {
                 case 'today':
-                    dateRangeLabel = formatDateRange(today, today);
+                    dateRangeLabel = 'Today';
                     break;
                 case '7days':
-                    const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
-                    dateRangeLabel = formatDateRange(sevenDaysAgo, new Date());
+                    dateRangeLabel = 'Last 7 Days';
                     break;
                 case '1month':
-                    const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
-                    dateRangeLabel = formatDateRange(oneMonthAgo, new Date());
+                    dateRangeLabel = 'Last 1 Month';
                     break;
                 case '3months':
-                    const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
-                    dateRangeLabel = formatDateRange(threeMonthsAgo, new Date());
+                    dateRangeLabel = 'Last 3 Month';
                     break;
             }
         }
@@ -606,6 +603,9 @@ const excelDownload = async (req, res) => {
                 cell.alignment = { horizontal: 'left', vertical: 'middle' };
             });
         });
+        if(index==3){
+            console.log(row);
+        }
         
         // Ensure there's no empty data in 'Average Order Value'
         if (stats.averageOrderValue === 0) {
