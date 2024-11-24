@@ -64,22 +64,60 @@ const dashboard = async (req, res) => {
 
         let filterCriteria = {};
 
-        if (reportRange === '7days') {
-            const dateLimit = new Date();
-            dateLimit.setDate(dateLimit.getDate() - 7);
-            filterCriteria.createdAt = { $gte: dateLimit };
-        } else if (reportRange === 'today') {
-            const startOfToday = new Date();
-            startOfToday.setHours(0, 0, 0, 0); 
-            const endOfToday = new Date();
-            endOfToday.setHours(23, 59, 59, 999); 
-            filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
-        } else if (startDate && endDate) {
-            filterCriteria.createdAt = { 
-                $gte: new Date(startDate), 
-                $lte: new Date(endDate) 
-            };
+        // if (reportRange === '7days') {
+        //     const dateLimit = new Date();
+        //     dateLimit.setDate(dateLimit.getDate() - 7);
+        //     filterCriteria.createdAt = { $gte: dateLimit };
+        // } else if (reportRange === 'today') {
+        //     const startOfToday = new Date();
+        //     startOfToday.setHours(0, 0, 0, 0); 
+        //     const endOfToday = new Date();
+        //     endOfToday.setHours(23, 59, 59, 999); 
+        //     filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
+        // } else if (startDate && endDate) {
+        //     filterCriteria.createdAt = { 
+        //         $gte: new Date(startDate), 
+        //         $lte: new Date(endDate) 
+        //     };
+        // }
+
+        switch (reportRange) {
+            case '7days':
+                const dateLimit = new Date();
+                dateLimit.setDate(dateLimit.getDate() - 7);
+                filterCriteria.createdAt = { $gte: dateLimit };
+                break;
+        
+            case 'today':
+                const startOfToday = new Date();
+                startOfToday.setHours(0, 0, 0, 0); 
+                const endOfToday = new Date();
+                endOfToday.setHours(23, 59, 59, 999); 
+                filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
+                break;
+        
+            case '1month':
+                const dateLimit1Month = new Date();
+                dateLimit1Month.setMonth(dateLimit1Month.getMonth() - 1);
+                filterCriteria.createdAt = { $gte: dateLimit1Month };
+                break;
+        
+            case '3months':
+                const dateLimit3Months = new Date();
+                dateLimit3Months.setMonth(dateLimit3Months.getMonth() - 3);
+                filterCriteria.createdAt = { $gte: dateLimit3Months };
+                break;
+        
+            default:
+                // Apply the date range if both startDate and endDate are provided
+                if (startDate && endDate) {
+                    filterCriteria.createdAt = { 
+                        $gte: new Date(startDate), 
+                        $lte: new Date(endDate)                         };
+                }
+                break;
         }
+        
 
         const recordsPerPage = 5;
         const skip = (page - 1) * recordsPerPage;
@@ -248,35 +286,6 @@ const pdfDownload = async (req, res) => {
         const { reportRange, startDate, endDate } = req.query;
         let filterCriteria = {};
 
-        // if (reportRange) {
-        //     const today = new Date();
-        //     switch (reportRange) {
-        //         case 'today':
-        //             filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
-        //             break;
-        //         case '7days':
-        //             const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
-        //             filterCriteria.createdAt = { $gte: sevenDaysAgo };
-        //             break;
-        //         case '1month':
-        //             const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
-        //             filterCriteria.createdAt = { $gte: oneMonthAgo };
-        //             break;
-        //         case '3months':
-        //             const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
-        //             filterCriteria.createdAt = { $gte: threeMonthsAgo };
-        //             break;
-        //         default:
-        //             break;
-        //     }
-        // }
-
-        // if (startDate && endDate) {
-        //     filterCriteria.createdAt = {
-        //         $gte: new Date(startDate),
-        //         $lte: new Date(endDate)
-        //     };
-        // }
         
         const formatDateRange = (start, end) => {
             if (!start || !end) return 'N/A'; // Fallback if dates are missing
