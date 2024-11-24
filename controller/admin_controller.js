@@ -291,7 +291,7 @@ const pdfDownload = async (req, res) => {
         });
         doc.pipe(fs.createWriteStream('Sales_Report.pdf'));
 
-        const imagePath = '/Users/USER/OneDrive/Documents/Visual studio files/8th week project/public/images.png';
+        const imagePath = '/public/images.png';
         doc.image(imagePath, 20, 20, { width: 50, height: 50 }); 
 
         doc.fillColor('#1976D2')
