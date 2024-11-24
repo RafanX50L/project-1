@@ -64,22 +64,7 @@ const dashboard = async (req, res) => {
 
         let filterCriteria = {};
 
-        // if (reportRange === '7days') {
-        //     const dateLimit = new Date();
-        //     dateLimit.setDate(dateLimit.getDate() - 7);
-        //     filterCriteria.createdAt = { $gte: dateLimit };
-        // } else if (reportRange === 'today') {
-        //     const startOfToday = new Date();
-        //     startOfToday.setHours(0, 0, 0, 0); 
-        //     const endOfToday = new Date();
-        //     endOfToday.setHours(23, 59, 59, 999); 
-        //     filterCriteria.createdAt = { $gte: startOfToday, $lte: endOfToday };
-        // } else if (startDate && endDate) {
-        //     filterCriteria.createdAt = { 
-        //         $gte: new Date(startDate), 
-        //         $lte: new Date(endDate) 
-        //     };
-        // }
+        
 
         switch (reportRange) {
             case '7days':
@@ -111,9 +96,12 @@ const dashboard = async (req, res) => {
             default:
                 // Apply the date range if both startDate and endDate are provided
                 if (startDate && endDate) {
+                    console.log('nice');
+                    
                     filterCriteria.createdAt = { 
                         $gte: new Date(startDate), 
-                        $lte: new Date(endDate)                         };
+                        $lte: new Date(endDate)
+                    };
                 }
                 break;
         }
@@ -298,6 +286,10 @@ const pdfDownload = async (req, res) => {
         let dateRangeLabel = 'All Time';
         if (startDate && endDate) {
             dateRangeLabel = formatDateRange(startDate, endDate);
+            filterCriteria.createdAt = { 
+                $gte: new Date(startDate), 
+                $lte: new Date(endDate)
+            };
         } else if (reportRange) {
             const today = new Date();
             switch (reportRange) {
@@ -492,6 +484,10 @@ const excelDownload = async (req, res) => {
         let dateRangeLabel = 'All Time';
         if (startDate && endDate) {
             dateRangeLabel = formatDateRange(startDate, endDate);
+            filterCriteria.createdAt = { 
+                $gte: new Date(startDate), 
+                $lte: new Date(endDate)
+            };
         } else if (reportRange) {
             const today = new Date();
             switch (reportRange) {
