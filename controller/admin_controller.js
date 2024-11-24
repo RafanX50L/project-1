@@ -452,6 +452,14 @@ const excelDownload = async (req, res) => {
         //     };
         // }
         
+        const formatDateRange = (start, end) => {
+            if (!start || !end) return 'N/A'; // Fallback if dates are missing
+            const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedStart = new Date(start).toLocaleDateString('en-US', formatOptions);
+            const formattedEnd = new Date(end).toLocaleDateString('en-US', formatOptions);
+            return `${formattedStart} - ${formattedEnd}`;
+        };
+
         let dateRangeLabel = 'N/A';
         if (startDate && endDate) {
             dateRangeLabel = formatDateRange(startDate, endDate);
@@ -499,13 +507,7 @@ const excelDownload = async (req, res) => {
             return  `${name} `;
         };
 
-        const formatDateRange = (start, end) => {
-            if (!start || !end) return 'N/A'; // Fallback if dates are missing
-            const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedStart = new Date(start).toLocaleDateString('en-US', formatOptions);
-            const formattedEnd = new Date(end).toLocaleDateString('en-US', formatOptions);
-            return `${formattedStart} - ${formattedEnd}`;
-        };
+        
         
 
 
@@ -598,6 +600,8 @@ const excelDownload = async (req, res) => {
                 };
             });
         });
+
+        
 
         worksheet.mergeCells('A8:H8'); 
         worksheet.getCell('A8').value = 'Order Details';
