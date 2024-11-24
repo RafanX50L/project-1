@@ -248,35 +248,72 @@ const pdfDownload = async (req, res) => {
         const { reportRange, startDate, endDate } = req.query;
         let filterCriteria = {};
 
-        if (reportRange) {
+        // if (reportRange) {
+        //     const today = new Date();
+        //     switch (reportRange) {
+        //         case 'today':
+        //             filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+        //             break;
+        //         case '7days':
+        //             const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
+        //             filterCriteria.createdAt = { $gte: sevenDaysAgo };
+        //             break;
+        //         case '1month':
+        //             const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
+        //             filterCriteria.createdAt = { $gte: oneMonthAgo };
+        //             break;
+        //         case '3months':
+        //             const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
+        //             filterCriteria.createdAt = { $gte: threeMonthsAgo };
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // }
+
+        // if (startDate && endDate) {
+        //     filterCriteria.createdAt = {
+        //         $gte: new Date(startDate),
+        //         $lte: new Date(endDate)
+        //     };
+        // }
+        
+        const formatDateRange = (start, end) => {
+            if (!start || !end) return 'N/A'; // Fallback if dates are missing
+            const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedStart = new Date(start).toLocaleDateString('en-US', formatOptions);
+            const formattedEnd = new Date(end).toLocaleDateString('en-US', formatOptions);
+            return `${formattedStart} - ${formattedEnd}`;
+        };
+
+        let dateRangeLabel = 'All Time';
+        if (startDate && endDate) {
+            dateRangeLabel = formatDateRange(startDate, endDate);
+        } else if (reportRange) {
             const today = new Date();
             switch (reportRange) {
                 case 'today':
                     filterCriteria.createdAt = { $gte: new Date(today.setHours(0, 0, 0, 0)) };
+                    dateRangeLabel = 'Today';
                     break;
                 case '7days':
                     const sevenDaysAgo = new Date(today.setDate(today.getDate() - 7));
                     filterCriteria.createdAt = { $gte: sevenDaysAgo };
+                    dateRangeLabel = 'Last 7 Days';
                     break;
                 case '1month':
                     const oneMonthAgo = new Date(today.setMonth(today.getMonth() - 1));
                     filterCriteria.createdAt = { $gte: oneMonthAgo };
+                    dateRangeLabel = 'Last 1 Month';
                     break;
                 case '3months':
                     const threeMonthsAgo = new Date(today.setMonth(today.getMonth() - 3));
                     filterCriteria.createdAt = { $gte: threeMonthsAgo };
-                    break;
-                default:
+                    dateRangeLabel = 'Last 3 Month';
                     break;
             }
         }
 
-        if (startDate && endDate) {
-            filterCriteria.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
-        }
         filterCriteria.status='delivered';
 
         const orders = await Orders.find(filterCriteria).populate('userId', 'name').sort({ createdAt: -1 });
@@ -347,6 +384,12 @@ const pdfDownload = async (req, res) => {
             .fontSize(16)
             .font('Helvetica-Bold')
             .text('Order Details', 20, doc.y); 
+        doc.moveDown(0.5);
+
+        doc.fillColor('#1976D2')
+            .fontSize(16)
+            .font('Helvetica-Bold')
+            .text(`Date Range  ${dateRangeLabel}`, 20, doc.y); 
         doc.moveDown(1.5);
 
         const xPositions = [20, 80, 170, 270 ,320,370, 460, 515];
