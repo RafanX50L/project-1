@@ -583,28 +583,32 @@ const excelDownload = async (req, res) => {
         // });
         
         statsRows.forEach((row, index) => {
-            worksheet.getCell(`A${5 + index}`).value = row[0];
-            worksheet.getCell(`B${5 + index}`).value = row[1];
+            const rowIndex = 5 + index;
+            worksheet.getCell(`A${rowIndex}`).value = row[0];
+            worksheet.getCell(`B${rowIndex}`).value = row[1];
         
-            // Custom style for the first row (Date Range)
-            if (index === 0) {
-                worksheet.getCell(`A${5 + index}`).font = { bold: true };
-                worksheet.getCell(`B${5 + index}`).font = { italic: true };
-            }
-        
+            // Apply font, border, alignment, and wrapping text for all summary cells
             ['A', 'B'].forEach((col) => {
-                const cell = worksheet.getCell(`${col}${5 + index}`);
+                const cell = worksheet.getCell(`${col}${rowIndex}`);
+                cell.alignment = {
+                    horizontal: 'left', 
+                    vertical: 'middle', 
+                    wrapText: true  // Enable wrap text to prevent content from being hidden
+                };
                 cell.border = {
                     top: { style: 'thin' },
                     bottom: { style: 'thin' },
                     left: { style: 'thin' },
                     right: { style: 'thin' }
                 };
-                cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                if (index === 0) {
+                    // Custom style for the Date Range row
+                    cell.font = { bold: true, italic: true };
+                }
             });
-            if(index==3){
-                console.log(row);
-            }
+        
+            // Set row height for visibility
+            worksheet.getRow(rowIndex).height = 30;
         });
         
         // Ensure there's no empty data in 'Average Order Value'
@@ -706,15 +710,26 @@ const excelDownload = async (req, res) => {
             });
         });
         
+        // worksheet.columns = [
+        //     { width: 20 },  
+        //     { width: 30 },  
+        //     { width: 45 },  
+        //     { width: 15 },  
+        //     { width: 15 }, 
+        //     { width: 15 },  
+        //     { width: 15 },  
+        //     { width: 20 }   
+        // ];
+
         worksheet.columns = [
-            { width: 20 },  
-            { width: 30 },  
-            { width: 45 },  
-            { width: 15 },  
-            { width: 15 }, 
-            { width: 15 },  
-            { width: 15 },  
-            { width: 20 }   
+            { width: 25 },  // Date Range / Total Orders
+            { width: 35 },  // Revenue / Average Order Value / Amount
+            { width: 45 },  // Product Details / Other info
+            { width: 15 },  // Offers / Coupon / Delivery Charge
+            { width: 15 },  // Other necessary columns
+            { width: 15 },
+            { width: 20 },
+            { width: 20 }
         ];
 
         const lastRow = startRow + orders.length;
