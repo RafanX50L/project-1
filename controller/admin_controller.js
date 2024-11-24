@@ -590,6 +590,7 @@ const excelDownload = async (req, res) => {
         statsRows.forEach((row, index) => {
             worksheet.getCell(`A${5 + index}`).value = row[0];
             worksheet.getCell(`B${5 + index}`).value = row[1];
+            worksheet.getCell(`A${5 + index}`).value = row[2];
             ['A', 'B'].forEach(col => {
                 const cell = worksheet.getCell(`${col}${5 + index}`);
                 cell.border = {
