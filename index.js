@@ -13,10 +13,6 @@ mongoose.connect('mongodb+srv://rafanmu33:n65kkteG7kYHRF3G@cluster0.2wrcu.mongod
     .then(() => console.log("MongoDB connected successfully"))
     .catch((error) => console.error('MongoDB connection error:', error));
 
-
-
-
-
 const Coupon = require('./model/coupon'); 
 const Offers = require('./model/offer')
 
