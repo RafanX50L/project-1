@@ -607,9 +607,18 @@
                         formData.append('product_image', blob);
                         console.log(formData);
                         console.log(productId);
-                        
-                        
-                        
+
+                        // Show loading SweetAlert
+                        Swal.fire({
+                            title: 'Uploading...',
+                            text: 'Please wait while the image is being uploaded.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading(); // Show the loading spinner
+                            }
+                        });
+
                         fetch(`/admin/products1/add-image/${productId}`, {
                             method: 'POST',
                             body: formData
@@ -621,6 +630,7 @@
                             return response.json();
                         })
                         .then(data => {
+                            Swal.close(); // Close the loading SweetAlert
                             if (data.success) {
                                 Swal.fire('Success', 'Image added successfully', 'success')
                                     .then(() => location.reload());
@@ -629,14 +639,15 @@
                             }
                         })
                         .catch(error => {
+                            Swal.close(); // Close the loading SweetAlert
                             console.error('Error:', error);
                             Swal.fire('Error', 'An error occurred while adding the image', 'error');
                         });
-
                     });
-                    
+
                     $('#addImageModal').modal('hide');
                 }
+
             });
         });
         
