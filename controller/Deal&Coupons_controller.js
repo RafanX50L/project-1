@@ -12,9 +12,22 @@ const Offers = require('../model/offer');
 
 const getCoupon = async (req,res) => {
     try {
-        const coupons = await Coupon.find();
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 8; 
+        const skip = (page - 1) * limit; 
         
-        res.render('admin/coupon.ejs',{coupons});
+        const totalcoupons = await Coupon.countDocuments(); 
+        const coupons = await Coupon.find()
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalcoupons / limit);        
+        res.render('admin/coupon.ejs',
+            {
+                coupons,
+                currentPage: page,
+                totalPages
+            });
     } catch (error) {
         console.log(error);
     }
@@ -147,8 +160,27 @@ const getOffers = async (req,res) => {
         }
     ]);
     try {
-        const offer = await Offers.find();
-        res.render('admin/offers.ejs',{offers:offer , products:products , Subcategory:uniqueSubcategories , Category:uniqueCategories})        
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 8; 
+        const skip = (page - 1) * limit; 
+        
+        const totaloffers = await Offers.countDocuments(); 
+        const offers = await Offers.find()
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totaloffers / limit);
+        
+        res.render('admin/offers.ejs',
+            {
+                offers,
+                products:products,
+                Subcategory:uniqueSubcategories,
+                Category:uniqueCategories,
+                currentPage: page,
+                totalPages
+            }
+        )        
     } catch (error) {
         console.log(error);
     }

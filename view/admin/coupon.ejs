@@ -477,6 +477,39 @@ h3 {
             </div>
 
 
+            <!-- Pagination Controls -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/coupons?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                            
+                        </li>
+                    <% } %>
+    
+                    <% 
+                        let startPage = Math.max(currentPage - 1, 1);
+                        let endPage = Math.min(currentPage + 1, totalPages);
+                    %>
+    
+                    <% for (let i = startPage; i <= endPage; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/coupons?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+    
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/coupons?page=<%= currentPage + 1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+
 
 
             <!-- Footer Start -->

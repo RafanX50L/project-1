@@ -922,8 +922,25 @@ const toggle_status = async (req, res) => {
 
 
 const getCategory = async(req,res)=>{
-    const category = await Category.find();
-    res.render('admin/category.ejs', {category });
+
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 8;
+    const skip = (page - 1) * limit; 
+    
+    const totalCategory = await Category.countDocuments(); 
+    const category = await Category.find()
+        .skip(skip)
+        .limit(limit);
+
+    const totalPages = Math.ceil(totalCategory / limit);
+
+    res.render('admin/category.ejs', 
+        {
+            category,
+            currentPage: page,
+            totalPages
+        }
+    );
 }
 
 const postAddCategory = async (req, res) => {
@@ -1005,8 +1022,25 @@ const postCategory_editdetails = async(req, res) => {
 
 const orders = async (req,res) => {
 
-    const orders = await Orders.find().populate('userId'); 
-    res.render('admin/orders.ejs', { orders }); 
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 8;
+    const skip = (page - 1) * limit; 
+    
+    const totalorders = await Orders.countDocuments(); 
+    const orders = await Orders.find()
+        .populate('userId')
+        .skip(skip)
+        .limit(limit);
+
+    const totalPages = Math.ceil(totalorders / limit);
+    
+    res.render('admin/orders.ejs', 
+        {
+            orders,
+            currentPage: page,
+            totalPages 
+        }
+    ); 
     
 }
 
