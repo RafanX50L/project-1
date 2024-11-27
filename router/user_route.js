@@ -19,7 +19,6 @@ user_route.use(async (req, res, next) => {
     if (req.session.loggedIn && publicPaths.includes(req.path)) {
         return res.redirect('/user/home');
     }
-    
     next(); 
 });
 
