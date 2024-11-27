@@ -363,22 +363,18 @@ const removeFromCart = async (req, res) => {
 const updatCart = async (req,res) => {
   try {
     const userId = req.session.loggedIn; 
-    const { items } = req.body; 
-
-    const cart = await Cart.findOneAndUpdate(
-        { userId },
-        { $set: { 'items.$[elem].quantity': 1 } }, 
-        { arrayFilters: [{ 'elem.productId': { $in: items.map(item => item.productId) } }] } 
+    const { productId,quantity } = req.body; 
+    console.log(req.body);
+    
+    const updatedCart = await Cart.findOneAndUpdate(
+        { userId: userId, "items.productId": productId }, // Target the specific item in the array
+        { $set: { "items.$.quantity": quantity } }, // Use the positional operator to update the quantity
+        { new: true } // Return the updated document
     );
-
-    for (const item of items) {
-        await Cart.updateOne(
-            { userId, 'items.productId': item.productId },
-            { $set: { 'items.$.quantity': item.quantity } }
-        );
+    if(updatCart){
+        res.status(200).json({ message: 'Cart updated successfully!' });
     }
-
-    res.json({ message: 'Cart updated successfully!' });
+    res.status(400);
 } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
