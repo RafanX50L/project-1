@@ -211,11 +211,11 @@ h3 {
                 </a>
                 <div class="d-flex align-items-center ms-4 mb-4">
                     <div class="position-relative">
-                        <img class="rounded-circle" src="img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <img class="rounded-circle" src="/admin//img/24824-itachi-wallpaper-hd.jpg" alt="" style="width: 40px; height: 40px;">
                         <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                     </div>
                     <div class="ms-3">
-                        <h6 class="mb-0">Jhon Doe</h6>
+                        <h6 class="mb-0">Rafan</h6>
                         <span>Admin</span>
                     </div>
                 </div>
@@ -487,7 +487,7 @@ h3 {
                                 <div class="mb-3">
                                     <label for="applicableProducts" class="form-label">Apply By</label>
                                     <select class="form-control" id="applicableProducts" name="apply" required>
-                                        <option value="" disabled selected>Select a method</option>
+                                        <option value="" disabled selected id="CustomId">Select a method</option>
                                         <option value="Product">Product</option>
                                         <option value="Category">Category</option>
                                         <option value="Subcategory">Subcategory</option>
@@ -497,7 +497,7 @@ h3 {
                                 <div class="mb-3">
                                     <label for="applicableSubCategory" class="form-label">Value</label>
                                     <select class="form-control" id="applicableSubCategory" name="value" required>
-                                        <option value="" disabled selected>Select an option</option>
+                                        <option value="" disabled selected id="customId">Select an option</option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -612,7 +612,7 @@ h3 {
     function updateSubcategoryDropdown(applyDropdown, subcategoryDropdown) {
         const selectedOption = applyDropdown.value;
         
-        subcategoryDropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
+        // subcategoryDropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
 
         let options = [];
         if (selectedOption === 'Product') {
@@ -668,6 +668,8 @@ h3 {
         const subcategory = $(this).data('value'); 
         const startDate = new Date($(this).data('start')).toISOString().slice(0, 10);
         const endDate = new Date($(this).data('end')).toISOString().slice(0, 10);
+        document.querySelector("#CustomId").textContent=applicableProduct;
+        document.querySelector("#customId").textContent=subcategory;
 
         $('#editOfferId').val(offerId);
         $('#editOfferCode').val(offerCode);
@@ -683,16 +685,14 @@ h3 {
     // Validate form data on submission
     function validateForm(form) {
         const discount = form.find('input[name="discount"], input[name="editDiscount"]').val();
-        const validFrom = form.find('input[name="validFrom"], input[name="editStartDate"]').val();
-        const validUntil = form.find('input[name="validUntil"], input[name="editEndDate"]').val();
+        const validFrom = new Date(form.find('input[name="validFrom"], input[name="editStartDate"]').val());
+        const validUntil = new Date (form.find('input[name="validUntil"], input[name="editEndDate"]').val());
         const offerCode = form.find('input[name="offerCode"], input[name="editOfferCode"]').val().trim(); 
 
         const todayDate = new Date();
         todayDate.setHours(0, 0, 0, 0);
 
         if (validFrom < todayDate) {
-           
-            
             Swal.fire({
                 icon: 'warning',
                 title: 'Invalid Date',
