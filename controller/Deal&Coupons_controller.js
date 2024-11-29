@@ -18,6 +18,7 @@ const getCoupon = async (req, res) => {
         const query = search ? { coupon_code: { $regex: search, $options: "i" } } : {};
         const totalcoupons = await Coupon.countDocuments(query);
         const coupons = await Coupon.find(query)
+            .sort({createdAt:-1})
             .skip(skip)
             .limit(limit);
         const totalPages = Math.ceil(totalcoupons / limit);
@@ -151,6 +152,7 @@ const getOffers = async (req, res) => {
 
         const totalOffers = await Offers.countDocuments(query);
         const offers = await Offers.find(query)
+            .sort({createdAt:-1})
             .skip(skip)
             .limit(limit);
 

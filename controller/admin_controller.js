@@ -939,6 +939,7 @@ const getCategory = async (req, res) => {
 
         const totalCategory = await Category.countDocuments(query);
         const category = await Category.find(query)
+            .sort({createdAt:-1})
             .skip(skip)
             .limit(limit);
 
@@ -1045,6 +1046,7 @@ const orders = async (req, res) => {
         const totalOrders = await Orders.countDocuments(query);
         const orders = await Orders.find(query)
             .populate('userId')
+            .sort({createdAt:-1})
             .skip(skip)
             .limit(limit);
 
