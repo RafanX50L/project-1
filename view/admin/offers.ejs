@@ -244,8 +244,8 @@ h3 {
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                <form class="d-none d-md-flex ms-4" action="/admin/offers">
+                    <input class="form-control bg-dark border-0" name="search" type="search" placeholder="Search">
                 </form>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
@@ -342,60 +342,71 @@ h3 {
                                         </button>
                                     </div>
 
-                                    
-                                    <table class="table table-dark">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">No.</th>
-                                                <th scope="col">Offer Code</th>
-                                                <th scope="col">Discount %</th>
-                                                <th scope="col">Apply By</th>
-                                                <th scope="col">value</th>
-                                                <th scope="col">valid From</th>
-                                                <th scope="col">valid Until</th>
-                                                <th scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% offers.forEach((offers, index) => { %>
+                                    <% if (offers.length === 0) { %>
+                                        <tr>
+                                            <td colspan="9" class="text-center">
+                                                <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px;">
+                                                    <strong>No Offers Found!</strong>
+                                                    <p style="margin: 5px 0;">Please add new Offer or adjust your search criteria.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    <% } else { %>
+                                        <table class="table table-dark">
+                                            <thead>
                                                 <tr>
-                                                    <th scope="row"><%=index+1 %></th>
-                                                    <td><%=offers.offerCode %></td>
-                                                    <td><%= offers.discount %></td>
-                                                    <td><%=offers. apply_by %></td>
-                                                    <td><%=offers.value  %></td>
-                                                    <td><%= new Date(offers.validFrom).toLocaleDateString('en-GB') %></td>
-                                                    <td><%= new Date(offers.validUntil).toLocaleDateString('en-GB') %></td>
-                                                    <td>
-                                                        <a 
-                                                        style="background-color: rgb(5, 154, 204); color: white; border: 0px;" 
-                                                        type="button" 
-                                                        class="btn btn-warning edit-btn" 
-                                                        id="editProductButton" 
-                                                        data-id="<%= offers._id %>"
-                                                        data-code="<%= offers.offerCode %>"
-                                                        data-discount="<%=offers. discount %>"
-                                                        data-apply="<%= offers. apply_by %>"
-                                                        data-value="<%= offers.value %>"
-                                                        data-start="<%= offers.validFrom %>"
-                                                        data-end="<%= offers.validUntil %>"
-                                                        >Edit
-                                                        </a>                                                        
-                                                        <% if (!offers.is_expired) { %>
-                                                            <% if (offers.status === 'active') { %>
-                                                                <button style="background-color: red; color: white;" id="list-btn" class="btn btn-danger list-btn" data-id="<%= offers._id %>" data-status="<%= offers.status %>">Deactivate</button>
-                                                            <% } %>
-                                                            <% if (offers.status === 'inactive') { %>
-                                                                <button style="background-color: green; color: white;" id="list-btn" class="btn btn-success list-btn" data-id="<%= offers._id %>" data-status="<%= offers.status%>">Activate</button>
-                                                            <% } %>
-                                                        <% } else { %>
-                                                            <button style="background-color: yellow; color:black; height: 30px;" id="list-btn" class="btn btn-secondary list-btn" disabled>- - - Expired - - -</button>
-                                                        <% } %>
-                                                    </td>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Offer Code</th>
+                                                    <th scope="col">Discount %</th>
+                                                    <th scope="col">Apply By</th>
+                                                    <th scope="col">value</th>
+                                                    <th scope="col">valid From</th>
+                                                    <th scope="col">valid Until</th>
+                                                    <th scope="col">Action</th>
                                                 </tr>
-                                            <% }) %>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <% offers.forEach((offers, index) => { %>
+                                                    <tr>
+                                                        <th scope="row"><%=index+1 %></th>
+                                                        <td><%=offers.offerCode %></td>
+                                                        <td><%= offers.discount %></td>
+                                                        <td><%=offers. apply_by %></td>
+                                                        <td><%=offers.value  %></td>
+                                                        <td><%= new Date(offers.validFrom).toLocaleDateString('en-GB') %></td>
+                                                        <td><%= new Date(offers.validUntil).toLocaleDateString('en-GB') %></td>
+                                                        <td>
+                                                            <a 
+                                                            style="background-color: rgb(5, 154, 204); color: white; border: 0px;" 
+                                                            type="button" 
+                                                            class="btn btn-warning edit-btn" 
+                                                            id="editProductButton" 
+                                                            data-id="<%= offers._id %>"
+                                                            data-code="<%= offers.offerCode %>"
+                                                            data-discount="<%=offers. discount %>"
+                                                            data-apply="<%= offers. apply_by %>"
+                                                            data-value="<%= offers.value %>"
+                                                            data-start="<%= offers.validFrom %>"
+                                                            data-end="<%= offers.validUntil %>"
+                                                            >Edit
+                                                            </a>                                                        
+                                                            <% if (!offers.is_expired) { %>
+                                                                <% if (offers.status === 'active') { %>
+                                                                    <button style="background-color: red; color: white;" id="list-btn" class="btn btn-danger list-btn" data-id="<%= offers._id %>" data-status="<%= offers.status %>">Deactivate</button>
+                                                                <% } %>
+                                                                <% if (offers.status === 'inactive') { %>
+                                                                    <button style="background-color: green; color: white;" id="list-btn" class="btn btn-success list-btn" data-id="<%= offers._id %>" data-status="<%= offers.status%>">Activate</button>
+                                                                <% } %>
+                                                            <% } else { %>
+                                                                <button style="background-color: yellow; color:black; height: 30px;" id="list-btn" class="btn btn-secondary list-btn" disabled>- - - Expired - - -</button>
+                                                            <% } %>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
@@ -680,6 +691,8 @@ h3 {
         todayDate.setHours(0, 0, 0, 0);
 
         if (validFrom < todayDate) {
+           
+            
             Swal.fire({
                 icon: 'warning',
                 title: 'Invalid Date',

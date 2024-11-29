@@ -354,6 +354,8 @@ const allProducts = async (req, res) => {
 
         let products = await Products.find(filter);
 
+        
+
         products = await applyOffersToProducts(products);
 
         if (sort) {
@@ -430,6 +432,14 @@ const applyOffersToProducts = async (products) => {
 const Movie = async (req, res) => {
     if (req.session.loggedIn) {
         const category = req.params.category;
+        const finddata = await Category.findOne({ category_name: category, isListed: false });
+        console.log(finddata);
+        
+        if (finddata) {
+            console.log('entered');
+            
+            return res.render('user/category not found.ejs');
+        }
 
         const category1 = await Category.find({ isListed: true }, { category_name: 1, _id: 0 });
 
@@ -490,6 +500,14 @@ const productdetail = async (req, res) => {
 
         try {
             const product = await Products.findOne({ _id: id, status: true, stock: { $gt: 0 } });
+            const finddata = await Category.findOne({ category_name: product.category, isListed: false });
+            console.log(finddata);
+            
+            if (finddata) {
+                console.log('entered');
+                
+                return res.render('user/category not found.ejs');
+            }
             if (!product) {
                 return res.redirect('/user/productnotfound')
             }

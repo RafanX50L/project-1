@@ -10,28 +10,28 @@ const categoryModel = require('../model/categoryModel');
 const Coupon = require('../model/coupon');
 const Offers = require('../model/offer');
 
-const getCoupon = async (req,res) => {
+const getCoupon = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 8; 
-        const skip = (page - 1) * limit; 
-        
-        const totalcoupons = await Coupon.countDocuments(); 
-        const coupons = await Coupon.find()
+        const { search, page = 1 } = req.query;
+        const limit = 8;
+        const skip = (page - 1) * limit;
+        const query = search ? { coupon_code: { $regex: search, $options: "i" } } : {};
+        const totalcoupons = await Coupon.countDocuments(query);
+        const coupons = await Coupon.find(query)
             .skip(skip)
             .limit(limit);
-
-        const totalPages = Math.ceil(totalcoupons / limit);        
-        res.render('admin/coupon.ejs',
-            {
-                coupons,
-                currentPage: page,
-                totalPages
-            });
+        const totalPages = Math.ceil(totalcoupons / limit);
+        res.render('admin/coupon.ejs', {
+            coupons,
+            currentPage: parseInt(page),
+            totalPages,
+            search
+        });
     } catch (error) {
         console.log(error);
     }
-}
+};
+ 
 
 const addCoupon = async (req, res) => {
     try {
@@ -129,62 +129,47 @@ const toggleCouponStatus = async (req, res) => {
     }
 };
 
-const getOffers = async (req,res) => {
-     
-    const products = await Products.find();
-    
-    const uniqueSubcategories = await Products.aggregate([
-        {
-            $group: {
-                _id: "$sub_category",
-            }
-        },
-        {
-            $project: {
-                _id: 0,
-                sub_category: "$_id"
-            }
-        }
-    ]);
-    const uniqueCategories = await Products.aggregate([
-        {
-            $group: {
-                _id: "$category",
-            }
-        },
-        {
-            $project: {
-                _id: 0,
-                sub_category: "$_id"
-            }
-        }
-    ]);
+const getOffers = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 8; 
-        const skip = (page - 1) * limit; 
+        const { search, page = 1 } = req.query;
+        const limit = 8;
+        const skip = (page - 1) * limit;
+
+        const query = search ? { offerCode: { $regex: search, $options: "i" } } : {};
+
+        const products = await Products.find();
         
-        const totaloffers = await Offers.countDocuments(); 
-        const offers = await Offers.find()
+        const uniqueSubcategories = await Products.aggregate([
+            { $group: { _id: "$sub_category" } },
+            { $project: { _id: 0, sub_category: "$_id" } }
+        ]);
+
+        const uniqueCategories = await Products.aggregate([
+            { $group: { _id: "$category" } },
+            { $project: { _id: 0, category: "$_id" } }
+        ]);
+
+        const totalOffers = await Offers.countDocuments(query);
+        const offers = await Offers.find(query)
             .skip(skip)
             .limit(limit);
 
-        const totalPages = Math.ceil(totaloffers / limit);
-        
-        res.render('admin/offers.ejs',
-            {
-                offers,
-                products:products,
-                Subcategory:uniqueSubcategories,
-                Category:uniqueCategories,
-                currentPage: page,
-                totalPages
-            }
-        )        
+        const totalPages = Math.ceil(totalOffers / limit);
+
+        res.render('admin/offers.ejs', {
+            offers,
+            products,
+            Subcategory: uniqueSubcategories,
+            Category: uniqueCategories,
+            currentPage: parseInt(page),
+            totalPages,
+            search
+        });
     } catch (error) {
         console.log(error);
     }
-}
+};
+
 
 const addOffers = async (req, res) => {
     try {

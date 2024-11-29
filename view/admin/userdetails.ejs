@@ -83,8 +83,8 @@
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                <form class="d-none d-md-flex ms-4" action="/admin/user">
+                    <input class="form-control bg-dark border-0" name="search" type="search" placeholder="Search">
                 </form>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
@@ -169,43 +169,55 @@
             <div class="container-fluid pt-4 px-4">
                 <div class="bg-secondary rounded h-100 p-4">
                     <h6 class="mb-4">User Details</h6>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% users.forEach((user, index) => { %>
+                    <% if (users.length === 0) { %>
+                        <tr>
+                            <td colspan="9" class="text-center">
+                                <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px;">
+                                    <strong>No User Found!</strong>
+                                    <p style="margin: 5px 0;">Please adjust your search criteria.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <th scope="row"><%= (currentPage - 1) * 3 + index + 1 %></th>
-                                        <td><%= user.name %></td>
-                                        <td><%= user.email %></td>
-                                        <!-- Verify/Unverify Button -->
-                                        <td>
-                                            <button class="btn btn-<%= user.verify ? 'danger' : 'success' %>" 
-                                                    onclick="updateStatus('<%= user.email %>', 'verify', '<%= user.verify ? false : true %>')">
-                                                <%= user.verify ? 'Unverify' : 'Verify' %>
-                                            </button>
-                                        </td>
-
-                                        <!-- Block/Unblock Button -->
-                                        <td>
-                                            <button class="btn btn-<%= user.isblocked ? 'danger' : 'success' %>" 
-                                                    onclick="updateStatus('<%= user.email %>', 'isblocked', '<%= user.isblocked ? false : true %>')">
-                                                <%= user.isblocked ? 'Unblock' : 'Block' %>
-                                            </button>
-                                        </td>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Action</th>
                                     </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    <% users.forEach((user, index) => { %>
+                                        <tr>
+                                            <th scope="row"><%= (currentPage - 1) * 3 + index + 1 %></th>
+                                            <td><%= user.name %></td>
+                                            <td><%= user.email %></td>
+                                            <!-- Verify/Unverify Button -->
+                                            <td>
+                                                <button class="btn btn-<%= user.verify ? 'danger' : 'success' %>" 
+                                                        onclick="updateStatus('<%= user.email %>', 'verify', '<%= user.verify ? false : true %>')">
+                                                    <%= user.verify ? 'Unverify' : 'Verify' %>
+                                                </button>
+                                            </td>
+
+                                            <!-- Block/Unblock Button -->
+                                            <td>
+                                                <button class="btn btn-<%= user.isblocked ? 'danger' : 'success' %>" 
+                                                        onclick="updateStatus('<%= user.email %>', 'isblocked', '<%= user.isblocked ? false : true %>')">
+                                                    <%= user.isblocked ? 'Unblock' : 'Block' %>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
             
                    <!-- Pagination Controls -->
                     <nav aria-label="Page navigation">

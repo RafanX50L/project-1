@@ -244,8 +244,8 @@ h3 {
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                <form class="d-none d-md-flex ms-4" action="/admin/coupons">
+                    <input class="form-control bg-dark border-0" name="search" type="search" placeholder="Search">
                 </form>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
@@ -342,57 +342,68 @@ h3 {
                                         </button>
                                     </div>
 
-                                    
-                                    <table class="table table-dark">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">No.</th>
-                                                <th scope="col">Coupon Code</th>
-                                                <th scope="col">Maximum Amount</th>
-                                                <th scope="col">Discount Percentage</th>
-                                                <th scope="col">Start Date</th>
-                                                <th scope="col">End Date</th>
-                                                <th scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% coupons.forEach((coupons, index) => { %>
+                                    <% if (coupons.length === 0) { %>
+                                        <tr>
+                                            <td colspan="9" class="text-center">
+                                                <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px;">
+                                                    <strong>No Coupons Found!</strong>
+                                                    <p style="margin: 5px 0;">Please add new Coupons or adjust your search criteria.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    <% } else { %>
+                                        <table class="table table-dark">
+                                            <thead>
                                                 <tr>
-                                                    <th scope="row"><%=index+1 %></th>
-                                                    <td><%=coupons.coupon_code %></td>
-                                                    <td><%=coupons.max_amount %></td>
-                                                    <td><%=coupons.discount_percentage %></td>
-                                                    <td><%= new Date(coupons.start_date).toLocaleDateString('en-GB') %></td>
-                                                    <td><%= new Date(coupons.end_date).toLocaleDateString('en-GB') %></td>
-                                                    <td>
-                                                        <a 
-                                                        style="background-color: rgb(5, 154, 204); color: white; border: 0px;" 
-                                                        type="button" 
-                                                        class="btn btn-warning edit-btn" 
-                                                        id="editProductButton" 
-                                                        data-id="<%= coupons._id %>"
-                                                        data-code="<%= coupons.coupon_code %>"
-                                                        data-maxamount="<%= coupons.max_amount %>"
-                                                        data-discount="<%= coupons.discount_percentage %>"
-                                                        data-start="<%= coupons.start_date %>"
-                                                        data-end="<%= coupons.end_date %>"
-                                                        >Edit
-                                                        </a>                                                        
-                                                        <% if (!coupons.is_expired === true) { %>
-                                                            <% if (coupons.status === 'active') { %>
-                                                                <button style="background-color: red; color: white;" id="list-btn" class="btn btn-danger list-btn" data-id="<%= coupons._id %>" data-status="<%= coupons.status %>">Deactivate</button>
-                                                            <% } %>
-                                                            <% if (coupons.status === 'inactive') { %>
-                                                                <button style="background-color: green; color: white;" id="list-btn" class="btn btn-success list-btn" data-id="<%= coupons._id %>" data-status="<%= coupons.status%>">Activate</button>
-                                                            <% } %>
-                                                        <% } else { %>
-                                                            <button style="background-color: yellow; color:black; height: 30px;" id="list-btn" class="btn btn-secondary list-btn" disabled>- - - Expired - - -</button>
-                                                        <% } %>
-                                                    </td>
+                                                    <th scope="col">No.</th>
+                                                    <th scope="col">Coupon Code</th>
+                                                    <th scope="col">Maximum Amount</th>
+                                                    <th scope="col">Discount Percentage</th>
+                                                    <th scope="col">Start Date</th>
+                                                    <th scope="col">End Date</th>
+                                                    <th scope="col">Action</th>
                                                 </tr>
-                                            <% }) %>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <% coupons.forEach((coupons, index) => { %>
+                                                    <tr>
+                                                        <th scope="row"><%=index+1 %></th>
+                                                        <td><%=coupons.coupon_code %></td>
+                                                        <td><%=coupons.max_amount %></td>
+                                                        <td><%=coupons.discount_percentage %></td>
+                                                        <td><%= new Date(coupons.start_date).toLocaleDateString('en-GB') %></td>
+                                                        <td><%= new Date(coupons.end_date).toLocaleDateString('en-GB') %></td>
+                                                        <td>
+                                                            <a 
+                                                            style="background-color: rgb(5, 154, 204); color: white; border: 0px;" 
+                                                            type="button" 
+                                                            class="btn btn-warning edit-btn" 
+                                                            id="editProductButton" 
+                                                            data-id="<%= coupons._id %>"
+                                                            data-code="<%= coupons.coupon_code %>"
+                                                            data-maxamount="<%= coupons.max_amount %>"
+                                                            data-discount="<%= coupons.discount_percentage %>"
+                                                            data-start="<%= coupons.start_date %>"
+                                                            data-end="<%= coupons.end_date %>"
+                                                            >Edit
+                                                            </a>                                                        
+                                                            <% if (!coupons.is_expired === true) { %>
+                                                                <% if (coupons.status === 'active') { %>
+                                                                    <button style="background-color: red; color: white;" id="list-btn" class="btn btn-danger list-btn" data-id="<%= coupons._id %>" data-status="<%= coupons.status %>">Deactivate</button>
+                                                                <% } %>
+                                                                <% if (coupons.status === 'inactive') { %>
+                                                                    <button style="background-color: green; color: white;" id="list-btn" class="btn btn-success list-btn" data-id="<%= coupons._id %>" data-status="<%= coupons.status%>">Activate</button>
+                                                                <% } %>
+                                                            <% } else { %>
+                                                                <button style="background-color: yellow; color:black; height: 30px;" id="list-btn" class="btn btn-secondary list-btn" disabled>- - - Expired - - -</button>
+                                                            <% } %>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>

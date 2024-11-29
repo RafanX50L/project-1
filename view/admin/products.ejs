@@ -83,8 +83,8 @@
                 <a href="#" class="sidebar-toggler flex-shrink-0">
                     <i class="fa fa-bars"></i>
                 </a>
-                <form class="d-none d-md-flex ms-4">
-                    <input class="form-control bg-dark border-0" type="search" placeholder="Search">
+                <form class="d-none d-md-flex ms-4" action="/admin/Products">
+                    <input class="form-control bg-dark border-0" name="search" type="search" placeholder="Search">
                 </form>
                 <div class="navbar-nav align-items-center ms-auto">
                     <div class="nav-item dropdown">
@@ -173,47 +173,59 @@
                         <div class="col-12">
                             <div class="bg-secondary rounded h-100 p-4">
                                 <a type="button" href="/admin/products/add" class="btn btn-primary" id="addProductButton">Add Product</a><br><br>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col">Product Image</th>
-                                                <th scope="col">Product Name</th>
-                                                <th scope="col">Category</th>
-                                                <th scope="col">Sub Category</th>
-                                                <th scope="col">Price</th>
-                                                <th scope="col">Stock</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% products.forEach((product, index) => { %>
-                                                <tr>
-                                                    <td><%= (index + 1) + ((currentPage - 1) * 8) %></td>
-                                                    <td><img style="width: 50px; height: 50px; border-radius: 25px;" src="/products/<%= product.product_images[0] %>"></td>
-                                                    <td><%= product.product_name %></td>
-                                                    <td><%= product.category %></td>
-                                                    <td><%= product.sub_category %></td>
-                                                    <td><%= product.price %></td>
-                                                    <td><%= product.stock %></td>
-                                                    <td>
-                                                        <button class="btn btn-<%= product.stock > 0 ? 'success' : 'danger' %> stock-btn" data-id="<%= product._id %>">
-                                                            <%= product.stock > 0 ? 'In Stock' : 'Out of Stock' %>
-                                                        </button>
-                                                    </td>
-                                                    <td>
-                                                        <a type="button" href="/admin/products/edit/<%= product._id %>" class="btn btn-warning edit-btn" id="editProductButton">Edit</a>
-                                                        <button id="list-btn" class="btn btn-<%= product.status ? 'danger' : 'success' %> list-btn" data-id="<%= product._id %>">
-                                                            <%= product.status ? 'Unlist' : 'List' %>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <% }) %>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                    <% if (products.length === 0) { %>
+                                        <tr>
+                                            <td colspan="9" class="text-center">
+                                                <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px;">
+                                                    <strong>No Products Found!</strong>
+                                                    <p style="margin: 5px 0;">Please add new products or adjust your search criteria.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                    <% } else { %>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Product Image</th>
+                                                        <th scope="col">Product Name</th>
+                                                        <th scope="col">Category</th>
+                                                        <th scope="col">Sub Category</th>
+                                                        <th scope="col">Price</th>
+                                                        <th scope="col">Stock</th>
+                                                        <th scope="col">Status</th>
+                                                        <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% products.forEach((product, index) => { %>
+                                                        <tr>
+                                                            <td><%= (index + 1) + ((currentPage - 1) * 8) %></td>
+                                                            <td><img style="width: 50px; height: 50px; border-radius: 25px;" src="/products/<%= product.product_images[0] %>"></td>
+                                                            <td><%= product.product_name %></td>
+                                                            <td><%= product.category %></td>
+                                                            <td><%= product.sub_category %></td>
+                                                            <td><%= product.price %></td>
+                                                            <td><%= product.stock %></td>
+                                                            <td>
+                                                                <button class="btn btn-<%= product.stock > 0 ? 'success' : 'danger' %> stock-btn" data-id="<%= product._id %>">
+                                                                    <%= product.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <a type="button" href="/admin/products/edit/<%= product._id %>" class="btn btn-warning edit-btn" id="editProductButton">Edit</a>
+                                                                <button id="list-btn" class="btn btn-<%= product.status ? 'danger' : 'success' %> list-btn" data-id="<%= product._id %>">
+                                                                    <%= product.status ? 'Unlist' : 'List' %>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <% } %>
                             </div>
                         </div>
                     </div>

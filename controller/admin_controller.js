@@ -780,23 +780,28 @@ const excelDownload = async (req, res) => {
 
 const userdetails = async (req, res) => {
     try {
-        const perPage = 5; 
-        const page = parseInt(req.query.page) || 1;
-        const totalUsers = await User.countDocuments(); 
-        const users = await User.find()
-            .skip((perPage * page) - perPage)
-            .limit(perPage);
-
-        res.render('admin/userdetails.ejs', {
-            users: users,
-            currentPage: page,
-            totalPages: Math.ceil(totalUsers / perPage)
+        const { search, page = 1 } = req.query;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+        const query = search ? { name: { $regex: search, $options: "i" } } : {};
+        const totalUsers = await User.countDocuments(query);
+        const users = await User.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+        const totalPages = Math.ceil(totalUsers / limit);
+        res.render('admin/userdetails', {
+            users,
+            currentPage: parseInt(page),
+            totalPages,
+            search
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching user details');
     }
 };
+
 const getproducts_editdetails = async (req,res)=>{
     try {
         const product_id = req.params.id
@@ -824,28 +829,31 @@ const updatestatus = async (req, res) => {
 
 const products_details = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
+        const { search, page = 1 } = req.query; 
         const limit = 8; 
         const skip = (page - 1) * limit; 
-        
-        const totalProducts = await Products.countDocuments(); 
-        const products = await Products.find()
+
+        const query = search ? { product_name: { $regex: search, $options: "i" } } : {};
+
+        const totalProducts = await Products.countDocuments(query);
+        const products = await Products.find(query)
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        const totalPages = Math.ceil(totalProducts / limit);
+        const totalPages = Math.ceil(totalProducts / limit); 
 
-        res.render('admin/products', { 
+        res.render('admin/products', {
             products,
-            currentPage: page,
+            currentPage: parseInt(page),
             totalPages
         });
-        
     } catch (error) {
         console.error(error);
         res.status(500).send('Error fetching products');
     }
 };
+
 const postproducts_editdetails =  async (req, res) => {
     console.log(req.body);
     
@@ -921,27 +929,33 @@ const toggle_status = async (req, res) => {
 };
 
 
-const getCategory = async(req,res)=>{
+const getCategory = async (req, res) => {
+    try {
+        const { search, page = 1 } = req.query;
+        const limit = 8; 
+        const skip = (page - 1) * limit;
 
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 8;
-    const skip = (page - 1) * limit; 
-    
-    const totalCategory = await Category.countDocuments(); 
-    const category = await Category.find()
-        .skip(skip)
-        .limit(limit);
+        const query = search ? { category_name: { $regex: search, $options: "i" } } : {};
 
-    const totalPages = Math.ceil(totalCategory / limit);
+        const totalCategory = await Category.countDocuments(query);
+        const category = await Category.find(query)
+            .skip(skip)
+            .limit(limit);
 
-    res.render('admin/category.ejs', 
-        {
+        const totalPages = Math.ceil(totalCategory / limit);
+
+        res.render('admin/category.ejs', {
             category,
-            currentPage: page,
-            totalPages
-        }
-    );
-}
+            currentPage: parseInt(page),
+            totalPages,
+            search
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
+    }
+};
+
 
 const postAddCategory = async (req, res) => {
     try {
@@ -1020,29 +1034,34 @@ const postCategory_editdetails = async(req, res) => {
     }
 };
 
-const orders = async (req,res) => {
+const orders = async (req, res) => {
+    try {
+        const { search, page = 1 } = req.query;
+        const limit = 8;
+        const skip = (page - 1) * limit;
 
-    const page = parseInt(req.query.page) || 1; 
-    const limit = 8;
-    const skip = (page - 1) * limit; 
-    
-    const totalorders = await Orders.countDocuments(); 
-    const orders = await Orders.find()
-        .populate('userId')
-        .skip(skip)
-        .limit(limit);
+        const query = search ? { orderId: { $regex: search, $options: "i" } } : {};
 
-    const totalPages = Math.ceil(totalorders / limit);
-    
-    res.render('admin/orders.ejs', 
-        {
+        const totalOrders = await Orders.countDocuments(query);
+        const orders = await Orders.find(query)
+            .populate('userId')
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        res.render('admin/orders.ejs', {
             orders,
-            currentPage: page,
-            totalPages 
-        }
-    ); 
-    
-}
+            currentPage: parseInt(page),
+            totalPages,
+            search
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server Error');
+    }
+};
+
 
 const updateOrderStatus = async (req, res) => {
     console.log('Entered order status update function');

@@ -1113,7 +1113,14 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 							text: 'Product added to cart!',
 							confirmButtonText: 'OK'
 						});
-					}else if (data.message) {
+					}else if(data.message === 'Product for category is unlisted'){
+						Swal.fire({
+							icon: 'info',
+							title: 'Product Not found',
+							text: data.message,
+							confirmButtonText: 'OK'
+						});
+					}else if (data.message ==='Product already in Cart') {
 						Swal.fire({
 							icon: 'info',
 							title: 'Already in Cart',

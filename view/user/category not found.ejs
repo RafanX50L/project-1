@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>- Category Unavailable</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Heroicons (for icons) -->
+    <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    
+
+    <main class="flex items-center justify-center p-4 min-h-[calc(100vh-200px)]">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Main Error Alert -->
+            <div class="rounded-md bg-red-50 border border-red-200 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-medium text-red-800">
+                            Category Unavailable
+                        </h3>
+                        <p class="mt-2 text-sm text-red-700">
+                            We're sorry, but this category is currently not available in our catalog.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                        Looking for Something?
+                    </h2>
+                    <p class="text-gray-600">
+                        The category you're trying to access might have been removed, renamed, or is temporarily unavailable.
+                    </p>
+                </div>
+
+                <!-- Suggestions -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-medium text-gray-900">What you can do:</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center text-gray-700">
+                            <svg class="h-5 w-5 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>Try searching for similar products</span>
+                        </li>
+                        <li class="flex items-center text-gray-700">
+                            <svg class="h-5 w-5 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            <span>Browse our available categories</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                    <a href="/" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 text-center">
+                        Go to Homepage
+                    </a>
+                    <a href="/categories" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors duration-200 text-center">
+                        Browse Categories
+                    </a>
+                </div>
+            </div>
+
+            <!-- Support Contact -->
+            <div class="text-center text-sm text-gray-500">
+                Need help? Contact our support team at <a style="color: blue;" href="/user/home">contact Us</a>
+            </div>
+        </div>
+    </main>
+
+    
+
+    <% if (typeof errorDetails !== 'undefined' && process.env.NODE_ENV === 'development') { %>
+        <div class="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+            <h4 class="text-sm font-semibold text-gray-900">Debug Information:</h4>
+            <pre class="text-xs text-gray-600 mt-2"><%= JSON.stringify(errorDetails, null, 2) %></pre>
+        </div>
+    <% } %>
+</body>
+</html>

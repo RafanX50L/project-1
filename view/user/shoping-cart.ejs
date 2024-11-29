@@ -290,7 +290,7 @@
 									</div>
 								<% } else { %>
 									<% cartItems.forEach(item => { %>
-										<% if (item.productId.stock == 0 || item.productId.status == false) { %>
+										<% if (item.productId.stock == 0 || item.productId.status == false ) { %>
 
 											<tr class="table_row">
 												<td class="column-1">
@@ -330,7 +330,7 @@
 													<div class="product-quantity-container" style="display: inline-flex;">
 														<div class="cl8 hov-btn3 trans-04 flex-c-m">
 															<button class="btn decrement"
-																onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>' , '<%= item.productId.price %>' , '<%= item.offerAmount.toFixed(2)/item.quantity %>')">
+																onclick="decrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>' , '<%= item.productId.price %>' , '<%= item.offerAmount/item.quantity %>')">
 																<i class="fs-16 zmdi zmdi-minus"></i>
 															</button>
 														</div>
@@ -339,7 +339,7 @@
 															value="<%= item.quantity %>" data-product-id="<%= item.productId._id %>" >
 														<div class="cl8 hov-btn3 trans-04 flex-c-m">
 															<button class="btn increment" 
-																onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>', '<%= item.productId.price %>' , '<%= item.offerAmount.toFixed(2)/item.quantity %>')">
+																onclick="incrementValue(event, '<%= item.productId._id %>', '<%= item.productId.stock %>', '<%= item.productId.price %>' , '<%= item.offerAmount/item.quantity %>')">
 																<i class="fs-16 zmdi zmdi-plus"></i>
 															</button>
 														</div> 
